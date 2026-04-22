@@ -1,0 +1,84 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --primary: #a51648;
+    --accent: #c9a961;
+    --accent-light: #e8dcc4;
+    --bg-cream: #faf9f6;
+    --bg-ivory: #f7f5f0;
+  }
+
+  html {
+    @apply scroll-smooth;
+  }
+
+  body {
+    @apply font-sans antialiased text-neutral-black;
+    background: linear-gradient(180deg, #faf9f6 0%, #f7f5f0 45%, #f5f0e8 100%);
+    background-attachment: fixed;
+  }
+
+  /* Raw CSS: @apply cannot use selection: + custom palette names with opacity in all Tailwind setups */
+  body ::selection {
+    background-color: rgba(232, 223, 208, 0.9);
+    color: #2d0a14;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-serif text-neutral-black tracking-tight text-primary-950/95;
+  }
+}
+
+@layer components {
+  /* Dynamic Interactive Elements */
+  .btn-primary {
+    @apply inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-premium text-white bg-primary-700 hover:bg-primary-800 transition-all duration-300 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 active:scale-95;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center px-6 py-3 border border-primary-200 text-base font-medium rounded-md text-primary-700 bg-white hover:bg-primary-50 transition-all duration-300 transform hover:-translate-y-0.5 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 active:scale-95;
+  }
+  
+  .btn-accent {
+    @apply inline-flex items-center justify-center px-6 py-3 border border-transparent text-base font-medium rounded-md text-white bg-accent hover:bg-accent-dark shadow-soft transition-all duration-300 transform hover:-translate-y-0.5 active:scale-95;
+  }
+
+  .glass-panel {
+    @apply bg-white bg-opacity-70 backdrop-blur-md border border-white border-opacity-50 shadow-soft rounded-2xl;
+  }
+
+  .input-field {
+    @apply block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500 sm:text-sm px-4 py-2 bg-white transition-shadow duration-200;
+  }
+
+  .label-text {
+    @apply block text-sm font-medium text-neutral-darkGray mb-1;
+  }
+}
+
+/* Custom Scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(201, 169, 97, 0.35);
+  border-radius: 20px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(165, 22, 72, 0.55);
+}
+
+/* Specific Sidebar Scrollbar for Dark Background */
+.sidebar-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+}
+.sidebar-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(212, 175, 55, 0.4); /* Gold Hover */
+}

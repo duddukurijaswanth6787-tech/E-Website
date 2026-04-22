@@ -1,0 +1,56 @@
+import { Router } from 'express';
+import authRoutes from '../modules/auth/auth.routes';
+import adminAuthRoutes from '../modules/adminAuth/adminAuth.routes';
+import userRoutes from '../modules/users/user.routes';
+import adminRoutes from '../modules/admins/admin.routes';
+import roleRoutes from '../modules/admins/role.routes';
+import productRoutes from '../modules/products/product.routes';
+import categoryRoutes from '../modules/categories/category.routes';
+import collectionRoutes from '../modules/collections/collection.routes';
+import bannerRoutes from '../modules/banners/banner.routes';
+import contentRoutes from '../modules/content/content.routes';
+import cartRoutes from '../modules/cart/cart.routes';
+import wishlistRoutes from '../modules/wishlist/wishlist.routes';
+import addressRoutes from '../modules/addresses/address.routes';
+import orderRoutes from '../modules/orders/order.routes';
+import reviewRoutes from '../modules/reviews/review.routes';
+import couponRoutes from '../modules/coupons/coupon.routes';
+import customBlouseRoutes from '../modules/customBlouse/customBlouse.routes';
+import analyticsRoutes from '../modules/analytics/analytics.routes';
+import settingsRoutes from '../modules/settings/settings.routes';
+import uploadRoutes from '../modules/uploads/upload.routes';
+import supportRoutes from '../modules/support/support.routes';
+import notificationRoutes from '../modules/notifications/notification.routes';
+import auditLogRoutes from '../modules/auditLogs/auditLog.routes';
+import paymentRoutes from '../modules/payments/payment.routes';
+
+const router = Router();
+
+router.use('/auth', authRoutes);
+router.use('/admin-auth', adminAuthRoutes);
+router.use('/users', userRoutes);
+router.use('/admins', adminRoutes);
+router.use('/roles', roleRoutes);
+router.use('/products', productRoutes);
+router.use('/categories', categoryRoutes);
+router.use('/collections', collectionRoutes);
+router.use('/banners', bannerRoutes);
+router.use('/content', contentRoutes);
+router.use('/cart', cartRoutes);
+router.use('/wishlist', wishlistRoutes);
+router.use('/addresses', addressRoutes);
+router.use('/orders', orderRoutes);
+router.use('/reviews', reviewRoutes);
+router.use('/coupons', couponRoutes);
+router.use('/custom-blouse', customBlouseRoutes);
+// Alias: frontend calls `/custom-requests/*` (same handlers as custom-blouse)
+router.use('/custom-requests', customBlouseRoutes);
+router.use('/analytics', analyticsRoutes);
+router.use('/settings', settingsRoutes);
+router.use('/uploads', uploadRoutes);
+router.use('/support', supportRoutes);
+router.use('/notifications', notificationRoutes);
+router.use('/audit-logs', auditLogRoutes);
+router.use('/payments', paymentRoutes);
+
+export default router;

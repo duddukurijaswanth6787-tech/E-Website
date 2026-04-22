@@ -1,0 +1,25 @@
+{
+    "keep": {
+        "days": true,
+        "amount": 14
+    },
+    "auditLog": "C:\\Users\\duddu\\Desktop\\e-\\backend\\logs\\.1f2b80f8656f3be59bca8cddf51f465a25d449bf-audit.json",
+    "files": [
+        {
+            "date": 1775592761982,
+            "name": "C:\\Users\\duddu\\Desktop\\e-\\backend\\logs\\rejections-2026-04-08.log",
+            "hash": "0a1768cb0d01c0bf804f8a6cc5a598ee5be18164dd9590881b3347bbccf8b13b"
+        },
+        {
+            "date": 1775729429051,
+            "name": "C:\\Users\\duddu\\Desktop\\e-\\backend\\logs\\rejections-2026-04-09.log",
+            "hash": "b05d1164a4e51c6e81b184e044b484c3cf6f899f89bebbf858068fb7d51bf341"
+        },
+        {
+            "date": 1776771527970,
+            "name": "C:\\Users\\duddu\\Desktop\\e-\\backend\\logs\\rejections-2026-04-21.log",
+            "hash": "78abb195f908cba60ff32747dab7d5328308fe3331e071549bae6f9614d6240f"
+        }
+    ],
+    "hashType": "sha256"
+}
