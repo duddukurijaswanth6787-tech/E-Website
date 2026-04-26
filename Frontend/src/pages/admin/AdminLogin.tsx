@@ -36,9 +36,15 @@ const AdminLogin = () => {
     setIsLoading(true);
     try {
       const res = await authService.adminLogin({ email, password });
+      
+      if ((res as any).data.requiresOtp || res.data.requiresOtp) {
+          toast.success('MFA Gate Activated');
+          navigate(`/otp-verification?email=${email}&type=admin&redirect=/admin`);
+          return;
+      }
+
       const { admin, accessToken, refreshToken } = (res as any).data;
       setAuth(admin as any, accessToken, refreshToken);
-      // The useEffect will handle the redirection after store updates
       toast.success("Authentication payload verified");
     } catch (error: any) {
       console.error('Admin Auth Error:', error);

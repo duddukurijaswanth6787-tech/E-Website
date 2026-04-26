@@ -4,11 +4,18 @@ import { couponService } from '../../api/services/coupon.service';
 import type { Coupon } from '../../api/services/coupon.service';
 import { Tag, Plus, Edit2, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import AdminCouponFormModal, { emptyCouponForm, type CouponFormState } from '../../components/admin/AdminCouponFormModal';
 
 const AdminCouponsPage = () => {
   const [coupons, setCoupons] = useState<Coupon[]>([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0 });
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+  const [activeCoupon, setActiveCoupon] = useState<Coupon | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState<CouponFormState>(emptyCouponForm());
 
   const fetchCoupons = async (page = 1) => {
     setLoading(true);
@@ -45,6 +52,56 @@ const AdminCouponsPage = () => {
   useEffect(() => {
     fetchCoupons(pagination.page);
   }, [pagination.page]);
+
+  const openCreate = () => {
+    setModalMode('create');
+    setActiveCoupon(null);
+    setForm(emptyCouponForm());
+    setModalOpen(true);
+  };
+
+  const openEdit = (c: Coupon) => {
+    setModalMode('edit');
+    setActiveCoupon(c);
+    setForm({
+      code: c.code,
+      discountType: c.discountType,
+      discountValue: c.discountValue,
+      minOrderValue: c.minOrderValue ?? '',
+      maxDiscount: c.maxDiscount ?? '',
+      validFrom: new Date(c.validFrom).toISOString().split('T')[0],
+      validUntil: new Date(c.validUntil).toISOString().split('T')[0],
+      usageLimit: c.usageLimit ?? '',
+      isActive: c.isActive,
+    });
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    if (saving) return;
+    setModalOpen(false);
+  };
+
+  const handleSave = async () => {
+    if (!form.code.trim()) return toast.error('Coupon code is required');
+    if (form.discountValue === '') return toast.error('Discount value is required');
+    setSaving(true);
+    try {
+      if (modalMode === 'create') {
+        await couponService.createCoupon(form);
+        toast.success('Coupon generated successfully');
+      } else if (activeCoupon?._id) {
+        await couponService.updateCoupon(activeCoupon._id, form);
+        toast.success('Coupon logic updated successfully');
+      }
+      setModalOpen(false);
+      fetchCoupons(pagination.page);
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to save coupon');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleDelete = async (id: string, code: string) => {
      if (!window.confirm(`Deactivating coupon [${code}]. Active carts will lose this discount. Proceed?`)) return;
@@ -98,14 +155,18 @@ const AdminCouponsPage = () => {
     {
        header: 'Actions',
        accessor: (row: Coupon) => (
-         <div className="flex items-center space-x-2">
-           <button className="p-1.5 text-gray-400 hover:text-primary-700 transition-colors" title="Edit Logic">
-             <Edit2 size={16} />
-           </button>
-           <button onClick={() => handleDelete(row._id, row.code)} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors" title="Delete Trigger">
-             <Trash2 size={16} />
-           </button>
-         </div>
+          <div className="flex items-center space-x-2">
+            <button 
+              onClick={() => openEdit(row)}
+              className="p-1.5 text-gray-400 hover:text-primary-700 transition-colors" 
+              title="Edit Logic"
+            >
+              <Edit2 size={16} />
+            </button>
+            <button onClick={() => handleDelete(row._id, row.code)} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors" title="Delete Trigger">
+              <Trash2 size={16} />
+            </button>
+          </div>
        )
     }
   ];
@@ -120,7 +181,10 @@ const AdminCouponsPage = () => {
           <p className="text-sm text-gray-500">Configure global discounts, seasonal promo codes, and isolated cart subsidies.</p>
         </div>
         <div className="mt-4 sm:mt-0">
-           <button className="flex items-center px-4 py-2 bg-primary-950 text-white text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors">
+           <button 
+             onClick={openCreate}
+             className="flex items-center px-4 py-2 bg-primary-950 text-white text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors"
+           >
               <Plus size={16} className="mr-2" />
               Generate Token
            </button>
@@ -138,6 +202,16 @@ const AdminCouponsPage = () => {
            total: Math.max(pagination.total, coupons.length),
            onPageChange: (newPage) => setPagination({...pagination, page: newPage})
          }}
+      />
+
+      <AdminCouponFormModal 
+        open={modalOpen}
+        mode={modalMode}
+        saving={saving}
+        form={form}
+        setForm={setForm}
+        onClose={closeModal}
+        onSave={handleSave}
       />
     </div>
   );

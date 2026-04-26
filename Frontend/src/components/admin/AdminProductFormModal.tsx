@@ -185,7 +185,7 @@ const AdminProductFormModal = ({
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onMouseDown={onClose}>
       <div
-        className="w-full max-w-3xl max-h-[92vh] flex flex-col rounded-2xl bg-white shadow-2xl border border-gray-100"
+        className="w-[95vw] sm:w-full max-w-3xl max-h-[92vh] flex flex-col rounded-2xl bg-white shadow-2xl border border-gray-100"
         onMouseDown={(e) => e.stopPropagation()}
       >
         <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between flex-shrink-0">

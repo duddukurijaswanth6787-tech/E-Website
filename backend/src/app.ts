@@ -12,86 +12,82 @@ import { logger } from './common/logger';
 import { globalErrorHandler, notFoundHandler } from './common/middlewares/error.middleware';
 import { requestLogger } from './common/middlewares/logger.middleware';
 import apiRoutes from './routes';
+import seoRoutes from './routes/seo.routes';
 import { createSwaggerSpec } from './docs/swagger';
 
 const app: Application = express();
 
-// ============= SECURITY HEADERS =============
-app.use(helmet({
-  crossOriginResourcePolicy: { policy: 'cross-origin' },
-}));
-
-// ============= CORS =============
-const allowedOrigins = [
-  env.frontendUrl,
-  'http://localhost:5173',
-  'http://localhost:3000',
-  `http://localhost:${env.port}`,
-  `http://127.0.0.1:${env.port}`,
-];
+// Security Middlewares
+app.use(helmet());
 app.use(cors({
   origin: (origin, callback) => {
-    if (!origin || allowedOrigins.includes(origin)) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    
+    const allowedOrigins = [env.frontendUrl, 'http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176', 'http://localhost:5177'];
+    if (allowedOrigins.includes(origin) || origin.startsWith('http://localhost:')) {
       callback(null, true);
     } else {
-      callback(new Error(`CORS policy blocked: ${origin}`));
+      callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Session-Id'],
 }));
 
-// ============= BODY PARSER =============
-app.use(express.json({ limit: '10mb' }));
-app.use(express.urlencoded({ extended: true, limit: '10mb' }));
-
-// ============= REQUEST LOGGING =============
-if (!env.isProduction) {
-  app.use(morgan('dev'));
-}
-app.use(requestLogger);
-
-// ============= STATIC FILES =============
-app.use('/uploads', express.static(path.resolve(env.upload.uploadDir)));
-
-// ============= RATE LIMITING =============
-const globalLimiter = rateLimit({
+// Rate Limiting
+const limiter = rateLimit({
   windowMs: env.rateLimit.windowMs,
   max: env.rateLimit.max,
   message: { success: false, message: 'Too many requests. Please try again later.' },
   standardHeaders: true,
   legacyHeaders: false,
-  skip: (req) => req.path.startsWith('/api-docs') || req.path === '/api/health',
 });
-app.use(globalLimiter);
+app.use('/api/', limiter);
 
-// ============= HEALTH CHECK =============
+// Request Parsing
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Logging
+if (env.nodeEnv !== 'test') {
+  app.use(morgan(env.nodeEnv === 'development' ? 'dev' : 'combined', {
+    stream: { write: (message) => logger.http(message.trim()) },
+  }));
+  app.use(requestLogger);
+}
+
+// Static Files
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
+// Swagger Documentation - passing apiRoutes to the spec generator
+const swaggerSpec = createSwaggerSpec(apiRoutes);
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
+  swaggerOptions: {
+    persistAuthorization: true,
+  },
+  customSiteTitle: 'Vasanthi Creations API Documentation',
+}));
+
+// SEO & Sitemap Routes
+app.use('/', seoRoutes);
+
+// Health Check
 app.get('/api/health', (_req: Request, res: Response) => {
   res.status(200).json({
     success: true,
-    message: 'Vasanthi Creations API is running',
-    version: '1.0.0',
-    environment: env.nodeEnv,
+    message: 'Server is healthy',
     timestamp: new Date().toISOString(),
+    env: env.nodeEnv,
   });
 });
 
-// ============= API ROUTES =============
+// API Routes
 app.use('/api/v1', apiRoutes);
 
-// ============= SWAGGER DOCS =============
-const swaggerSpec = createSwaggerSpec(apiRoutes);
-app.get('/api-docs.json', (_req: Request, res: Response) => res.json(swaggerSpec));
-app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
-  customSiteTitle: 'Vasanthi Creations API',
-  customCss: `.swagger-ui .topbar { background-color: #A51648; }`,
-}));
-
-// ============= 404 HANDLER =============
+// 404 Handler
 app.use(notFoundHandler);
 
-// ============= GLOBAL ERROR HANDLER =============
+// Global Error Handler
 app.use(globalErrorHandler);
 
 export default app;

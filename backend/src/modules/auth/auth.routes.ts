@@ -48,6 +48,13 @@ router.post('/resend-otp', authRateLimiter, resendOTPValidation, handleValidatio
 router.post('/login', authRateLimiter, loginValidation, handleValidationErrors, authController.login.bind(authController));
 
 /**
+ * @route POST /api/v1/auth/verify-login
+ * @desc Verify login with OTP
+ * @access Public
+ */
+router.post('/verify-login', authRateLimiter, authController.verifyLogin.bind(authController));
+
+/**
  * @route POST /api/v1/auth/refresh
  * @desc Refresh access token using refresh token
  * @access Public

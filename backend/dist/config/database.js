@@ -30,8 +30,11 @@ const connectMongoDB = async () => {
 };
 exports.connectMongoDB = connectMongoDB;
 const disconnectMongoDB = async () => {
-    await mongoose_1.default.disconnect();
-    logger_1.logger.info('MongoDB disconnected gracefully');
+    if (mongoose_1.default.connection.readyState !== 0) {
+        mongoose_1.default.connection.removeAllListeners('disconnected');
+        await mongoose_1.default.disconnect();
+        logger_1.logger.info('MongoDB disconnected gracefully');
+    }
 };
 exports.disconnectMongoDB = disconnectMongoDB;
 //# sourceMappingURL=database.js.map

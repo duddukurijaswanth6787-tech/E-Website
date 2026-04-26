@@ -35,9 +35,9 @@ router.get('/', authenticateAdmin, requirePermission(PERMISSIONS.MANAGE_SETTINGS
 router.put('/', authenticateAdmin, requirePermission(PERMISSIONS.MANAGE_SETTINGS),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const updates: Array<{ key: string; value: unknown }> = req.body.settings;
-      await Promise.all(updates.map(({ key, value }) =>
-        Setting.findOneAndUpdate({ key }, { value, updatedBy: req.admin!.adminId }, { upsert: true, new: true })
+      const updates: Array<{ key: string; value: unknown; group?: string; label?: string; isPublic?: boolean }> = req.body.settings;
+      await Promise.all(updates.map(({ key, ...data }) =>
+        Setting.findOneAndUpdate({ key }, { ...data, updatedBy: req.admin!.adminId }, { upsert: true, new: true })
       ));
       sendSuccess(res, null, 'Settings updated');
     } catch (err) { next(err); }

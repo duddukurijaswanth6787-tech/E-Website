@@ -23,11 +23,11 @@ export const orderService = {
   },
 
   getUserOrders: async () => {
-    return apiClient.get('/orders/user');
+    return apiClient.get('/orders/my');
   },
 
   getOrderById: async (id: string) => {
-    return apiClient.get<any, { success: boolean, data: any }>(`/orders/${id}`);
+    return apiClient.get<any, { success: boolean, data: any }>(`/orders/my/${id}`);
   },
 
   // Admin Methods
@@ -36,6 +36,6 @@ export const orderService = {
   },
 
   updateOrderStatus: async (id: string, status: string) => {
-    return apiClient.patch(`/orders/${id}/status`, { orderStatus: status });
+    return apiClient.patch(`/orders/admin/${id}/status`, { status });
   }
 };

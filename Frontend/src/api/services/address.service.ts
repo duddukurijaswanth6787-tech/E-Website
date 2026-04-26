@@ -15,22 +15,22 @@ export interface Address {
 
 export const addressService = {
   getAddresses: async () => {
-    return apiClient.get('/users/addresses');
+    return apiClient.get('/addresses');
   },
 
   addAddress: async (address: Address) => {
-    return apiClient.post('/users/addresses', address);
+    return apiClient.post('/addresses', address);
   },
 
   updateAddress: async (id: string, address: Address) => {
-    return apiClient.put(`/users/addresses/${id}`, address);
+    return apiClient.put(`/addresses/${id}`, address);
   },
 
   deleteAddress: async (id: string) => {
-    return apiClient.delete(`/users/addresses/${id}`);
+    return apiClient.delete(`/addresses/${id}`);
   },
 
   setDefaultAddress: async (id: string) => {
-    return apiClient.put(`/users/addresses/${id}/default`);
+    return apiClient.patch(`/addresses/${id}/default`);
   }
 };

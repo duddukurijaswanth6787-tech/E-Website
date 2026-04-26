@@ -28,6 +28,9 @@ export const connectMongoDB = async (): Promise<void> => {
 };
 
 export const disconnectMongoDB = async (): Promise<void> => {
-  await mongoose.disconnect();
-  logger.info('MongoDB disconnected gracefully');
+  if (mongoose.connection.readyState !== 0) {
+    mongoose.connection.removeAllListeners('disconnected');
+    await mongoose.disconnect();
+    logger.info('MongoDB disconnected gracefully');
+  }
 };

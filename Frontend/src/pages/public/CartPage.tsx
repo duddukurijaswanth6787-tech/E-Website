@@ -12,7 +12,7 @@ const CartPage = () => {
   const grandTotal = total + shipping;
 
   return (
-    <div className="min-h-screen bg-neutral-cream py-12 md:py-20">
+    <div className="min-h-screen bg-neutral-cream pt-12 pb-32 lg:pb-20 md:pt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="text-center mb-12">
@@ -53,59 +53,59 @@ const CartPage = () => {
                     initial={{ opacity: 0, scale: 0.95 }}
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.95, transition: { duration: 0.2 } }}
-                    className="flex flex-col sm:flex-row bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 gap-6"
+                    className="flex flex-row bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-gray-100 gap-4 sm:gap-6"
                   >
                     {/* Item Image */}
-                    <Link to={`/product/${item.slug}`} className="w-full sm:w-32 aspect-[3/4] flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden group">
+                    <Link to={`/product/${item.slug}`} className="w-24 sm:w-32 aspect-[3/4] flex-shrink-0 bg-gray-100 rounded-lg overflow-hidden group">
                       <img src={item.image} alt={item.name} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     </Link>
                     
                     {/* Item Details */}
-                    <div className="flex-1 flex flex-col justify-between">
-                      <div className="flex justify-between items-start gap-4">
+                    <div className="flex-1 flex flex-col">
+                      <div className="flex justify-between items-start gap-2 sm:gap-4">
                         <div>
                           <Link to={`/product/${item.slug}`}>
-                            <h3 className="font-serif text-lg text-primary-950 hover:text-primary-700 transition-colors mb-1">
+                            <h3 className="font-serif text-sm sm:text-lg text-primary-950 hover:text-primary-700 transition-colors mb-1 line-clamp-2">
                               {item.name}
                             </h3>
                           </Link>
                           {item.fabric && (
-                            <p className="text-xs text-gray-500 mb-2">Fabric: {item.fabric}</p>
+                            <p className="text-[0.65rem] sm:text-xs text-gray-500 mb-1 sm:mb-2 leading-tight">Fabric: {item.fabric}</p>
                           )}
-                          <p className="text-sm font-semibold text-primary-800">
+                          <p className="text-xs sm:text-sm font-semibold text-primary-800">
                             ₹{item.price.toLocaleString('en-IN')}
                           </p>
                         </div>
                         <button 
                           onClick={() => removeItem(item.id)}
-                          className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2 rounded-full transition-colors flex-shrink-0"
+                          className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-1.5 sm:p-2 rounded-full transition-colors flex-shrink-0 -mr-2 sm:-mr-0"
                           title="Remove item"
                         >
-                          <Trash2 size={18} />
+                          <Trash2 size={16} className="sm:w-[18px] sm:h-[18px]" />
                         </button>
                       </div>
 
-                      <div className="flex items-center justify-between mt-6 sm:mt-0">
+                      <div className="flex flex-wrap items-center justify-between mt-auto pt-3 sm:pt-0 gap-3">
                         {/* Quantity Control */}
                         <div className="flex items-center border border-gray-200 rounded-md">
                           <button 
                             onClick={() => updateQuantity(item.id, item.quantity - 1)}
-                            className="px-3 py-1.5 text-gray-500 hover:text-primary-700 hover:bg-gray-50 transition-colors"
+                            className="px-2.5 sm:px-3 py-1 sm:py-1.5 text-gray-500 hover:text-primary-700 hover:bg-gray-50 transition-colors"
                             disabled={item.quantity <= 1}
                           >
-                            <Minus size={14} />
+                            <Minus size={12} className="sm:w-3.5 sm:h-3.5" />
                           </button>
-                          <span className="w-8 text-center text-sm font-medium text-gray-900">{item.quantity}</span>
+                          <span className="w-6 sm:w-8 text-center text-xs sm:text-sm font-medium text-gray-900">{item.quantity}</span>
                           <button 
                             onClick={() => updateQuantity(item.id, item.quantity + 1)}
-                            className="px-3 py-1.5 text-gray-500 hover:text-primary-700 hover:bg-gray-50 transition-colors"
+                            className="px-2.5 sm:px-3 py-1 sm:py-1.5 text-gray-500 hover:text-primary-700 hover:bg-gray-50 transition-colors"
                           >
-                            <Plus size={14} />
+                            <Plus size={12} className="sm:w-3.5 sm:h-3.5" />
                           </button>
                         </div>
 
                         {/* Line Total */}
-                        <p className="text-base font-semibold text-primary-950">
+                        <p className="text-sm sm:text-base font-semibold text-primary-950">
                           ₹{(item.price * item.quantity).toLocaleString('en-IN')}
                         </p>
                       </div>
@@ -188,6 +188,23 @@ const CartPage = () => {
           </div>
         )}
       </div>
+
+      {/* Floating Mobile Checkout Bar (Visible only on lg:hidden when items exist) */}
+      {items.length > 0 && (
+        <div className="lg:hidden fixed bottom-0 left-0 w-full bg-white border-t border-gray-200 p-4 pb-safe shadow-[0_-4px_20px_-5px_rgba(0,0,0,0.1)] z-50">
+          <div className="flex items-center justify-between mb-3 px-1">
+             <span className="text-sm font-semibold text-gray-600">Total</span>
+             <span className="text-lg font-bold text-primary-950">₹{grandTotal.toLocaleString('en-IN')}</span>
+          </div>
+          <button 
+            onClick={() => navigate('/checkout')}
+            className="w-full bg-accent text-primary-950 font-bold uppercase tracking-widest px-6 py-3.5 rounded hover:bg-accent-light transition-colors shadow-premium flex items-center justify-center space-x-2"
+          >
+            <span>Proceed to Checkout</span>
+            <ArrowRight size={18} />
+          </button>
+        </div>
+      )}
     </div>
   );
 };

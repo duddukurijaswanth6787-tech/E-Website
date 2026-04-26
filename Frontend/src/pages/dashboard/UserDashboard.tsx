@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { useAuthStore } from '../../store/authStore';
 import { orderService } from '../../api/services/order.service';
 import { Package, MapPin, Clock, ArrowRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Skeleton } from '../../components/common/Skeleton';
 
 const UserDashboard = () => {
   const { user } = useAuthStore();
@@ -33,33 +34,27 @@ const UserDashboard = () => {
     fetchDashboardData();
   }, []);
 
+  const statsSections = useMemo(() => [
+    { label: 'Total Orders', value: stats.orders, icon: Package, color: 'bg-primary-50 border-primary-100 text-primary-800', iconColor: 'text-primary-300' },
+    { label: 'Processing', value: stats.processing, icon: Clock, color: 'bg-orange-50 border-orange-100 text-orange-800', iconColor: 'text-orange-300' },
+    { label: 'Addresses', value: 'Active', icon: MapPin, color: 'bg-emerald-50 border-emerald-100 text-emerald-800', iconColor: 'text-emerald-300' },
+  ], [stats, loading]);
+
   return (
     <div className="p-6 md:p-8">
       <h1 className="text-2xl font-serif text-primary-950 mb-2">Welcome Back, {user?.name}</h1>
       <p className="text-gray-600 mb-8 font-light">Here's a quick overview of your account and recent activity.</p>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-        <div className="bg-primary-50 rounded-xl p-6 border border-primary-100 flex items-center justify-between shadow-sm">
-          <div>
-            <p className="text-sm font-semibold tracking-widest uppercase text-primary-800 mb-1">Total Orders</p>
-            <h3 className="text-3xl font-bold text-primary-950">{loading ? '-' : stats.orders}</h3>
+        {statsSections.map((section: any, idx: number) => (
+          <div key={idx} className={`${section.color} rounded-xl p-6 border flex items-center justify-between shadow-sm transition-transform hover:scale-[1.02]`}>
+            <div>
+              <p className="text-sm font-semibold tracking-widest uppercase mb-1">{section.label}</p>
+              <h3 className="text-3xl font-bold">{loading ? <Skeleton className="h-8 w-12" /> : section.value}</h3>
+            </div>
+            <section.icon className={`w-10 h-10 ${section.iconColor}`} />
           </div>
-          <Package className="w-10 h-10 text-primary-300" />
-        </div>
-        <div className="bg-orange-50 rounded-xl p-6 border border-orange-100 flex items-center justify-between shadow-sm">
-          <div>
-            <p className="text-sm font-semibold tracking-widest uppercase text-orange-800 mb-1">Processing</p>
-            <h3 className="text-3xl font-bold text-orange-950">{loading ? '-' : stats.processing}</h3>
-          </div>
-          <Clock className="w-10 h-10 text-orange-300" />
-        </div>
-        <div className="bg-emerald-50 rounded-xl p-6 border border-emerald-100 flex items-center justify-between shadow-sm">
-          <div>
-            <p className="text-sm font-semibold tracking-widest uppercase text-emerald-800 mb-1">Addresses</p>
-            <h3 className="text-3xl font-bold text-emerald-950">Active</h3>
-          </div>
-          <MapPin className="w-10 h-10 text-emerald-300" />
-        </div>
+        ))}
       </div>
 
       <div className="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
@@ -73,14 +68,8 @@ const UserDashboard = () => {
         </div>
         <div className="p-6">
           {loading ? (
-             <div className="animate-pulse flex space-x-4">
-               <div className="flex-1 space-y-4 py-1">
-                 <div className="h-4 bg-gray-200 rounded w-3/4"></div>
-                 <div className="space-y-2">
-                   <div className="h-4 bg-gray-200 rounded"></div>
-                   <div className="h-4 bg-gray-200 rounded w-5/6"></div>
-                 </div>
-               </div>
+             <div className="space-y-4">
+                <Skeleton className="h-20 w-full rounded-lg" />
              </div>
           ) : recentOrder ? (
             <div className="flex flex-col sm:flex-row justify-between items-center bg-gray-50 border border-gray-100 p-4 rounded-lg">

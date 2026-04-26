@@ -5,6 +5,10 @@ import { generateTokenId } from '../../common/utils/helpers';
 import { UnauthorizedError, ForbiddenError, NotFoundError } from '../../common/errors';
 import { ROLE_PERMISSIONS } from '../../common/constants/roles';
 import { logger } from '../../common/logger';
+import { generateOTP, storeOTP, verifyOTP } from '../../common/utils/otp';
+import { sendOTPEmail } from '../../common/utils/email';
+import { getSettingValue } from '../../common/utils/settings';
+import { BadRequestError } from '../../common/errors';
 
 export class AdminAuthService {
   async login(email: string, password: string, ip?: string) {
@@ -14,6 +18,14 @@ export class AdminAuthService {
 
     const isValid = await comparePassword(password, admin.passwordHash);
     if (!isValid) throw new UnauthorizedError('Invalid credentials');
+
+    const isOtpEnabled = await getSettingValue('otp_admin_login_enabled', true);
+    if (isOtpEnabled) {
+      const otp = generateOTP();
+      await storeOTP(`admin_login:${email}`, otp);
+      await sendOTPEmail(email, admin.name, otp);
+      return { message: 'MFA REQUIRED: OTP sent to your admin email.', email, requiresOtp: true };
+    }
 
     const permissions = ROLE_PERMISSIONS[admin.role] || admin.permissions || [];
     const tokenId = generateTokenId();
@@ -36,6 +48,39 @@ export class AdminAuthService {
       admin: { id: admin.id, name: admin.name, email: admin.email, role: admin.role, permissions },
       accessToken,
       refreshToken,
+      requiresOtp: false
+    };
+  }
+
+  async verifyLoginOTP(email: string, otp: string, ip?: string) {
+    const admin = await Admin.findOne({ email: email.toLowerCase(), deletedAt: null }).select('+refreshTokens');
+    if (!admin) throw new NotFoundError('Admin');
+    if (!admin.isActive) throw new ForbiddenError('Account is inactive.');
+
+    const isValid = await verifyOTP(`admin_login:${email}`, otp);
+    if (!isValid) throw new BadRequestError('Invalid or expired OTP');
+
+    const permissions = ROLE_PERMISSIONS[admin.role] || admin.permissions || [];
+    const tokenId = generateTokenId();
+
+    const accessToken = generateAdminAccessToken({
+      adminId: admin.id,
+      role: admin.role,
+      permissions,
+    });
+    const refreshToken = generateRefreshToken({ userId: admin.id, tokenId });
+
+    admin.refreshTokens = [...(admin.refreshTokens || []), refreshToken].slice(-3);
+    admin.lastLoginAt = new Date();
+    admin.lastLoginIp = ip;
+    await admin.save();
+
+    logger.info(`Admin login (MFA Verified): ${admin.email} from ${ip}`);
+
+    return {
+      admin: { id: admin.id, name: admin.name, email: admin.email, role: admin.role, permissions },
+      accessToken,
+      refreshToken,
     };
   }
 
@@ -50,8 +95,11 @@ export class AdminAuthService {
     const accessToken = generateAdminAccessToken({ adminId: admin.id, role: admin.role, permissions });
     const newRefreshToken = generateRefreshToken({ userId: admin.id, tokenId });
 
-    admin.refreshTokens = admin.refreshTokens.filter((t) => t !== token).concat(newRefreshToken).slice(-3);
-    await admin.save();
+    const updatedTokens = admin.refreshTokens.filter((t) => t !== token).concat(newRefreshToken).slice(-3);
+    await Admin.updateOne(
+      { _id: admin.id },
+      { $set: { refreshTokens: updatedTokens } }
+    );
 
     return { accessToken, refreshToken: newRefreshToken };
   }
@@ -59,16 +107,18 @@ export class AdminAuthService {
   async logout(adminId: string, refreshToken: string) {
     const admin = await Admin.findById(adminId).select('+refreshTokens');
     if (admin) {
-      admin.refreshTokens = (admin.refreshTokens || []).filter((t) => t !== refreshToken);
-      await admin.save();
+      const updatedTokens = (admin.refreshTokens || []).filter((t) => t !== refreshToken);
+      await Admin.updateOne(
+        { _id: admin.id },
+        { $set: { refreshTokens: updatedTokens } }
+      );
     }
   }
 
   async forceLogout(adminId: string) {
     const admin = await Admin.findById(adminId).select('+refreshTokens');
     if (!admin) throw new NotFoundError('Admin');
-    admin.refreshTokens = [];
-    await admin.save();
+    await Admin.updateOne({ _id: admin.id }, { $set: { refreshTokens: [] } });
     logger.warn(`Force logout executed for admin: ${admin.email}`);
   }
 

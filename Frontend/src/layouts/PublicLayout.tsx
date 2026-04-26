@@ -4,7 +4,7 @@ import Footer from '../components/layout/Footer';
 
 const PublicLayout = () => {
   return (
-    <div className="flex flex-col min-h-screen bg-transparent">
+    <div className="flex flex-col min-h-screen bg-transparent overflow-x-hidden w-full max-w-[100vw]">
       <Navbar />
 
       {/* Main Content */}

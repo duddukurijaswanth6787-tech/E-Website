@@ -15,22 +15,30 @@ export const cartService = {
     return apiClient.get('/cart');
   },
 
-  // Add individual item
+  // Add individual item - backend uses POST /cart/items
   addItem: async (productId: string, quantity: number) => {
-    return apiClient.post('/cart', { productId, quantity });
+    return apiClient.post('/cart/items', { productId, quantity });
   },
 
-  // Update quantity securely
-  updateItem: async (productId: string, quantity: number) => {
-    return apiClient.put('/cart', { productId, quantity });
+  // Update quantity - backend uses PATCH /cart/items/:itemId
+  updateItem: async (itemId: string, quantity: number) => {
+    return apiClient.patch(`/cart/items/${itemId}`, { quantity });
   },
 
-  // Remove individual item
-  removeItem: async (productId: string) => {
-    return apiClient.delete(`/cart/${productId}`);
+  // Remove individual item - backend uses DELETE /cart/items/:itemId
+  removeItem: async (itemId: string) => {
+    return apiClient.delete(`/cart/items/${itemId}`);
   },
 
   clearCart: async () => {
     return apiClient.delete('/cart');
+  },
+
+  applyCoupon: async (code: string) => {
+    return apiClient.post('/cart/coupon', { code });
+  },
+
+  removeCoupon: async () => {
+    return apiClient.delete('/cart/coupon');
   }
 };

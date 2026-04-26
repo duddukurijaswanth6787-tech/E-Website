@@ -13,6 +13,7 @@ export interface AuthResponse {
     };
     accessToken: string;
     refreshToken: string;
+    requiresOtp?: boolean;
   };
 }
 
@@ -38,12 +39,20 @@ export const authService = {
 
   // Registration flow -> returns message to check OTP
   register: async (payload: object) => {
-    return apiClient.post<any, { success: boolean; message: string }>('/auth/register', payload);
+    return apiClient.post<any, { success: boolean; message: string; requiresOtp?: boolean; data?: any }>('/auth/register', payload);
   },
 
-  // OTP Verification -> returns standard AuthResponse
-  verifyOtp: async (email: string, code: string) => {
-    return apiClient.post<any, AuthResponse>('/auth/verify-otp', { email, code });
+  // Verification methods
+  verifyOtp: async (email: string, otp: string) => {
+    return apiClient.post<any, AuthResponse>('/auth/verify-email', { email, otp });
+  },
+
+  verifyLogin: async (email: string, otp: string) => {
+    return apiClient.post<any, AuthResponse>('/auth/verify-login', { email, otp });
+  },
+
+  verifyAdminLogin: async (email: string, otp: string) => {
+    return apiClient.post<any, AuthResponse>('/admin-auth/verify-login', { email, otp });
   },
 
   // Current User retrieval using attached JWT
@@ -54,5 +63,13 @@ export const authService = {
   // Logout triggers local and backend clearance
   logout: async () => {
     return apiClient.post('/auth/logout');
+  },
+
+  forgotPassword: async (email: string) => {
+    return apiClient.post<any, { success: boolean; message: string; requiresOtp: boolean }>('/auth/forgot-password', { email });
+  },
+
+  resetPassword: async (email: string, otp: string, newPassword: string) => {
+    return apiClient.post<any, { success: boolean; message: string }>('/auth/reset-password', { email, otp, newPassword });
   }
 };

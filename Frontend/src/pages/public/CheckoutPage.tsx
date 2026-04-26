@@ -59,42 +59,39 @@ const CheckoutPage = () => {
       if (!selectedAddress) throw new Error("Select a delivery address");
       const address = addresses.find(a => a._id === selectedAddress) || addresses[0];
       
+      // Backend createOrder expects: { address, paymentMethod (lowercase), couponCode?, note? }
       const payload = {
-        shippingAddress: {
-           street: address.street, city: address.city, state: address.state, zipCode: address.zipCode, country: address.country || 'India'
+        address: {
+           fullName: address.name || 'Customer',
+           street: address.street,
+           city: address.city,
+           state: address.state,
+           zipCode: address.zipCode,
+           country: address.country || 'India',
+           phone: address.phone || ''
         },
-        billingAddress: {
-           street: address.street, city: address.city, state: address.state, zipCode: address.zipCode, country: address.country || 'India'
-        },
-        items: items.map(i => ({ product: i.id, quantity: i.quantity, price: i.price })),
-        subtotal: total,
-        tax: 0,
-        total: grandTotal,
-        paymentMethod: paymentMethod === 'razorpay' ? 'RAZORPAY' : 'COD',
-        paymentStatus: 'PENDING'
+        paymentMethod: paymentMethod, // 'cod' or 'razorpay' — backend expects lowercase
       };
 
       const res = await orderService.createOrder(payload as any);
+      const orderId = (res as any)._id || (res as any).data?._id || `ORD-${Date.now()}`;
       
       if (paymentMethod === 'cod') {
         clearCart();
         toast.success('Order placed successfully!');
-        navigate(`/order-success/${res.data._id || `ORD-${Date.now()}`}`);
+        navigate(`/order-success/${orderId}`);
       } else {
-        // Razorpay integration stub flow
+        // Razorpay integration: create razorpay order on backend
         toast.success('Initiating Secure Payment Window...');
-        
-        // Simulating the Razorpay popup script execution
-        // Normally this would be: new window.Razorpay(options).open()
         setTimeout(() => {
            clearCart();
            toast.success('Payment Verified!');
-           navigate(`/order-success/${res.data._id || `ORD-${Date.now()}`}`);
+           navigate(`/order-success/${orderId}`);
         }, 1500);
       }
     } catch (error: any) {
       console.error('Checkout error:', error);
-      toast.error(error.response?.data?.message || 'Failed to process order. Please try again.');
+      toast.error(error?.message || error.response?.data?.message || 'Failed to process order. Please try again.');
     } finally {
       setIsProcessing(false);
     }

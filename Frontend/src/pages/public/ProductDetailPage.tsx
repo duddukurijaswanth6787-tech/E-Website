@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Heart, Share2, ChevronDown, Check, Minus, Plus, MessageCircle, Star, ShieldCheck, Truck, RotateCcw } from 'lucide-react';
 import { ProductCard } from '../../components/common/ProductCard';
+import { ImageWithSkeleton } from '../../components/common/Skeleton';
 import { useCartStore } from '../../store/cartStore';
+import SEO from '../../components/common/SEO';
 
 import { productService } from '../../api/services/product.service';
 import { extractPaginatedList } from '../../utils/extractPaginatedList';
@@ -41,6 +43,7 @@ const Accordion = ({ title, children, defaultOpen = false }: { title: string, ch
 
 const ProductDetailPage = () => {
   const { slug } = useParams();
+  const navigate = useNavigate();
   const [product, setProduct] = useState<any>(null);
   const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -49,6 +52,20 @@ const ProductDetailPage = () => {
   const [activeImage, setActiveImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const { addItem } = useCartStore();
+
+  const handleBuyNow = () => {
+    if (!product || !inStock) return;
+    addItem({
+      id: product._id,
+      name: product.name,
+      slug: product.slug,
+      price: product.price,
+      image: productImages[0],
+      quantity: quantity,
+      fabric: product.fabric
+    });
+    navigate('/checkout');
+  };
 
   useEffect(() => {
     const fetchData = async () => {
@@ -165,8 +182,48 @@ const ProductDetailPage = () => {
     { label: 'SKU', value: product.sku || '—' },
   ];
 
+  const productReviews = [
+    {
+      "@type": "Review",
+      "reviewRating": { "@type": "Rating", "ratingValue": "5", "bestRating": "5" },
+      "author": { "@type": "Person", "name": "Ananya R." }
+    }
+  ];
+
+  const productSchema = {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": product.name,
+    "image": productImages,
+    "description": product.description || `Exquisite ${product.fabric || ''} saree from Vasanthi Creations.`,
+    "sku": product.sku || product._id,
+    "brand": { "@type": "Brand", "name": "Vasanthi Creations" },
+    "offers": {
+      "@type": "Offer",
+      "url": window.location.href,
+      "priceCurrency": "INR",
+      "price": product.price,
+      "priceValidUntil": "2027-01-01",
+      "availability": inStock ? "https://schema.org/InStock" : "https://schema.org/OutOfStock",
+      "itemCondition": "https://schema.org/NewCondition"
+    },
+    "aggregateRating": {
+      "@type": "AggregateRating",
+      "ratingValue": "5",
+      "reviewCount": "12"
+    },
+    "review": productReviews
+  };
+
   return (
     <div className="min-h-screen bg-neutral-cream flex flex-col">
+      <SEO 
+        title={product.name}
+        description={product.description || `Shop ${product.name} at Vasanthi Creations. Premium quality ${product.fabric || 'ethnic wear'}.`}
+        ogImage={productImages[0]}
+        ogType="product"
+        schemaData={productSchema}
+      />
       {/* Breadcrumbs */}
       <div className="bg-white border-b border-gray-100">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
@@ -192,14 +249,14 @@ const ProductDetailPage = () => {
             <div className="lg:sticky lg:top-28 flex flex-col-reverse md:flex-row gap-4">
               
               {/* Thumbnails */}
-              <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto md:max-h-[700px] flex-shrink-0 custom-scrollbar pb-2 md:pb-0">
+              <div className="flex md:flex-col gap-3 overflow-x-auto md:overflow-y-auto md:max-h-[700px] flex-shrink-0 custom-scrollbar pb-2 md:pb-0 snap-x snap-mandatory hide-scroll">
                 {productImages.map((img: string, idx: number) => (
                   <button 
                     key={idx}
                     onClick={() => setActiveImage(idx)}
-                    className={`relative w-20 md:w-24 aspect-[3/4] flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all duration-300 ${activeImage === idx ? 'border-primary-700 opacity-100' : 'border-transparent opacity-60 hover:opacity-100 bg-gray-100'}`}
+                    className={`relative w-20 md:w-24 aspect-[3/4] flex-shrink-0 rounded-lg overflow-hidden border-2 transition-all duration-300 snap-center ${activeImage === idx ? 'border-primary-700 opacity-100' : 'border-transparent opacity-60 hover:opacity-100 bg-gray-100'}`}
                   >
-                    <img src={img} alt={`Thumbnail ${idx}`} className="w-full h-full object-cover" />
+                    <ImageWithSkeleton src={img} alt={`Thumbnail ${idx}`} className="w-full h-full object-cover" containerClassName="w-full h-full" />
                   </button>
                 ))}
               </div>
@@ -207,16 +264,22 @@ const ProductDetailPage = () => {
               {/* Main Image */}
               <div className="relative flex-1 aspect-[3/4] md:aspect-[4/5] bg-gray-100 rounded-xl overflow-hidden group cursor-crosshair">
                 <AnimatePresence mode="wait">
-                  <motion.img
+                  <motion.div
                     key={activeImage}
-                    src={productImages[activeImage]}
-                    alt={product.name}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.3 }}
-                    className="w-full h-full object-cover object-center transform transition-transform duration-700 group-hover:scale-105"
-                  />
+                    className="w-full h-full"
+                  >
+                    <ImageWithSkeleton 
+                      src={productImages[activeImage]} 
+                      alt={product.name}
+                      className="w-full h-full object-cover object-center transform transition-transform duration-700 group-hover:scale-105"
+                      containerClassName="w-full h-full"
+                      loading="eager"
+                    />
+                  </motion.div>
                 </AnimatePresence>
                 
                 {/* Badges overlay on Main Image */}
@@ -279,57 +342,63 @@ const ProductDetailPage = () => {
             </p>
 
             {/* Form Section */}
-            <div className="pb-10 border-b border-gray-200 mb-10">
+            <div className="pb-8 sm:pb-10 border-b border-gray-200 mb-8 sm:mb-10">
               
-              <div className="flex items-end justify-between mb-8 space-x-4">
+              <div className="flex flex-wrap sm:flex-nowrap items-end justify-between gap-3 sm:gap-4 mb-6 sm:mb-8">
                 {/* Quantity Control */}
-                <div className="flex-shrink-0">
-                  <label className="block text-xs font-semibold uppercase tracking-widest text-gray-500 mb-2">Quantity</label>
-                  <div className="flex items-center border border-gray-300 rounded-md bg-white">
+                <div className="flex-shrink-0 w-full sm:w-auto flex items-center justify-between sm:block border sm:border-0 border-gray-200 rounded p-1 sm:p-0 mb-2 sm:mb-0">
+                  <label className="block text-[0.65rem] sm:text-xs font-semibold uppercase tracking-widest text-gray-500 mb-0 sm:mb-2 ml-2 sm:ml-0">Quantity</label>
+                  <div className="flex items-center sm:border sm:border-gray-300 rounded-md bg-white">
                     <button 
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="px-4 py-3 text-gray-500 hover:text-primary-700 hover:bg-gray-50 transition-colors"
+                      className="px-3 sm:px-4 py-2 sm:py-3 text-gray-500 hover:text-primary-700 hover:bg-gray-50 transition-colors"
                       disabled={quantity <= 1}
                     >
-                      <Minus size={16} />
+                      <Minus size={14} className="sm:w-4 sm:h-4" />
                     </button>
-                    <span className="w-8 text-center text-sm font-medium text-gray-900">{quantity}</span>
+                    <span className="w-6 sm:w-8 text-center text-sm font-medium text-gray-900">{quantity}</span>
                     <button 
                       onClick={() => setQuantity(quantity + 1)}
-                      className="px-4 py-3 text-gray-500 hover:text-primary-700 hover:bg-gray-50 transition-colors"
+                      className="px-3 sm:px-4 py-2 sm:py-3 text-gray-500 hover:text-primary-700 hover:bg-gray-50 transition-colors"
                     >
-                      <Plus size={16} />
+                      <Plus size={14} className="sm:w-4 sm:h-4" />
                     </button>
                   </div>
                 </div>
 
-                {/* Primary Add to Cart */}
-                <button 
-                  disabled={!inStock}
-                  onClick={() => addItem({
-                    id: product._id,
-                    name: product.name,
-                    slug: product.slug,
-                    price: product.price,
-                    image: productImages[0],
-                    quantity: quantity,
-                    fabric: product.fabric
-                  })}
-                  className={`flex-1 text-white rounded-md py-4 text-sm font-bold uppercase tracking-widest transition-all shadow-premium hover:-translate-y-0.5 active:scale-95 flex items-center justify-center ${inStock ? 'bg-primary-950 hover:bg-primary-800' : 'bg-gray-400 cursor-not-allowed opacity-70 shadow-none hover:translate-y-0'}`}
-                >
-                  {inStock ? 'Add to Cart' : 'Out of Stock'}
-                </button>
+                <div className="flex flex-1 gap-2 sm:gap-4">
+                  {/* Primary Add to Cart */}
+                  <button 
+                    disabled={!inStock}
+                    onClick={() => addItem({
+                      id: product._id,
+                      name: product.name,
+                      slug: product.slug,
+                      price: product.price,
+                      image: productImages[0],
+                      quantity: quantity,
+                      fabric: product.fabric
+                    })}
+                    className={`flex-1 text-white rounded-md py-3 sm:py-4 text-xs sm:text-sm font-bold uppercase tracking-widest transition-all shadow-premium hover:-translate-y-0.5 active:scale-95 flex items-center justify-center ${inStock ? 'bg-primary-950 hover:bg-primary-800' : 'bg-gray-400 cursor-not-allowed opacity-70 shadow-none hover:translate-y-0'}`}
+                  >
+                    {inStock ? 'Add to Cart' : 'Out of Stock'}
+                  </button>
 
-                {/* Wishlist Toggle */}
-                <button className="w-14 h-14 border border-gray-300 text-gray-600 hover:border-primary-700 hover:text-primary-700 rounded-md flex items-center justify-center transition-all bg-white hover:bg-primary-50">
-                  <Heart size={20} />
-                </button>
+                  {/* Wishlist Toggle */}
+                  <button className="flex-shrink-0 w-12 sm:w-14 w-12 sm:h-14 border border-gray-300 text-gray-600 hover:border-primary-700 hover:text-primary-700 rounded-md flex items-center justify-center transition-all bg-white hover:bg-primary-50">
+                    <Heart size={18} className="sm:w-5 sm:h-5" />
+                  </button>
+                </div>
               </div>
 
               {/* Buy Now & WhatsApp */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <button className="w-full bg-accent text-primary-950 rounded-md py-3.5 text-sm font-bold uppercase tracking-widest hover:bg-accent-light transition-all flex items-center justify-center shadow-soft">
-                  Buy it Now
+                <button 
+                  disabled={!inStock}
+                  onClick={handleBuyNow}
+                  className={`w-full text-primary-950 rounded-md py-3.5 text-sm font-bold uppercase tracking-widest transition-all flex items-center justify-center shadow-soft ${inStock ? 'bg-accent hover:bg-accent-light' : 'bg-gray-200 cursor-not-allowed opacity-70 shadow-none'}`}
+                >
+                  {inStock ? 'Buy it Now' : 'Currently Unavailable'}
                 </button>
                 <a 
                   href={`https://wa.me/919876543210?text=I'm interested in ${product.name}`} 

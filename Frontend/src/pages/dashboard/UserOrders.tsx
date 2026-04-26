@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { orderService } from '../../api/services/order.service';
 import { Package, Clock, CheckCircle, XCircle, ArrowUpRight } from 'lucide-react';
 import { Link } from 'react-router-dom';
+import { Skeleton, ImageWithSkeleton } from '../../components/common/Skeleton';
 
 const UserOrders = () => {
   const [orders, setOrders] = useState<any[]>([]);
@@ -23,8 +24,11 @@ const UserOrders = () => {
 
   if (loading) {
      return (
-       <div className="p-8 flex justify-center items-center min-h-[400px]">
-         <div className="w-10 h-10 border-4 border-primary-200 border-t-primary-800 rounded-full animate-spin"></div>
+       <div className="p-6 md:p-8 space-y-6">
+         <Skeleton className="h-10 w-48 mb-6" />
+         {[...Array(3)].map((_, i) => (
+           <Skeleton key={i} className="h-40 w-full rounded-xl" />
+         ))}
        </div>
      );
   }
@@ -88,8 +92,7 @@ const UserOrders = () => {
                    <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
                      {order.items.map((item: any, idx: number) => (
                        <div key={idx} className="flex-shrink-0 w-24 h-32 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                          {/* We expect the populated product image or fallback */}
-                          <img src={item.product?.images?.[0] || 'https://placehold.co/400x600/f3f4f6/A51648?text=Item'} alt={item.product?.name || 'Product'} className="w-full h-full object-cover" />
+                          <ImageWithSkeleton src={item.product?.images?.[0] || 'https://placehold.co/400x600/f3f4f6/A51648?text=Item'} alt={item.product?.name || 'Product'} className="w-full h-full object-cover" containerClassName="w-full h-full" />
                        </div>
                      ))}
                    </div>

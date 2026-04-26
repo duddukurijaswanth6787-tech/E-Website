@@ -4,10 +4,17 @@ import { categoryService } from '../../api/services/category.service';
 import type { CollectionResponse } from '../../api/services/category.service';
 import { Layers, Plus, Edit2, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import AdminCollectionFormModal, { emptyCollectionForm, type CollectionFormState } from '../../components/admin/AdminCollectionFormModal';
 
 const AdminCollectionsPage = () => {
   const [collections, setCollections] = useState<CollectionResponse[]>([]);
   const [loading, setLoading] = useState(true);
+  
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+  const [activeCollection, setActiveCollection] = useState<CollectionResponse | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState<CollectionFormState>(emptyCollectionForm());
 
   const fetchCollections = async () => {
     setLoading(true);
@@ -29,6 +36,49 @@ const AdminCollectionsPage = () => {
   useEffect(() => {
     fetchCollections();
   }, []);
+
+  const openCreate = () => {
+    setModalMode('create');
+    setActiveCollection(null);
+    setForm(emptyCollectionForm());
+    setModalOpen(true);
+  };
+
+  const openEdit = (c: CollectionResponse) => {
+    setModalMode('edit');
+    setActiveCollection(c);
+    setForm({
+      name: c.name || '',
+      description: c.description || '',
+      banner: c.banner || '',
+    });
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    if (saving) return;
+    setModalOpen(false);
+  };
+
+  const handleSave = async () => {
+    if (!form.name.trim()) return toast.error('Collection name is required');
+    setSaving(true);
+    try {
+      if (modalMode === 'create') {
+        await categoryService.createCollection(form);
+        toast.success('Collection created successfully');
+      } else if (activeCollection?._id) {
+        await categoryService.updateCollection(activeCollection._id, form);
+        toast.success('Collection updated successfully');
+      }
+      setModalOpen(false);
+      fetchCollections();
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to save collection');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleDelete = async (id: string, name: string) => {
      if (!window.confirm(`Warning: Deleting the Collection [${name}] removes its thematic wrapper. Are you sure you wish to proceed?`)) return;
@@ -67,14 +117,18 @@ const AdminCollectionsPage = () => {
     {
        header: 'Actions',
        accessor: (row: CollectionResponse) => (
-         <div className="flex items-center space-x-2">
-           <button className="p-1.5 text-gray-400 hover:text-primary-700 transition-colors" title="Edit Theme">
-             <Edit2 size={16} />
-           </button>
-           <button onClick={() => handleDelete(row._id, row.name)} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors" title="Delete Collection">
-             <Trash2 size={16} />
-           </button>
-         </div>
+          <div className="flex items-center space-x-2">
+            <button 
+              onClick={() => openEdit(row)}
+              className="p-1.5 text-gray-400 hover:text-primary-700 transition-colors" 
+              title="Edit Theme"
+            >
+              <Edit2 size={16} />
+            </button>
+            <button onClick={() => handleDelete(row._id, row.name)} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors" title="Delete Collection">
+              <Trash2 size={16} />
+            </button>
+          </div>
        )
     }
   ];
@@ -89,19 +143,32 @@ const AdminCollectionsPage = () => {
           <p className="text-sm text-gray-500">Curate seasonal themes, bridal collections, and exclusive drops.</p>
         </div>
         <div className="mt-4 sm:mt-0">
-           <button className="flex items-center px-4 py-2 bg-primary-950 text-white text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors">
+           <button 
+             onClick={openCreate}
+             className="flex items-center px-4 py-2 bg-primary-950 text-white text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors"
+           >
               <Plus size={16} className="mr-2" />
               Create Collection
            </button>
         </div>
       </div>
 
-      <DataTable 
-         columns={columns as any}
-         data={collections}
-         loading={loading}
-         emptyMessage="No thematic collections are currently registered."
-      />
+       <DataTable 
+          columns={columns as any}
+          data={collections}
+          loading={loading}
+          emptyMessage="No thematic collections are currently registered."
+       />
+
+       <AdminCollectionFormModal 
+         open={modalOpen}
+         mode={modalMode}
+         saving={saving}
+         form={form}
+         setForm={setForm}
+         onClose={closeModal}
+         onSave={handleSave}
+       />
     </div>
   );
 };

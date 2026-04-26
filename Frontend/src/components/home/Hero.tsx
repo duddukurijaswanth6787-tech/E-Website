@@ -23,13 +23,13 @@ const Hero = () => {
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30" />
       </motion.div>
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto px-5 sm:px-8 lg:px-10 pt-28 pb-32 sm:pt-32 sm:pb-36">
-        <div className="max-w-2xl">
+      <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-28 sm:pt-32 sm:pb-36 flex flex-col justify-center min-h-[100svh]">
+        <div className="max-w-2xl mt-12 sm:mt-0">
           <motion.p
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.7, delay: 0.1 }}
-            className="text-accent-bright/95 font-sans text-[0.7rem] sm:text-xs font-semibold tracking-[0.35em] uppercase mb-5"
+            className="text-accent-bright/95 font-sans text-[0.65rem] sm:text-xs font-semibold tracking-[0.25em] sm:tracking-[0.35em] uppercase mb-4 sm:mb-5"
           >
             Luxury Indian Ethnic Wear
           </motion.p>
@@ -38,11 +38,11 @@ const Hero = () => {
             initial={{ opacity: 0, y: 24 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, delay: 0.2 }}
-            className="mb-6"
+            className="mb-5 sm:mb-6"
           >
             <h1 className="font-display text-white font-medium leading-[1.05]">
-              <span className="block text-[clamp(2.25rem,6vw,3.75rem)] tracking-tight">Elegance in Every</span>
-              <span className="block text-[clamp(2.75rem,7.5vw,4.5rem)] mt-1 italic font-medium text-accent-light drop-shadow-sm">
+              <span className="block text-[clamp(2.5rem,8vw,3.75rem)] tracking-tight">Elegance in Every</span>
+              <span className="block text-[clamp(3rem,9.5vw,4.5rem)] mt-0 sm:mt-1 italic font-medium text-accent-light drop-shadow-sm">
                 Thread
               </span>
             </h1>
@@ -52,7 +52,7 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, delay: 0.35 }}
-            className="font-sans text-white/85 text-base sm:text-lg font-normal leading-relaxed max-w-md mb-10"
+            className="font-sans text-white/85 text-sm sm:text-lg font-normal leading-relaxed max-w-md mb-8 sm:mb-10"
           >
             Discover our curated collection of handwoven sarees, bespoke designer blouses, and bridal masterpieces.
           </motion.p>
@@ -61,17 +61,17 @@ const Hero = () => {
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.75, delay: 0.5 }}
-            className="flex flex-col sm:flex-row gap-4 sm:gap-5"
+            className="flex flex-col sm:flex-row gap-3 sm:gap-5"
           >
             <Link
               to="/shop"
-              className="inline-flex items-center justify-center px-9 py-3.5 rounded-full text-sm font-semibold tracking-[0.15em] uppercase text-white bg-primary-800 hover:bg-primary-700 border border-primary-700/40 shadow-lift shadow-black/15 transition-all duration-400 ease-smooth"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 sm:px-9 rounded-full text-[0.8rem] sm:text-sm font-semibold tracking-[0.1em] sm:tracking-[0.15em] uppercase text-white bg-primary-800 hover:bg-primary-700 border border-primary-700/40 shadow-lift shadow-black/15 transition-all duration-400 ease-smooth"
             >
               Shop Collection
             </Link>
             <Link
               to="/custom-blouse"
-              className="inline-flex items-center justify-center px-9 py-3.5 rounded-full text-sm font-semibold tracking-[0.15em] uppercase text-white border-2 border-white/85 hover:bg-white/12 hover:border-white backdrop-blur-[2px] transition-all duration-400 ease-smooth"
+              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 sm:px-9 rounded-full text-[0.8rem] sm:text-sm font-semibold tracking-[0.1em] sm:tracking-[0.15em] uppercase text-white border border-white/60 sm:border-2 sm:border-white/85 hover:bg-white/12 hover:border-white backdrop-blur-[2px] transition-all duration-400 ease-smooth"
             >
               Custom Blouse
             </Link>

@@ -8,7 +8,17 @@ class AdminAuthController {
     async login(req, res, next) {
         try {
             const result = await adminAuth_service_1.adminAuthService.login(req.body.email, req.body.password, req.ip);
-            (0, responses_1.sendSuccess)(res, result, 'Admin login successful');
+            (0, responses_1.sendSuccess)(res, result, result.requiresOtp ? 'MFA Required' : 'Admin login successful');
+        }
+        catch (err) {
+            next(err);
+        }
+    }
+    async verifyLogin(req, res, next) {
+        try {
+            const { email, otp } = req.body;
+            const result = await adminAuth_service_1.adminAuthService.verifyLoginOTP(email, otp, req.ip);
+            (0, responses_1.sendSuccess)(res, result, 'MFA bypass successful. Login confirmed.');
         }
         catch (err) {
             next(err);

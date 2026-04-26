@@ -4,10 +4,17 @@ import { shippingService } from '../../api/services/shipping.service';
 import type { ShippingRule } from '../../api/services/shipping.service';
 import { Truck, Plus, Edit2, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import AdminShippingFormModal, { emptyShippingForm, type ShippingFormState } from '../../components/admin/AdminShippingFormModal';
 
 const AdminShippingPage = () => {
   const [rules, setRules] = useState<ShippingRule[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+  const [activeRule, setActiveRule] = useState<ShippingRule | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState<ShippingFormState>(emptyShippingForm());
 
   const fetchRules = async () => {
     setLoading(true);
@@ -32,6 +39,54 @@ const AdminShippingPage = () => {
   useEffect(() => {
     fetchRules();
   }, []);
+
+  const openCreate = () => {
+    setModalMode('create');
+    setActiveRule(null);
+    setForm(emptyShippingForm());
+    setModalOpen(true);
+  };
+
+  const openEdit = (r: ShippingRule) => {
+    setModalMode('edit');
+    setActiveRule(r);
+    setForm({
+      region: r.region || '',
+      method: r.method || '',
+      cost: r.cost,
+      minOrderValue: r.minOrderValue ?? '',
+      isActive: r.isActive,
+      notes: r.notes || '',
+    });
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    if (saving) return;
+    setModalOpen(false);
+  };
+
+  const handleSave = async () => {
+    if (!form.region.trim()) return toast.error('Region is required');
+    if (!form.method.trim()) return toast.error('Method is required');
+    if (form.cost === '') return toast.error('Cost is required');
+    setSaving(true);
+    try {
+      if (modalMode === 'create') {
+        await shippingService.createRule(form);
+        toast.success('Shipping tier created');
+      } else if (activeRule?._id) {
+        await shippingService.updateRule(activeRule._id, form);
+        toast.success('Shipping tier updated');
+      }
+      setModalOpen(false);
+      fetchRules();
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to save shipping rule');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleDelete = async (id: string, method: string) => {
      if (!window.confirm(`Warning: Deleting the Shipping Rule [${method}]. Are you sure?`)) return;
@@ -81,14 +136,18 @@ const AdminShippingPage = () => {
     {
        header: 'Actions',
        accessor: (row: ShippingRule) => (
-         <div className="flex items-center space-x-2">
-           <button className="p-1.5 text-gray-400 hover:text-primary-700 transition-colors" title="Edit Pricing">
-             <Edit2 size={16} />
-           </button>
-           <button onClick={() => handleDelete(row._id, row.method)} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors" title="Trash Node">
-             <Trash2 size={16} />
-           </button>
-         </div>
+          <div className="flex items-center space-x-2">
+            <button 
+              onClick={() => openEdit(row)}
+              className="p-1.5 text-gray-400 hover:text-primary-700 transition-colors" 
+              title="Edit Pricing"
+            >
+              <Edit2 size={16} />
+            </button>
+            <button onClick={() => handleDelete(row._id, row.method)} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors" title="Trash Node">
+              <Trash2 size={16} />
+            </button>
+          </div>
        )
     }
   ];
@@ -102,20 +161,33 @@ const AdminShippingPage = () => {
           </h1>
           <p className="text-sm text-gray-500">Configure global delivery boundaries, conditional order margins, and baseline tariffs.</p>
         </div>
-        <div className="mt-4 sm:mt-0">
-           <button className="flex items-center px-4 py-2 bg-primary-950 text-white text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors">
-              <Plus size={16} className="mr-2" />
-              Add Delivery Tier
-           </button>
-        </div>
+         <div className="mt-4 sm:mt-0">
+            <button 
+              onClick={openCreate}
+              className="flex items-center px-4 py-2 bg-primary-950 text-white text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors"
+            >
+               <Plus size={16} className="mr-2" />
+               Add Delivery Tier
+            </button>
+         </div>
       </div>
 
-      <DataTable 
-         columns={columns as any}
-         data={rules}
-         loading={loading}
-         emptyMessage="No active logistic shipping boundaries deployed."
-      />
+       <DataTable 
+          columns={columns as any}
+          data={rules}
+          loading={loading}
+          emptyMessage="No active logistic shipping boundaries deployed."
+       />
+
+       <AdminShippingFormModal 
+         open={modalOpen}
+         mode={modalMode}
+         saving={saving}
+         form={form}
+         setForm={setForm}
+         onClose={closeModal}
+         onSave={handleSave}
+       />
     </div>
   );
 };

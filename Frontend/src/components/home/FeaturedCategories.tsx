@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { categoryService } from '../../api/services/category.service';
+import { settingsService } from '../../api/services/settings.service';
 import type { Category } from '../../api/services/category.service';
 
 function extractCategories(res: unknown): Category[] {
@@ -32,11 +33,24 @@ const FALLBACK_CATEGORIES = [
 
 const FeaturedCategories = () => {
   const [categories, setCategories] = useState<{name: string, image: string, path: string, featured: boolean}[]>([]);
+  const [header, setHeader] = useState({ title: 'Curated For You', subtitle: 'Explore our signature collections tailored to bring out your inner elegance.' });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const fetchCats = async () => {
       try {
+        const settingsRes = await settingsService.getPublicSettings();
+        const settingsData = settingsRes.data?.data || settingsRes.data;
+        if (settingsData && settingsData.homepage_featured_categories) {
+           const custom = settingsData.homepage_featured_categories;
+           setHeader({ title: custom.title || 'Curated For You', subtitle: custom.subtitle || '' });
+           if (custom.items && custom.items.length > 0) {
+              setCategories(custom.items);
+              setLoading(false);
+              return;
+           }
+        }
+
         const res = await categoryService.getAllCategories();
         let list = extractCategories(res).filter((c) => c?.slug && c?.name);
 
@@ -72,21 +86,21 @@ const FeaturedCategories = () => {
         {/* Section Header */}
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-serif text-primary-950 mb-4 tracking-tight">
-            Curated For You
+            {header.title}
           </h2>
           <div className="h-1 w-16 bg-accent mx-auto rounded-full mb-4"></div>
           <p className="text-gray-600 max-w-2xl mx-auto">
-            Explore our signature collections tailored to bring out your inner elegance.
+            {header.subtitle}
           </p>
         </div>
 
-        {/* Categories Grid */}
+        {/* Categories Grid or Swipeable List */}
         {loading ? (
           <div className="flex justify-center items-center py-20">
             <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-800 rounded-full animate-spin"></div>
           </div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 auto-rows-[250px]">
+          <div className="flex overflow-x-auto md:grid md:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 md:auto-rows-[250px] snap-x snap-mandatory pb-6 -mx-4 px-4 md:mx-0 md:px-0 hide-scroll">
             {categories.map((cat, index) => (
               <motion.div
                 initial={{ opacity: 0, y: 20 }}
@@ -94,7 +108,7 @@ const FeaturedCategories = () => {
                 viewport={{ once: true, margin: "-50px" }}
                 transition={{ duration: 0.6, delay: index * 0.1 }}
                 key={cat.name}
-                className={`relative overflow-hidden rounded-xl group cursor-pointer shadow-soft
+                className={`relative overflow-hidden rounded-xl group cursor-pointer shadow-soft snap-center shrink-0 w-[85vw] h-[350px] md:w-auto md:h-auto
                   ${cat.featured ? 'md:col-span-2 md:row-span-2' : ''}
                 `}
               >
@@ -104,19 +118,19 @@ const FeaturedCategories = () => {
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary-950/80 via-primary-950/20 to-transparent opacity-90 transition-opacity duration-300 group-hover:opacity-100" />
                 
-                <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-8 flex items-end">
+                <div className="absolute bottom-0 left-0 right-0 p-5 sm:p-8 flex items-end">
                   <div className="w-full">
-                    <h3 className={`font-serif text-white mb-2 tracking-wide
-                      ${cat.featured ? 'text-3xl md:text-4xl' : 'text-xl md:text-2xl'}
+                    <h3 className={`font-serif text-white mb-1.5 sm:mb-2 tracking-wide leading-tight
+                      ${cat.featured ? 'text-2xl sm:text-3xl md:text-4xl' : 'text-xl md:text-2xl'}
                     `}>
                       {cat.name}
                     </h3>
                     <Link 
                       to={cat.path}
-                      className="inline-flex items-center text-accent text-sm uppercase tracking-wider font-semibold opacity-0 transform translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300"
+                      className="inline-flex items-center text-accent text-xs sm:text-sm uppercase tracking-wider font-semibold md:opacity-0 transform md:translate-y-4 group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300"
                     >
                       <span>Explore Collection</span>
-                      <span className="ml-2 font-black">&rarr;</span>
+                      <span className="ml-1 sm:ml-2 font-black">&rarr;</span>
                     </Link>
                   </div>
                 </div>

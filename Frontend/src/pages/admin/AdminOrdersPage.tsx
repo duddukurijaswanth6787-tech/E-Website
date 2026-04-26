@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { DataTable } from '../../components/admin/DataTable';
 import { orderService } from '../../api/services/order.service';
 import { ShoppingBag, Eye, DollarSign } from 'lucide-react';
@@ -9,7 +9,7 @@ const AdminOrdersPage = () => {
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0 });
 
-  const fetchOrders = async (page = 1) => {
+  const fetchOrders = useCallback(async (page = 1) => {
     setLoading(true);
     try {
        // Attempt Admin Specific endpoint
@@ -45,13 +45,13 @@ const AdminOrdersPage = () => {
     } finally {
        setLoading(false);
     }
-  };
+  }, [pagination.limit]);
 
   useEffect(() => {
     fetchOrders(pagination.page);
-  }, [pagination.page]);
+  }, [pagination.page, fetchOrders]);
 
-  const updateStatus = async (id: string, currentStatus: string) => {
+  const updateStatus = useCallback(async (id: string, currentStatus: string) => {
     // Simple state machine for demo
     const nextStatus = currentStatus === 'PROCESSING' ? 'SHIPPED' : currentStatus === 'SHIPPED' ? 'DELIVERED' : 'PROCESSING';
     try {
@@ -61,9 +61,9 @@ const AdminOrdersPage = () => {
     } catch (e: any) {
        toast.error("Status Mutation Failed. Is PATCH /api/v1/orders/:id/status implemented?");
     }
-  };
+  }, [fetchOrders, pagination.page]);
 
-  const columns = [
+  const columns = useMemo(() => [
     { 
        header: 'Order Details', 
        accessor: (row: any) => (
@@ -126,7 +126,7 @@ const AdminOrdersPage = () => {
          </div>
        )
     }
-  ];
+  ], [updateStatus]);
 
   return (
     <div className="space-y-6 max-w-[100vw] overflow-hidden">

@@ -44,15 +44,24 @@ const start = async () => {
         process.exit(1);
     }
 };
+let isShuttingDown = false;
 // Graceful shutdown
 const shutdown = async (signal) => {
+    if (isShuttingDown)
+        return;
+    isShuttingDown = true;
     logger_1.logger.info(`${signal} received — shutting down gracefully...`);
-    server.close(async () => {
+    server.close(); // Stop securely accepting new HTTP connections
+    try {
         await (0, database_1.disconnectMongoDB)();
         await (0, redis_1.disconnectRedis)();
         logger_1.logger.info('Server shutdown complete');
         process.exit(0);
-    });
+    }
+    catch (error) {
+        logger_1.logger.error('Error during shutdown:', error);
+        process.exit(1);
+    }
 };
 process.on('SIGTERM', () => shutdown('SIGTERM'));
 process.on('SIGINT', () => shutdown('SIGINT'));

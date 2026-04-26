@@ -4,10 +4,17 @@ import { bannerService } from '../../api/services/banner.service';
 import type { Banner } from '../../api/services/banner.service';
 import { Image as ImageIcon, Plus, Edit2, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import AdminBannerFormModal, { emptyBannerForm, type BannerFormState } from '../../components/admin/AdminBannerFormModal';
 
 const AdminBannersPage = () => {
   const [banners, setBanners] = useState<Banner[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+  const [activeBanner, setActiveBanner] = useState<Banner | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState<BannerFormState>(emptyBannerForm());
 
   const fetchBanners = async () => {
     setLoading(true);
@@ -29,6 +36,54 @@ const AdminBannersPage = () => {
   useEffect(() => {
     fetchBanners();
   }, []);
+
+  const openCreate = () => {
+    setModalMode('create');
+    setActiveBanner(null);
+    setForm(emptyBannerForm());
+    setModalOpen(true);
+  };
+
+  const openEdit = (b: Banner) => {
+    setModalMode('edit');
+    setActiveBanner(b);
+    setForm({
+      title: b.title || '',
+      subtitle: b.subtitle || '',
+      imageUrl: b.imageUrl || '',
+      link: b.link || '',
+      placement: b.placement || 'HERO_SLIDER',
+      isActive: b.isActive,
+      order: b.order || 0,
+    });
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    if (saving) return;
+    setModalOpen(false);
+  };
+
+  const handleSave = async () => {
+    if (!form.title.trim()) return toast.error('Banner title is required');
+    if (!form.imageUrl.trim()) return toast.error('Image URL is required');
+    setSaving(true);
+    try {
+      if (modalMode === 'create') {
+        await bannerService.createBanner(form);
+        toast.success('Banner published successfully');
+      } else if (activeBanner?._id) {
+        await bannerService.updateBanner(activeBanner._id, form);
+        toast.success('Banner updated successfully');
+      }
+      setModalOpen(false);
+      fetchBanners();
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to save banner');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleDelete = async (id: string, title: string) => {
      if (!window.confirm(`Warning: Deleting the Banner [${title}] removes it from the customer viewport. Are you sure?`)) return;
@@ -79,19 +134,23 @@ const AdminBannersPage = () => {
          </span>
        )
     },
-    {
-       header: 'Actions',
-       accessor: (row: Banner) => (
-         <div className="flex items-center space-x-2">
-           <button className="p-1.5 text-gray-400 hover:text-primary-700 transition-colors" title="Reposition">
-             <Edit2 size={16} />
-           </button>
-           <button onClick={() => handleDelete(row._id, row.title)} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors" title="Trash Visual">
-             <Trash2 size={16} />
-           </button>
-         </div>
-       )
-    }
+     {
+        header: 'Actions',
+        accessor: (row: Banner) => (
+          <div className="flex items-center space-x-2">
+            <button 
+              onClick={() => openEdit(row)}
+              className="p-1.5 text-gray-400 hover:text-primary-700 transition-colors" 
+              title="Reposition"
+            >
+              <Edit2 size={16} />
+            </button>
+            <button onClick={() => handleDelete(row._id, row.title)} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors" title="Trash Visual">
+              <Trash2 size={16} />
+            </button>
+          </div>
+        )
+     }
   ];
 
   return (
@@ -103,20 +162,33 @@ const AdminBannersPage = () => {
           </h1>
           <p className="text-sm text-gray-500">Inject dynamic marketing visuals across the E-Commerce frontpage.</p>
         </div>
-        <div className="mt-4 sm:mt-0">
-           <button className="flex items-center px-4 py-2 bg-primary-950 text-white text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors">
-              <Plus size={16} className="mr-2" />
-              Upload Banner
-           </button>
-        </div>
+         <div className="mt-4 sm:mt-0">
+            <button 
+              onClick={openCreate}
+              className="flex items-center px-4 py-2 bg-primary-950 text-white text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors"
+            >
+               <Plus size={16} className="mr-2" />
+               Upload Banner
+            </button>
+         </div>
       </div>
 
-      <DataTable 
-         columns={columns as any}
-         data={banners}
-         loading={loading}
-         emptyMessage="No promotional headers are configured in the current environment stack."
-      />
+       <DataTable 
+          columns={columns as any}
+          data={banners}
+          loading={loading}
+          emptyMessage="No promotional headers are configured in the current environment stack."
+       />
+
+       <AdminBannerFormModal 
+         open={modalOpen}
+         mode={modalMode}
+         saving={saving}
+         form={form}
+         setForm={setForm}
+         onClose={closeModal}
+         onSave={handleSave}
+       />
     </div>
   );
 };

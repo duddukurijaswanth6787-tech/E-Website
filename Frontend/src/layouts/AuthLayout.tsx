@@ -1,11 +1,25 @@
-import { Outlet, Link } from 'react-router-dom';
+import { Outlet, Link, Navigate, useLocation } from 'react-router-dom';
+import { useAuthStore } from '../store/authStore';
 
 const AuthLayout = () => {
+  const { isAuthenticated, user } = useAuthStore();
+  const location = useLocation();
+
+  if (isAuthenticated) {
+     const redirect = new URLSearchParams(location.search).get('redirect');
+     if (redirect) return <Navigate to={redirect} replace />;
+     
+     if (user?.role === 'admin' || user?.role === 'super_admin') {
+       return <Navigate to="/admin" replace />;
+     }
+     return <Navigate to="/my" replace />;
+  }
+
   return (
     <div className="min-h-screen grid grid-cols-1 md:grid-cols-2 bg-neutral-cream">
       {/* Left side Form Area */}
-      <div className="flex flex-col justify-center px-8 sm:px-12 lg:px-24 xl:px-32 relative">
-        <Link to="/" className="absolute top-8 left-8 sm:left-12 text-2xl font-serif font-bold text-primary-700 tracking-wide">
+      <div className="flex flex-col justify-center px-4 sm:px-12 lg:px-24 xl:px-32 relative py-20 md:py-0">
+        <Link to="/" className="absolute top-6 sm:top-8 left-4 sm:left-12 text-2xl font-serif font-bold text-primary-700 tracking-wide">
           Vasanthi
         </Link>
         <div className="w-full max-w-md mx-auto">

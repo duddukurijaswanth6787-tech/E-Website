@@ -1,15 +1,15 @@
+import { useState, useMemo } from 'react';
 import { Outlet, Link } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BarChart, Package, Users, ShoppingBag, 
   Settings, LogOut, FileText, Image as ImageIcon,
-  DollarSign, Activity, Lock, Shield, Bell, Heart, Layout, MessageSquare, Share2, Bookmark, Layers
+  DollarSign, Activity, Lock, Shield, Bell, Heart, Layout, MessageSquare, Share2, Bookmark, Layers,
+  X, Menu
 } from 'lucide-react';
 
-const AdminLayout = () => {
-  const { user, logout } = useAuthStore();
-
-  const navItems = [
+const navItems = [
     // Core Operational Loop
     { label: 'Dashboard', icon: <BarChart size={18} />, path: '/admin', roles: ['admin', 'super_admin'] },
     { label: 'Orders Pipeline', icon: <ShoppingBag size={18} />, path: '/admin/orders', roles: ['admin', 'super_admin'] },
@@ -42,22 +42,43 @@ const AdminLayout = () => {
     { label: 'Admin Map', icon: <Shield size={18} />, path: '/admin/admins', roles: ['super_admin'] },
     { label: 'Roles Matrix', icon: <Lock size={18} />, path: '/admin/roles', roles: ['super_admin'] },
     { label: 'Audit Stream', icon: <Activity size={18} />, path: '/admin/audit-logs', roles: ['super_admin'] },
-    { label: 'Core Config', icon: <Settings size={18} />, path: '/admin/settings', roles: ['super_admin'] },
+    { label: 'OTP Gateways', icon: <Lock size={18} />, path: '/admin/otp', roles: ['super_admin'] },
+    { label: 'UI Settings', icon: <Settings size={18} />, path: '/admin/settings', roles: ['super_admin'] },
   ];
 
+const AdminLayout = () => {
+  const { user, logout } = useAuthStore();
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
   // RBAC Filter: Only show nav items the user has permission for
-  const filteredNavItems = navItems.filter(item => 
+  const filteredNavItems = useMemo(() => navItems.filter(item => 
     !item.roles || (user && item.roles.includes(user.role))
-  );
+  ), [user]);
 
   return (
-    <div className="flex h-screen bg-gray-50 overflow-hidden font-sans">
+    <div className="flex h-screen bg-gray-50 overflow-hidden font-sans relative">
+      {/* Mobile Overlay */}
+      <AnimatePresence>
+        {isSidebarOpen && (
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setIsSidebarOpen(false)}
+            className="fixed inset-0 bg-black/50 z-20 xl:hidden"
+          />
+        )}
+      </AnimatePresence>
+
       {/* Sidebar Content */}
-      <aside className="w-64 bg-gradient-to-b from-primary-950 to-neutral-900 text-neutral-cream flex flex-col flex-shrink-0 shadow-2xl z-20">
-        <div className="h-16 flex items-center px-6 border-b border-primary-900 border-opacity-30">
+      <aside className={`fixed inset-y-0 left-0 w-64 bg-gradient-to-b from-primary-950 to-neutral-900 text-neutral-cream flex flex-col flex-shrink-0 shadow-2xl z-30 transform transition-transform duration-300 xl:relative xl:translate-x-0 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+        <div className="h-16 flex items-center px-6 border-b border-primary-900 border-opacity-30 justify-between">
           <Link to="/admin" className="text-xl font-serif font-bold text-accent tracking-widest uppercase">
             Vasanthi Admin
           </Link>
+          <button onClick={() => setIsSidebarOpen(false)} className="xl:hidden text-neutral-cream">
+            <X size={20} />
+          </button>
         </div>
         
         <div className="flex-grow overflow-y-auto py-6 sidebar-scrollbar">
@@ -102,14 +123,22 @@ const AdminLayout = () => {
       </aside>
 
       {/* Main Content Area */}
-      <div className="flex flex-col flex-grow w-0 relative z-0">
-        <header className="h-16 bg-white border-b border-gray-200 shadow-sm flex items-center justify-between px-8 z-10 flex-shrink-0">
-          <div className="text-sm font-medium text-gray-400 uppercase tracking-widest hidden sm:block">
-            Management Portal
+      <div className="flex flex-col flex-grow w-0 relative z-0 min-w-0">
+        <header className="h-16 bg-white border-b border-gray-200 shadow-sm flex items-center justify-between px-4 sm:px-8 z-10 flex-shrink-0">
+          <div className="flex items-center">
+            <button 
+              onClick={() => setIsSidebarOpen(true)} 
+              className="xl:hidden mr-4 text-gray-500 hover:text-primary-800 focus:outline-none p-1 -ml-1 rounded"
+            >
+              <Menu size={24} />
+            </button>
+            <div className="text-sm font-medium text-gray-400 uppercase tracking-widest hidden sm:block">
+              Management Portal
+            </div>
           </div>
           <div className="flex items-center space-x-4 ml-auto">
             <Link to="/" className="text-sm text-primary-600 hover:text-primary-800 font-medium font-sans">
-              View Live Store &rarr;
+              Live Store &rarr;
             </Link>
           </div>
         </header>

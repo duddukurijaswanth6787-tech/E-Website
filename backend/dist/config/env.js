@@ -22,7 +22,12 @@ exports.env = {
         uri: process.env.MONGO_URI,
     },
     redis: {
-        url: process.env.REDIS_URL || 'redis://localhost:6379',
+        // If REDIS_URL is unset/empty, Redis is treated as disabled (app falls back for OTP/caching).
+        url: (() => {
+            const raw = process.env.REDIS_URL;
+            const trimmed = typeof raw === 'string' ? raw.trim() : '';
+            return trimmed.length ? trimmed : null;
+        })(),
     },
     jwt: {
         accessSecret: process.env.JWT_ACCESS_SECRET,
@@ -32,10 +37,11 @@ exports.env = {
     },
     mail: {
         enabled: (process.env.MAIL_ENABLED ?? 'true').toLowerCase() === 'true',
-        host: process.env.SMTP_HOST || 'smtp.gmail.com',
-        port: parseInt(process.env.SMTP_PORT || '587', 10),
-        user: process.env.SMTP_USER || '',
-        pass: process.env.SMTP_PASS || '',
+        // Support SMTP_* (preferred) or EMAIL_* aliases
+        host: process.env.SMTP_HOST || process.env.EMAIL_HOST || 'smtp.gmail.com',
+        port: parseInt(process.env.SMTP_PORT || process.env.EMAIL_PORT || '587', 10),
+        user: process.env.SMTP_USER || process.env.EMAIL_USER || '',
+        pass: process.env.SMTP_PASS || process.env.EMAIL_PASS || '',
         from: process.env.MAIL_FROM || 'Vasanthi Creations <noreply@vasanthicreations.com>',
     },
     razorpay: {

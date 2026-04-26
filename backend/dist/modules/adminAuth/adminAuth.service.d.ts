@@ -1,5 +1,26 @@
 export declare class AdminAuthService {
     login(email: string, password: string, ip?: string): Promise<{
+        message: string;
+        email: string;
+        requiresOtp: boolean;
+        admin?: undefined;
+        accessToken?: undefined;
+        refreshToken?: undefined;
+    } | {
+        admin: {
+            id: string;
+            name: string;
+            email: string;
+            role: string;
+            permissions: string[];
+        };
+        accessToken: string;
+        refreshToken: string;
+        requiresOtp: boolean;
+        message?: undefined;
+        email?: undefined;
+    }>;
+    verifyLoginOTP(email: string, otp: string, ip?: string): Promise<{
         admin: {
             id: string;
             name: string;

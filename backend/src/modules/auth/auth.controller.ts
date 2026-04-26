@@ -21,6 +21,14 @@ export class AuthController {
   async login(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const result = await authService.login(req.body.email, req.body.password);
+      sendSuccess(res, result, result.requiresOtp ? 'OTP Sent' : 'Login successful');
+    } catch (err) { next(err); }
+  }
+
+  async verifyLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { email, otp } = req.body;
+      const result = await authService.verifyLoginOTP(email, otp);
       sendSuccess(res, result, 'Login successful');
     } catch (err) { next(err); }
   }

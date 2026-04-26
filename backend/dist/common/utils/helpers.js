@@ -3,7 +3,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.rupees = exports.paise = exports.formatCurrency = exports.maskEmail = exports.generateTokenId = exports.generateOrderNumber = exports.generateSKU = exports.generateUniqueSlug = exports.slugify = void 0;
+exports.rupees = exports.paise = exports.formatCurrency = exports.maskEmail = exports.generateTokenId = exports.generateOrderNumber = exports.buildSemanticSkuPrefix = exports.abbrevColorForSku = exports.abbrevCategoryForSku = exports.generateSKU = exports.generateUniqueSlug = exports.slugify = void 0;
 const crypto_1 = __importDefault(require("crypto"));
 const slugify = (text) => {
     return text
@@ -30,6 +30,33 @@ const generateSKU = (prefix = 'VC') => {
     return `${prefix}-${random}`;
 };
 exports.generateSKU = generateSKU;
+/** e.g. "Silk" + "light green" → "si-lg", then unique "si-lg-001" */
+const abbrevCategoryForSku = (name) => {
+    const slug = (0, exports.slugify)(name).replace(/-/g, '');
+    if (slug.length >= 2)
+        return slug.slice(0, 2);
+    return `${slug}xx`.slice(0, 2);
+};
+exports.abbrevCategoryForSku = abbrevCategoryForSku;
+const abbrevColorForSku = (color) => {
+    const parts = color
+        .toLowerCase()
+        .trim()
+        .split(/\s+/)
+        .filter(Boolean);
+    if (parts.length >= 2)
+        return `${parts[0][0]}${parts[1][0]}`;
+    const w = parts[0] || 'xx';
+    return w.length >= 2 ? w.slice(0, 2) : `${w}x`.slice(0, 2);
+};
+exports.abbrevColorForSku = abbrevColorForSku;
+/** Build prefix like "si-lg" (main category + color only; subcategory is not part of the code). */
+const buildSemanticSkuPrefix = (categoryName, color) => {
+    const c = (0, exports.abbrevCategoryForSku)(categoryName);
+    const col = (0, exports.abbrevColorForSku)(color);
+    return `${c}-${col}`;
+};
+exports.buildSemanticSkuPrefix = buildSemanticSkuPrefix;
 const generateOrderNumber = () => {
     const timestamp = Date.now().toString(36).toUpperCase();
     const random = Math.random().toString(36).substring(2, 6).toUpperCase();

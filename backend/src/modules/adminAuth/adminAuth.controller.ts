@@ -7,7 +7,15 @@ export class AdminAuthController {
   async login(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const result = await adminAuthService.login(req.body.email, req.body.password, req.ip);
-      sendSuccess(res, result, 'Admin login successful');
+      sendSuccess(res, result, result.requiresOtp ? 'MFA Required' : 'Admin login successful');
+    } catch (err) { next(err); }
+  }
+
+  async verifyLogin(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const { email, otp } = req.body;
+      const result = await adminAuthService.verifyLoginOTP(email, otp, req.ip);
+      sendSuccess(res, result, 'MFA bypass successful. Login confirmed.');
     } catch (err) { next(err); }
   }
 

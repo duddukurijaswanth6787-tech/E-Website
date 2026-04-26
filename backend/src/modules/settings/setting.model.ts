@@ -18,7 +18,7 @@ const SettingSchema = new Schema<ISetting>(
     value: { type: Schema.Types.Mixed },
     group: {
       type: String,
-      enum: ['general', 'branding', 'seo', 'social', 'payment', 'shipping', 'contact', 'support', 'email'],
+      enum: ['general', 'branding', 'seo', 'social', 'payment', 'shipping', 'contact', 'support', 'email', 'security'],
       required: true,
     },
     type: { type: String, enum: ['string', 'number', 'boolean', 'json', 'array'], default: 'string' },

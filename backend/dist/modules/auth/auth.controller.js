@@ -26,6 +26,16 @@ class AuthController {
     async login(req, res, next) {
         try {
             const result = await auth_service_1.authService.login(req.body.email, req.body.password);
+            (0, responses_1.sendSuccess)(res, result, result.requiresOtp ? 'OTP Sent' : 'Login successful');
+        }
+        catch (err) {
+            next(err);
+        }
+    }
+    async verifyLogin(req, res, next) {
+        try {
+            const { email, otp } = req.body;
+            const result = await auth_service_1.authService.verifyLoginOTP(email, otp);
             (0, responses_1.sendSuccess)(res, result, 'Login successful');
         }
         catch (err) {

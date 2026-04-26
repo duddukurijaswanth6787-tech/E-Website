@@ -1,61 +1,77 @@
+import { lazy, Suspense } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import PublicLayout from './layouts/PublicLayout';
 import AuthLayout from './layouts/AuthLayout';
 import UserLayout from './layouts/UserLayout';
 import AdminLayout from './layouts/AdminLayout';
 import { useAuthStore } from './store/authStore';
-import HomePage from './pages/public/HomePage';
-import ShopPage from './pages/public/ShopPage';
-import ProductDetailPage from './pages/public/ProductDetailPage';
-import CartPage from './pages/public/CartPage';
-import CheckoutPage from './pages/public/CheckoutPage';
-import OrderSuccessPage from './pages/public/OrderSuccessPage';
-import CollectionsPage from './pages/public/CollectionsPage';
-import CustomBlousePage from './pages/public/CustomBlousePage';
-import { AboutPage, ContactPage, BlogsPage } from './pages/public/StaticPages';
-import LoginPage from './pages/auth/LoginPage';
-import RegisterPage from './pages/auth/RegisterPage';
-import OtpVerificationPage from './pages/auth/OtpVerificationPage';
-import AdminDashboard from './pages/admin/AdminDashboard';
-// All Static Placeholders Replaced natively.
+import { LoadingProgress } from './components/common/LoadingProgress';
 
-import AdminProductsPage from './pages/admin/AdminProductsPage';
-import AdminOrdersPage from './pages/admin/AdminOrdersPage';
-import AdminCustomersPage from './pages/admin/AdminCustomersPage';
-import AdminCustomRequestsPage from './pages/admin/AdminCustomRequestsPage';
-import AdminCategoriesPage from './pages/admin/AdminCategoriesPage';
-import AdminCollectionsPage from './pages/admin/AdminCollectionsPage';
-import AdminBannersPage from './pages/admin/AdminBannersPage';
-import AdminBlogsPage from './pages/admin/AdminBlogsPage';
-import AdminCouponsPage from './pages/admin/AdminCouponsPage';
-import AdminReviewsPage from './pages/admin/AdminReviewsPage';
-import AdminShippingPage from './pages/admin/AdminShippingPage';
-import AdminSupportPage from './pages/admin/AdminSupportPage';
-import AdminCMSPage from './pages/admin/AdminCMSPage';
-import AdminSubcategorySupportPage from './pages/admin/AdminSubcategorySupportPage';
+// Lazy Loaded Pages
+const HomePage = lazy(() => import('./pages/public/HomePage'));
+const ShopPage = lazy(() => import('./pages/public/ShopPage'));
+const ProductDetailPage = lazy(() => import('./pages/public/ProductDetailPage'));
+const CartPage = lazy(() => import('./pages/public/CartPage'));
+const CheckoutPage = lazy(() => import('./pages/public/CheckoutPage'));
+const OrderSuccessPage = lazy(() => import('./pages/public/OrderSuccessPage'));
+const CollectionsPage = lazy(() => import('./pages/public/CollectionsPage'));
+const CustomBlousePage = lazy(() => import('./pages/public/CustomBlousePage'));
+const LoginPage = lazy(() => import('./pages/auth/LoginPage'));
+const RegisterPage = lazy(() => import('./pages/auth/RegisterPage'));
+const OtpVerificationPage = lazy(() => import('./pages/auth/OtpVerificationPage'));
+const ForgotPasswordPage = lazy(() => import('./pages/auth/ForgotPasswordPage'));
+const ResetPasswordPage = lazy(() => import('./pages/auth/ResetPasswordPage'));
 
-// Phase 4D Governance Routes
-import AdminSettingsPage from './pages/admin/AdminSettingsPage';
-import AdminMediaPage from './pages/admin/AdminMediaPage';
-import AdminAnalyticsPage from './pages/admin/AdminAnalyticsPage';
-import AdminPaymentsPage from './pages/admin/AdminPaymentsPage';
-import AdminAuditLogsPage from './pages/admin/AdminAuditLogsPage';
-import AdminAdminsPage from './pages/admin/AdminAdminsPage';
-import AdminRolesPage from './pages/admin/AdminRolesPage';
-import AdminNotificationsPage from './pages/admin/AdminNotificationsPage';
-import AdminWishlistInsightsPage from './pages/admin/AdminWishlistInsightsPage';
+// Admin Pages
+const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard'));
+const AdminProductsPage = lazy(() => import('./pages/admin/AdminProductsPage'));
+const AdminOrdersPage = lazy(() => import('./pages/admin/AdminOrdersPage'));
+const AdminCustomersPage = lazy(() => import('./pages/admin/AdminCustomersPage'));
+const AdminCustomRequestsPage = lazy(() => import('./pages/admin/AdminCustomRequestsPage'));
+const AdminCategoriesPage = lazy(() => import('./pages/admin/AdminCategoriesPage'));
+const AdminCollectionsPage = lazy(() => import('./pages/admin/AdminCollectionsPage'));
+const AdminBannersPage = lazy(() => import('./pages/admin/AdminBannersPage'));
+const AdminBlogsPage = lazy(() => import('./pages/admin/AdminBlogsPage'));
+const AdminCouponsPage = lazy(() => import('./pages/admin/AdminCouponsPage'));
+const AdminReviewsPage = lazy(() => import('./pages/admin/AdminReviewsPage'));
+const AdminShippingPage = lazy(() => import('./pages/admin/AdminShippingPage'));
+const AdminSupportPage = lazy(() => import('./pages/admin/AdminSupportPage'));
+const AdminCMSPage = lazy(() => import('./pages/admin/AdminCMSPage'));
+const AdminSubcategorySupportPage = lazy(() => import('./pages/admin/AdminSubcategorySupportPage'));
+const AdminSettingsPage = lazy(() => import('./pages/admin/AdminSettingsPage'));
+const AdminMediaPage = lazy(() => import('./pages/admin/AdminMediaPage'));
+const AdminAnalyticsPage = lazy(() => import('./pages/admin/AdminAnalyticsPage'));
+const AdminPaymentsPage = lazy(() => import('./pages/admin/AdminPaymentsPage'));
+const AdminAuditLogsPage = lazy(() => import('./pages/admin/AdminAuditLogsPage'));
+const AdminAdminsPage = lazy(() => import('./pages/admin/AdminAdminsPage'));
+const AdminRolesPage = lazy(() => import('./pages/admin/AdminRolesPage'));
+const AdminNotificationsPage = lazy(() => import('./pages/admin/AdminNotificationsPage'));
+const AdminWishlistInsightsPage = lazy(() => import('./pages/admin/AdminWishlistInsightsPage'));
+const AdminOTPPage = lazy(() => import('./pages/admin/AdminOTPPage'));
+const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
 
-import AdminLogin from './pages/admin/AdminLogin';
+// Dashboard Pages
+const UserDashboard = lazy(() => import('./pages/dashboard/UserDashboard'));
+const UserProfile = lazy(() => import('./pages/dashboard/UserProfile'));
+const UserOrders = lazy(() => import('./pages/dashboard/UserOrders'));
+const UserAddresses = lazy(() => import('./pages/dashboard/UserAddresses'));
+const UserCustomRequests = lazy(() => import('./pages/dashboard/UserCustomRequests'));
+const UserWishlist = lazy(() => import('./pages/dashboard/UserWishlist'));
+const UserSettings = lazy(() => import('./pages/dashboard/UserSettings'));
+const UserOrderDetail = lazy(() => import('./pages/dashboard/UserOrderDetail'));
 
-import UserDashboard from './pages/dashboard/UserDashboard';
-import UserOrders from './pages/dashboard/UserOrders';
-import UserAddresses from './pages/dashboard/UserAddresses';
-import UserCustomRequests from './pages/dashboard/UserCustomRequests';
+// Static Pages
+const AboutPageComp = lazy(() => import('./pages/public/StaticPages').then(m => ({ default: m.AboutPage })));
+const ContactPageComp = lazy(() => import('./pages/public/StaticPages').then(m => ({ default: m.ContactPage })));
+const BlogsPageComp = lazy(() => import('./pages/public/StaticPages').then(m => ({ default: m.BlogsPage })));
 
-// Temporary placeholders for incomplete pages
-const Placeholder = ({ title }: { title: string }) => <div className="p-8 text-center text-xl mt-12 text-gray-500">{title} Under Construction</div>;
+// Loading Component
+const PageLoader = () => (
+   <div className="min-h-[60vh] flex items-center justify-center">
+     <div className="w-10 h-10 border-4 border-primary-100 border-t-primary-800 rounded-full animate-spin"></div>
+   </div>
+);
 
-// Role-based Router Guard
 interface ProtectedRouteProps {
   children: React.ReactNode;
   allowedRoles?: string[];
@@ -63,107 +79,85 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
   const { isAuthenticated, user } = useAuthStore();
-
-  if (!isAuthenticated) {
-    return <Navigate to="/login" replace />;
-  }
-
-  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
-    return <Navigate to="/" replace />;
-  }
-
+  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (allowedRoles && user && !allowedRoles.includes(user.role)) return <Navigate to="/" replace />;
   return <>{children}</>;
 };
 
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        {/* PUBLIC ROUTES */}
-        <Route element={<PublicLayout />}>
-          <Route path="/" element={<HomePage />} />
-          <Route path="/shop" element={<ShopPage />} />
-          <Route path="/collections" element={<CollectionsPage />} />
-          <Route path="/collections/:slug" element={<ShopPage />} />
-          <Route path="/category/:slug" element={<ShopPage />} />
-          <Route path="/product/:slug" element={<ProductDetailPage />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/checkout" element={<CheckoutPage />} />
-          <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
-          <Route path="/custom-blouse" element={<CustomBlousePage />} />
-          <Route path="/about" element={<AboutPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/blogs" element={<BlogsPage />} />
-        </Route>
+      <LoadingProgress />
+      <Suspense fallback={<PageLoader />}>
+        <Routes>
+          <Route element={<PublicLayout />}>
+            <Route path="/" element={<HomePage />} />
+            <Route path="/shop" element={<ShopPage />} />
+            <Route path="/collections" element={<CollectionsPage />} />
+            <Route path="/collections/:slug" element={<ShopPage />} />
+            <Route path="/category/:slug" element={<ShopPage />} />
+            <Route path="/product/:slug" element={<ProductDetailPage />} />
+            <Route path="/cart" element={<CartPage />} />
+            <Route path="/checkout" element={<CheckoutPage />} />
+            <Route path="/order-success/:orderId" element={<OrderSuccessPage />} />
+            <Route path="/custom-blouse" element={<CustomBlousePage />} />
+            <Route path="/about" element={<AboutPageComp />} />
+            <Route path="/contact" element={<ContactPageComp />} />
+            <Route path="/blogs" element={<BlogsPageComp />} />
+          </Route>
 
-        {/* CUSTOMER AUTH ROUTES */}
-        <Route element={<AuthLayout />}>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/otp-verification" element={<OtpVerificationPage />} />
-        </Route>
+          <Route element={<AuthLayout />}>
+            <Route path="/login" element={<LoginPage />} />
+            <Route path="/register" element={<RegisterPage />} />
+            <Route path="/otp-verification" element={<OtpVerificationPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
+            <Route path="/reset-password" element={<ResetPasswordPage />} />
+          </Route>
 
-        {/* ADMIN AUTH ROOT */}
-        <Route path="/admin/login" element={<AdminLogin />} />
+          <Route path="/admin/login" element={<AdminLogin />} />
 
-        {/* CUSTOMER DASHBOARD */}
-        <Route 
-          path="/my" 
-          element={
-            <ProtectedRoute allowedRoles={['customer']}>
-              <UserLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<UserDashboard />} />
-          <Route path="orders" element={<UserOrders />} />
-          <Route path="orders/:id" element={<Placeholder title="Order Detail" />} />
-          <Route path="addresses" element={<UserAddresses />} />
-          <Route path="wishlist" element={<Placeholder title="Wishlist" />} />
-          <Route path="custom-requests" element={<UserCustomRequests />} />
-          <Route path="settings" element={<Placeholder title="Profile Settings" />} />
-        </Route>
+          <Route path="/my" element={<ProtectedRoute allowedRoles={['customer']}><UserLayout /></ProtectedRoute>}>
+            <Route index element={<UserDashboard />} />
+            <Route path="profile" element={<UserProfile />} />
+            <Route path="orders" element={<UserOrders />} />
+            <Route path="orders/:id" element={<UserOrderDetail />} />
+            <Route path="addresses" element={<UserAddresses />} />
+            <Route path="wishlist" element={<UserWishlist />} />
+            <Route path="custom-requests" element={<UserCustomRequests />} />
+            <Route path="settings" element={<UserSettings />} />
+          </Route>
 
-        {/* ADMIN DASHBOARD */}
-        <Route 
-          path="/admin" 
-          element={
-            <ProtectedRoute allowedRoles={['admin', 'super_admin']}>
-              <AdminLayout />
-            </ProtectedRoute>
-          }
-        >
-          <Route index element={<AdminDashboard />} />
-          <Route path="orders" element={<AdminOrdersPage />} />
-          <Route path="products" element={<AdminProductsPage />} />
-          <Route path="customers" element={<AdminCustomersPage />} />
-          <Route path="custom-requests" element={<AdminCustomRequestsPage />} />
-          <Route path="categories" element={<AdminCategoriesPage />} />
-          <Route path="collections" element={<AdminCollectionsPage />} />
-          <Route path="banners" element={<AdminBannersPage />} />
-          <Route path="blogs" element={<AdminBlogsPage />} />
-          <Route path="coupons" element={<AdminCouponsPage />} />
-          <Route path="reviews" element={<AdminReviewsPage />} />
-          <Route path="shipping" element={<AdminShippingPage />} />
-          <Route path="support" element={<AdminSupportPage />} />
-          <Route path="categories/subcategory-support" element={<AdminSubcategorySupportPage />} />
-          <Route path="content" element={<AdminCMSPage />} />
-          
-          <Route path="analytics" element={<AdminAnalyticsPage />} />
-          <Route path="payments" element={<AdminPaymentsPage />} />
-          <Route path="audit-logs" element={<AdminAuditLogsPage />} />
-          <Route path="admins" element={<AdminAdminsPage />} />
-          <Route path="roles" element={<AdminRolesPage />} />
-          <Route path="notifications" element={<AdminNotificationsPage />} />
-          <Route path="wishlist-insights" element={<AdminWishlistInsightsPage />} />
-          
-          <Route path="media" element={<AdminMediaPage />} />
-          <Route path="settings" element={<AdminSettingsPage />} />
-        </Route>
+          <Route path="/admin" element={<ProtectedRoute allowedRoles={['admin', 'super_admin']}><AdminLayout /></ProtectedRoute>}>
+            <Route index element={<AdminDashboard />} />
+            <Route path="orders" element={<AdminOrdersPage />} />
+            <Route path="products" element={<AdminProductsPage />} />
+            <Route path="customers" element={<AdminCustomersPage />} />
+            <Route path="custom-requests" element={<AdminCustomRequestsPage />} />
+            <Route path="categories" element={<AdminCategoriesPage />} />
+            <Route path="collections" element={<AdminCollectionsPage />} />
+            <Route path="banners" element={<AdminBannersPage />} />
+            <Route path="blogs" element={<AdminBlogsPage />} />
+            <Route path="coupons" element={<AdminCouponsPage />} />
+            <Route path="reviews" element={<AdminReviewsPage />} />
+            <Route path="shipping" element={<AdminShippingPage />} />
+            <Route path="support" element={<AdminSupportPage />} />
+            <Route path="categories/subcategory-support" element={<AdminSubcategorySupportPage />} />
+            <Route path="content" element={<AdminCMSPage />} />
+            <Route path="analytics" element={<AdminAnalyticsPage />} />
+            <Route path="payments" element={<AdminPaymentsPage />} />
+            <Route path="audit-logs" element={<AdminAuditLogsPage />} />
+            <Route path="admins" element={<AdminAdminsPage />} />
+            <Route path="roles" element={<AdminRolesPage />} />
+            <Route path="notifications" element={<AdminNotificationsPage />} />
+            <Route path="wishlist-insights" element={<AdminWishlistInsightsPage />} />
+            <Route path="media" element={<AdminMediaPage />} />
+            <Route path="otp" element={<AdminOTPPage />} />
+            <Route path="settings" element={<AdminSettingsPage />} />
+          </Route>
 
-        {/* FALLBACK */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

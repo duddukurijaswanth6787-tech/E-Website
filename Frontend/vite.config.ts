@@ -9,4 +9,19 @@ export default defineConfig({
     port: 5173,
     strictPort: false,
   },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks(id) {
+          if (id.includes('node_modules')) {
+            if (id.includes('react') || id.includes('framer-motion') || id.includes('lucide-react')) {
+              return 'vendor';
+            }
+            return 'libs';
+          }
+        }
+      }
+    },
+    chunkSizeWarningLimit: 1000
+  }
 })

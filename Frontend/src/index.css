@@ -12,11 +12,15 @@
   }
 
   html {
-    @apply scroll-smooth;
+    @apply scroll-smooth w-full;
+    max-width: 100vw;
+    overflow-x: hidden;
   }
 
   body {
     @apply font-sans antialiased text-neutral-black;
+    max-width: 100vw;
+    overflow-x: hidden;
     background: linear-gradient(180deg, #faf9f6 0%, #f7f5f0 45%, #f5f0e8 100%);
     background-attachment: fixed;
   }

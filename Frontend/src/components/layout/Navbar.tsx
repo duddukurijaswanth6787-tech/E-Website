@@ -2,12 +2,14 @@ import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Search, ShoppingBag, Heart, User, Menu, X } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useAuthStore } from '../../store/authStore';
 import { useCartStore } from '../../store/cartStore';
 
 const Navbar = () => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const location = useLocation();
   const { itemCount } = useCartStore();
+  const { isAuthenticated, user } = useAuthStore();
   const cartCount = itemCount();
 
   const isHome = location.pathname === '/';
@@ -30,11 +32,17 @@ const Navbar = () => {
     { name: 'Blogs', path: '/blogs' },
   ];
 
-  /** Always light-on-dark look; shadow helps readability on cream/light sections */
-  const navShell = '[text-shadow:0_1px_3px_rgba(0,0,0,0.55)]';
-  const linkBase = 'text-white/95 hover:text-white';
-  const linkActive = 'text-white';
-  const iconClass = 'text-white hover:text-white/90';
+  /** Theme classes based on route location */
+  const headerBg = isHome 
+    ? 'bg-transparent' 
+    : 'bg-white/95 backdrop-blur-md shadow-sm';
+  const navShell = isHome ? '[text-shadow:0_1px_3px_rgba(0,0,0,0.55)]' : '';
+  const textLogo = isHome ? 'text-white' : 'text-primary-900';
+  const textSubLogo = isHome ? 'text-white/85' : 'text-primary-600';
+  const linkBase = isHome ? 'text-white/95 hover:text-white' : 'text-gray-600 hover:text-primary-900';
+  const linkActive = isHome ? 'text-white' : 'text-primary-950';
+  const linkUnderline = isHome ? 'bg-accent-light' : 'bg-primary-900';
+  const iconClass = isHome ? 'text-white hover:text-white/90' : 'text-gray-700 hover:text-primary-900';
 
   return (
     <>
@@ -45,10 +53,10 @@ const Navbar = () => {
       )}
 
       <header
-        className={`z-50 transition-colors duration-500 bg-transparent ${
+        className={`z-50 transition-colors duration-500 ${headerBg} ${
           isHome
             ? 'fixed top-0 left-0 right-0 py-5 sm:py-6'
-            : 'sticky top-0 py-4 sm:py-5 border-b border-transparent'
+            : 'sticky top-0 py-4 sm:py-5 border-b border-gray-100'
         }`}
       >
         <div className={`max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 ${navShell}`}>
@@ -66,10 +74,10 @@ const Navbar = () => {
               to="/"
               className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 flex-shrink-0 flex flex-col items-center lg:items-start z-10 lg:min-w-[160px]"
             >
-              <span className="font-display text-2xl sm:text-3xl font-semibold tracking-[0.12em] uppercase text-white">
+              <span className={`font-display text-2xl sm:text-3xl font-semibold tracking-[0.12em] uppercase transition-colors ${textLogo}`}>
                 Vasanthi
               </span>
-              <span className="text-[0.6rem] sm:text-[0.65rem] tracking-[0.45em] font-medium uppercase mt-0.5 text-white/85">
+              <span className={`text-[0.6rem] sm:text-[0.65rem] tracking-[0.45em] font-medium uppercase mt-0.5 transition-colors ${textSubLogo}`}>
                 Creations
               </span>
             </Link>
@@ -85,7 +93,7 @@ const Navbar = () => {
                 >
                   {link.name}
                   {location.pathname === link.path && (
-                    <span className="absolute -bottom-0.5 left-0 right-0 h-[2px] rounded-full bg-accent-light" />
+                    <span className={`absolute -bottom-0.5 left-0 right-0 h-[2px] rounded-full ${linkUnderline}`} />
                   )}
                 </Link>
               ))}
@@ -98,7 +106,7 @@ const Navbar = () => {
               <Link to="/my/wishlist" title="Wishlist" className={`hidden sm:block transition-colors ${iconClass}`}>
                 <Heart size={20} strokeWidth={1.5} />
               </Link>
-              <Link to="/login" title="Account" className={`transition-colors ${iconClass}`}>
+              <Link to={isAuthenticated ? (user?.role === 'admin' || user?.role === 'super_admin' ? '/admin' : '/my/profile') : '/login'} title="Account" className={`transition-colors ${iconClass}`}>
                 <User size={20} strokeWidth={1.5} />
               </Link>
               <Link to="/cart" title="Cart" className={`relative transition-colors ${iconClass}`}>

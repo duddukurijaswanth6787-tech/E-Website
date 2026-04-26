@@ -4,11 +4,18 @@ import { blogService } from '../../api/services/blog.service';
 import type { BlogPost } from '../../api/services/blog.service';
 import { FileText, Plus, Edit2, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import AdminBlogFormModal, { emptyBlogForm, type BlogFormState } from '../../components/admin/AdminBlogFormModal';
 
 const AdminBlogsPage = () => {
   const [blogs, setBlogs] = useState<BlogPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState({ page: 1, limit: 10, total: 0 });
+
+  const [modalOpen, setModalOpen] = useState(false);
+  const [modalMode, setModalMode] = useState<'create' | 'edit'>('create');
+  const [activeBlog, setActiveBlog] = useState<BlogPost | null>(null);
+  const [saving, setSaving] = useState(false);
+  const [form, setForm] = useState<BlogFormState>(emptyBlogForm());
 
   const fetchBlogs = async (page = 1) => {
     setLoading(true);
@@ -59,6 +66,57 @@ const AdminBlogsPage = () => {
   useEffect(() => {
     fetchBlogs(pagination.page);
   }, [pagination.page]);
+
+  const openCreate = () => {
+    setModalMode('create');
+    setActiveBlog(null);
+    setForm(emptyBlogForm());
+    setModalOpen(true);
+  };
+
+  const openEdit = (b: BlogPost) => {
+    setModalMode('edit');
+    setActiveBlog(b);
+    setForm({
+      title: b.title || '',
+      excerpt: b.excerpt || '',
+      content: b.content || '',
+      coverImage: b.coverImage || '',
+      status: (b.status?.toUpperCase() === 'PUBLISHED' ? 'PUBLISHED' : 'DRAFT') as any,
+      tagsCsv: Array.isArray(b.tags) ? b.tags.join(', ') : '',
+    });
+    setModalOpen(true);
+  };
+
+  const closeModal = () => {
+    if (saving) return;
+    setModalOpen(false);
+  };
+
+  const handleSave = async () => {
+    if (!form.title.trim()) return toast.error('Blog title is required');
+    if (!form.content.trim()) return toast.error('Full article content is required');
+    
+    const tags = form.tagsCsv.split(',').map(t => t.trim()).filter(Boolean);
+    const payload = { ...form, tags };
+
+    setSaving(true);
+    try {
+      if (modalMode === 'create') {
+        await blogService.createBlog(payload);
+        toast.success('Editorial published successfully');
+      } else if (activeBlog?._id) {
+        await blogService.updateBlog(activeBlog._id, payload);
+        toast.success('Editorial updated successfully');
+      }
+      setModalOpen(false);
+      fetchBlogs(pagination.page);
+    } catch (e: any) {
+      toast.error(e?.message || 'Failed to save editorial');
+    } finally {
+      setSaving(false);
+    }
+  };
 
   const handleDelete = async (id: string, title: string) => {
      if (!window.confirm(`Warning: Deleting the Blog [${title}] removes it globally. Proceed?`)) return;
@@ -111,19 +169,23 @@ const AdminBlogsPage = () => {
          );
        }
     },
-    {
-       header: 'Actions',
-       accessor: (row: BlogPost) => (
-         <div className="flex items-center space-x-2">
-           <button className="p-1.5 text-gray-400 hover:text-primary-700 transition-colors" title="Edit Post">
-             <Edit2 size={16} />
-           </button>
-           <button onClick={() => handleDelete(row._id, row.title)} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors" title="Trash Node">
-             <Trash2 size={16} />
-           </button>
-         </div>
-       )
-    }
+     {
+        header: 'Actions',
+        accessor: (row: BlogPost) => (
+          <div className="flex items-center space-x-2">
+            <button 
+              onClick={() => openEdit(row)}
+              className="p-1.5 text-gray-400 hover:text-primary-700 transition-colors" 
+              title="Edit Post"
+            >
+              <Edit2 size={16} />
+            </button>
+            <button onClick={() => handleDelete(row._id, row.title)} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors" title="Trash Node">
+              <Trash2 size={16} />
+            </button>
+          </div>
+        )
+     }
   ];
 
   return (
@@ -135,26 +197,39 @@ const AdminBlogsPage = () => {
           </h1>
           <p className="text-sm text-gray-500">Curate styled editorials, styling tips, and SEO content networks.</p>
         </div>
-        <div className="mt-4 sm:mt-0">
-           <button className="flex items-center px-4 py-2 bg-primary-950 text-white text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors">
-              <Plus size={16} className="mr-2" />
-              Write Editorial
-           </button>
-        </div>
+         <div className="mt-4 sm:mt-0">
+            <button 
+              onClick={openCreate}
+              className="flex items-center px-4 py-2 bg-primary-950 text-white text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors"
+            >
+               <Plus size={16} className="mr-2" />
+               Write Editorial
+            </button>
+         </div>
       </div>
 
-      <DataTable 
-         columns={columns as any}
-         data={blogs}
-         loading={loading}
-         emptyMessage="No editorials or knowledge-base posts are currently registered."
-         pagination={{
-           page: pagination.page,
-           limit: pagination.limit,
-           total: Math.max(pagination.total, blogs.length),
-           onPageChange: (newPage) => setPagination({...pagination, page: newPage})
-         }}
-      />
+       <DataTable 
+          columns={columns as any}
+          data={blogs}
+          loading={loading}
+          emptyMessage="No editorials or knowledge-base posts are currently registered."
+          pagination={{
+            page: pagination.page,
+            limit: pagination.limit,
+            total: Math.max(pagination.total, blogs.length),
+            onPageChange: (newPage) => setPagination({...pagination, page: newPage})
+          }}
+       />
+
+       <AdminBlogFormModal 
+         open={modalOpen}
+         mode={modalMode}
+         saving={saving}
+         form={form}
+         setForm={setForm}
+         onClose={closeModal}
+         onSave={handleSave}
+       />
     </div>
   );
 };

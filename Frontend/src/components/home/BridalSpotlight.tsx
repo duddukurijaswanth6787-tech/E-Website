@@ -33,16 +33,16 @@ const BridalSpotlight = () => {
               Your special day deserves the finest craftsmanship. Explore our exclusive bridal catalog featuring handcrafted zari work, heirloom quality silks, and custom-tailored designer blouses.
             </p>
 
-            <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 sm:space-x-6">
+            <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-5 w-full">
               <Link 
                 to="/category/bridal" 
-                className="bg-accent text-primary-950 px-8 py-4 rounded font-semibold uppercase tracking-wider hover:bg-accent-light transition-colors text-center shadow-premium"
+                className="w-full sm:w-auto bg-accent text-primary-950 px-6 sm:px-8 py-3.5 sm:py-4 rounded text-sm sm:text-base font-semibold uppercase tracking-wider hover:bg-accent-light transition-colors text-center shadow-premium"
               >
                 Explore Bridal Wear
               </Link>
               <Link 
                 to="/custom-blouse" 
-                className="bg-transparent border border-primary-700 text-white px-8 py-4 rounded font-semibold uppercase tracking-wider hover:bg-primary-900 transition-colors text-center"
+                className="w-full sm:w-auto bg-transparent border border-primary-700 text-white px-6 sm:px-8 py-3.5 sm:py-4 rounded text-sm sm:text-base font-semibold uppercase tracking-wider hover:bg-primary-900 transition-colors text-center"
               >
                 Book Consultation
               </Link>

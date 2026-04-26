@@ -117,8 +117,13 @@ const AdminDashboard = () => {
                  { header: 'Amount', accessor: (row: any) => `₹${row.totalAmount ? row.totalAmount.toLocaleString('en-IN') : row.amount}` },
                  { header: 'Status', accessor: (row: any) => {
                      const status = row.orderStatus || row.status;
-                     let color = status === 'DELIVERED' ? 'green' : status === 'PROCESSING' ? 'blue' : 'yellow';
-                     return <span className={`px-2.5 py-1 rounded border text-[0.6rem] font-bold tracking-widest uppercase bg-${color}-50 text-${color}-800 border-${color}-200`}>{status}</span>;
+                     const colors: Record<string, string> = {
+                        DELIVERED: 'bg-green-50 text-green-800 border-green-200',
+                        PROCESSING: 'bg-blue-50 text-blue-800 border-blue-200',
+                        default: 'bg-yellow-50 text-yellow-800 border-yellow-200'
+                     };
+                     const colorClasses = colors[status] || colors.default;
+                     return <span className={`px-2.5 py-1 rounded border text-[0.6rem] font-bold tracking-widest uppercase ${colorClasses}`}>{status}</span>;
                  }}
                ]} 
                data={dashboardData.recentOrders}

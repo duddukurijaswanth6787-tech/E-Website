@@ -23,6 +23,16 @@ router.post('/login',
   adminAuthController.login.bind(adminAuthController),
 );
 
+router.post('/verify-login',
+  adminRateLimiter,
+  [
+    body('email').isEmail().normalizeEmail(),
+    body('otp').isString().notEmpty(),
+  ],
+  handleValidationErrors,
+  adminAuthController.verifyLogin.bind(adminAuthController),
+);
+
 router.post('/refresh',
   [body('refreshToken').notEmpty().withMessage('Refresh token required')],
   handleValidationErrors,

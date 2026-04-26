@@ -1,6 +1,8 @@
+import { memo } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, ShoppingBag } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { ImageWithSkeleton } from './Skeleton';
 
 export interface ProductCardProps {
   id: string;
@@ -13,7 +15,7 @@ export interface ProductCardProps {
   tag?: string;
 }
 
-export const ProductCard = ({ product }: { product: ProductCardProps }) => {
+export const ProductCard = memo(({ product }: { product: ProductCardProps }) => {
   return (
     <motion.div 
       className="group relative flex flex-col bg-white overflow-hidden"
@@ -23,10 +25,11 @@ export const ProductCard = ({ product }: { product: ProductCardProps }) => {
       {/* Product Image Box */}
       <div className="relative aspect-[3/4] overflow-hidden bg-gray-100 rounded-lg">
         <Link to={`/product/${product.slug}`}>
-          <img 
+          <ImageWithSkeleton 
             src={product.image} 
             alt={product.name}
             className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110"
+            containerClassName="w-full h-full"
             loading="lazy"
           />
         </Link>
@@ -42,15 +45,15 @@ export const ProductCard = ({ product }: { product: ProductCardProps }) => {
           </div>
         ) : null}
 
-        {/* Hover Actions */}
-        <div className="absolute top-3 right-3 flex flex-col space-y-2 opacity-0 transform translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
+        {/* Hover Actions (Desktop Only) */}
+        <div className="hidden lg:flex absolute top-3 right-3 flex-col space-y-2 opacity-0 transform translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">
           <button className="w-9 h-9 rounded-full bg-white text-gray-700 flex items-center justify-center shadow-soft hover:text-primary-700 hover:bg-primary-50 transition-colors">
             <Heart size={16} strokeWidth={2} />
           </button>
         </div>
 
-        {/* Quick Add Button */}
-        <div className="absolute bottom-0 left-0 w-full p-4 opacity-0 transform translate-y-full group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out">
+        {/* Quick Add Button (Desktop Only) */}
+        <div className="hidden lg:block absolute bottom-0 left-0 w-full p-4 opacity-0 transform translate-y-full group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out">
           <button className="w-full bg-primary-950/90 backdrop-blur-md text-white border border-primary-800 text-sm py-3 font-medium tracking-wide uppercase hover:bg-accent hover:text-primary-950 hover:border-accent transition-colors flex items-center justify-center shadow-lg">
             <ShoppingBag size={15} className="mr-2" />
             Quick Add
@@ -59,12 +62,12 @@ export const ProductCard = ({ product }: { product: ProductCardProps }) => {
       </div>
 
       {/* Product Details */}
-      <div className="pt-5 pb-2 text-center lg:text-left flex flex-col">
-        <span className="text-xs text-gray-400 tracking-wider uppercase mb-1">
+      <div className="pt-3 sm:pt-5 pb-2 text-center lg:text-left flex flex-col">
+        <span className="text-[0.65rem] sm:text-xs text-gray-400 tracking-wider uppercase mb-1">
           {product.category}
         </span>
         <Link to={`/product/${product.slug}`} className="hover:text-primary-700 transition-colors">
-          <h3 className="text-base font-medium text-gray-900 font-sans tracking-tight line-clamp-2 min-h-[2.75rem]">
+          <h3 className="text-xs sm:text-base font-medium text-gray-900 font-sans tracking-tight line-clamp-2 min-h-[2rem] sm:min-h-[2.75rem]">
             {product.name}
           </h3>
         </Link>
@@ -81,4 +84,4 @@ export const ProductCard = ({ product }: { product: ProductCardProps }) => {
       </div>
     </motion.div>
   );
-};
+}, (prev, next) => prev.product.id === next.product.id && prev.product.price === next.product.price);

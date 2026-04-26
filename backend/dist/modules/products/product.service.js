@@ -6,13 +6,33 @@ const category_model_1 = require("../categories/category.model");
 const errors_1 = require("../../common/errors");
 const helpers_1 = require("../../common/utils/helpers");
 const pagination_1 = require("../../common/utils/pagination");
+async function generateUniqueSemanticSku(prefixBase) {
+    const escaped = prefixBase.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    const re = new RegExp(`^${escaped}-\\d{3}$`);
+    const existing = await product_model_1.Product.find({ sku: { $regex: re } }).select('sku').lean();
+    let max = 0;
+    for (const p of existing) {
+        const m = String(p.sku).match(/-(\d{3})$/);
+        if (m)
+            max = Math.max(max, parseInt(m[1], 10));
+    }
+    const next = String(max + 1).padStart(3, '0');
+    return `${prefixBase}-${next}`;
+}
 class ProductService {
     async create(data, adminId) {
         const category = await category_model_1.Category.findById(data.category);
         if (!category)
             throw new errors_1.BadRequestError('Invalid category');
         const slug = await (0, helpers_1.generateUniqueSlug)(data.name, async (s) => !!(await product_model_1.Product.findOne({ slug: s })));
-        const sku = data.sku || (0, helpers_1.generateSKU)();
+        let sku = data.sku;
+        if (!sku) {
+            const parent = category.parent ? await category_model_1.Category.findById(category.parent) : null;
+            const mainName = parent?.name ?? category.name;
+            const color = data.color?.trim() || 'na';
+            const prefix = (0, helpers_1.buildSemanticSkuPrefix)(mainName, color);
+            sku = await generateUniqueSemanticSku(prefix);
+        }
         const product = await product_model_1.Product.create({
             ...data,
             slug,
@@ -24,12 +44,38 @@ class ProductService {
     }
     async getAll(req) {
         const { page, limit, skip } = (0, pagination_1.parsePagination)(req);
-        const { field, order } = { field: req.query.sortBy || 'createdAt', order: req.query.sortOrder === 'asc' ? 1 : -1 };
+        const sortParam = req.query.sort?.trim() || '';
+        let field = (req.query.sortBy || 'createdAt').trim();
+        let order = req.query.sortOrder === 'asc' ? 1 : -1;
+        if (sortParam) {
+            if (sortParam.startsWith('-')) {
+                field = sortParam.slice(1);
+                order = -1;
+            }
+            else {
+                field = sortParam;
+                order = 1;
+            }
+        }
         const filter = { deletedAt: null };
-        if (req.query.status)
+        // Mounted at /api/v1/products — use originalUrl so we never treat /admin/* as the public shop.
+        const isAdminProductList = /\/products\/admin\//.test(req.originalUrl || '');
+        if (!isAdminProductList) {
+            filter.status = 'published';
+        }
+        else if (req.query.status) {
             filter.status = req.query.status;
-        if (req.query.category)
-            filter.category = req.query.category;
+        }
+        if (req.query.category) {
+            const ids = req.query.category
+                .split(',')
+                .map((s) => s.trim())
+                .filter(Boolean);
+            if (ids.length === 1)
+                filter.category = ids[0];
+            else if (ids.length > 1)
+                filter.category = { $in: ids };
+        }
         if (req.query.collection)
             filter.collections = req.query.collection;
         if (req.query.featured === 'true')

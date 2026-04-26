@@ -19,6 +19,10 @@ router.post('/login', adminRateLimiter, [
     (0, express_validator_1.body)('email').isEmail().withMessage('Valid email required').normalizeEmail(),
     (0, express_validator_1.body)('password').notEmpty().withMessage('Password required'),
 ], middlewares_1.handleValidationErrors, adminAuth_controller_1.adminAuthController.login.bind(adminAuth_controller_1.adminAuthController));
+router.post('/verify-login', adminRateLimiter, [
+    (0, express_validator_1.body)('email').isEmail().normalizeEmail(),
+    (0, express_validator_1.body)('otp').isString().notEmpty(),
+], middlewares_1.handleValidationErrors, adminAuth_controller_1.adminAuthController.verifyLogin.bind(adminAuth_controller_1.adminAuthController));
 router.post('/refresh', [(0, express_validator_1.body)('refreshToken').notEmpty().withMessage('Refresh token required')], middlewares_1.handleValidationErrors, adminAuth_controller_1.adminAuthController.refreshToken.bind(adminAuth_controller_1.adminAuthController));
 router.post('/logout', middlewares_1.authenticateAdmin, adminAuth_controller_1.adminAuthController.logout.bind(adminAuth_controller_1.adminAuthController));
 router.get('/me', middlewares_1.authenticateAdmin, adminAuth_controller_1.adminAuthController.getMe.bind(adminAuth_controller_1.adminAuthController));

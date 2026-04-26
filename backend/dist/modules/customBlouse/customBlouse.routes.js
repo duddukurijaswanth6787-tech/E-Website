@@ -29,7 +29,7 @@ router.post('/', middlewares_1.authenticateUser, (0, upload_middleware_1.uploadC
     }
 });
 // USER: Get my requests
-router.get('/my', middlewares_1.authenticateUser, async (req, res, next) => {
+const listMyRequests = async (req, res, next) => {
     try {
         const { page, limit, skip } = (0, pagination_1.parsePagination)(req);
         const [requests, total] = await Promise.all([
@@ -41,7 +41,9 @@ router.get('/my', middlewares_1.authenticateUser, async (req, res, next) => {
     catch (err) {
         next(err);
     }
-});
+};
+router.get('/my', middlewares_1.authenticateUser, listMyRequests);
+router.get('/my-requests', middlewares_1.authenticateUser, listMyRequests);
 router.get('/my/:id', middlewares_1.authenticateUser, async (req, res, next) => {
     try {
         const request = await customBlouse_model_1.CustomBlouseRequest.findOne({ _id: req.params.id, user: req.user.userId });
@@ -81,7 +83,7 @@ router.get('/admin/:id', middlewares_1.authenticateAdmin, (0, middlewares_1.requ
         next(err);
     }
 });
-router.patch('/admin/:id/status', middlewares_1.authenticateAdmin, (0, middlewares_1.requirePermission)(constants_1.PERMISSIONS.MANAGE_CUSTOM_BLOUSE), async (req, res, next) => {
+const patchAdminStatus = async (req, res, next) => {
     try {
         const { status, note, estimatedPrice, finalPrice, adminNotes, priceNote } = req.body;
         const request = await customBlouse_model_1.CustomBlouseRequest.findById(req.params.id);
@@ -102,6 +104,21 @@ router.patch('/admin/:id/status', middlewares_1.authenticateAdmin, (0, middlewar
         request.timeline.push({ status, note: note || `Status updated to ${status}`, updatedBy: req.admin.adminId, updatedAt: new Date() });
         await request.save();
         (0, responses_1.sendSuccess)(res, request, 'Status updated');
+    }
+    catch (err) {
+        next(err);
+    }
+};
+router.patch('/admin/:id/status', middlewares_1.authenticateAdmin, (0, middlewares_1.requirePermission)(constants_1.PERMISSIONS.MANAGE_CUSTOM_BLOUSE), patchAdminStatus);
+// Frontend alias: PATCH /custom-requests/:id/status
+router.patch('/:id/status', middlewares_1.authenticateAdmin, (0, middlewares_1.requirePermission)(constants_1.PERMISSIONS.MANAGE_CUSTOM_BLOUSE), patchAdminStatus);
+// USER: GET /custom-requests/:id (same as /my/:id)
+router.get('/:id', middlewares_1.authenticateUser, async (req, res, next) => {
+    try {
+        const request = await customBlouse_model_1.CustomBlouseRequest.findOne({ _id: req.params.id, user: req.user.userId });
+        if (!request)
+            throw new errors_1.NotFoundError('Custom blouse request');
+        (0, responses_1.sendSuccess)(res, request);
     }
     catch (err) {
         next(err);

@@ -1,10 +1,12 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 import { authService } from '../../api/services/auth.service';
 import toast from 'react-hot-toast';
 
 const RegisterPage = () => {
-  const [formData, setFormData] = useState({ name: '', email: '', password: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', password: '', mobile: '' });
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -21,11 +23,22 @@ const RegisterPage = () => {
     
     try {
       const res = await authService.register(formData);
-      toast.success(res.message || 'Registration successful. Please verify email.');
-      setLoading(false);
-      navigate(`/otp-verification?email=${encodeURIComponent(formData.email)}&redirect=${encodeURIComponent(redirect)}`);
+      const payload = res.data || res;
+      
+      if (payload.requiresOtp) {
+        toast.success(res.message || 'Registration successful. Please verify email.');
+        navigate(`/otp-verification?email=${encodeURIComponent(formData.email)}&type=signup&redirect=${encodeURIComponent(redirect)}`);
+      } else {
+        // Direct login if OTP is disabled
+        const { user, accessToken, refreshToken } = payload;
+        const { useAuthStore } = await import('../../store/authStore'); 
+        useAuthStore.getState().setAuth(user, accessToken, refreshToken);
+        toast.success('Registration successful. Welcome!');
+        navigate(redirect);
+      }
     } catch (err: any) {
       toast.error(err.message || 'Registration failed');
+    } finally {
       setLoading(false);
     }
   };
@@ -65,17 +78,39 @@ const RegisterPage = () => {
         </div>
         
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Password *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Mobile Number (Optional)</label>
           <input 
-            type="password" 
-            name="password"
-            value={formData.password}
+            type="tel" 
+            name="mobile"
+            value={formData.mobile}
             onChange={handleChange}
+            maxLength={10}
             className="w-full bg-white border border-gray-300 rounded px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-            placeholder="Create a password"
-            minLength={6}
-            required
+            placeholder="Enter your 10-digit mobile number"
           />
+        </div>
+        
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1.5">Password *</label>
+          <div className="relative">
+            <input 
+              type={showPassword ? "text" : "password"} 
+              name="password"
+              value={formData.password}
+              onChange={handleChange}
+              className="w-full bg-white border border-gray-300 rounded px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+              placeholder="Create a password"
+              minLength={6}
+              required
+            />
+            <button
+              type="button"
+              onClick={() => setShowPassword(!showPassword)}
+              className="absolute inset-y-0 right-0 px-4 flex items-center justify-center text-gray-400 hover:text-primary-700 focus:outline-none"
+            >
+              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+            </button>
+          </div>
         </div>
 
         <button 

@@ -3,11 +3,12 @@ import { userService } from '../../api/services/user.service';
 import { useAuthStore } from '../../store/authStore';
 import { Settings, Save, Key, Globe, Layout, User } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { StorefrontSettingsTab } from './StorefrontSettingsTab';
 
 const AdminSettingsPage = () => {
   const { user, updateUser } = useAuthStore();
   const [loading, setLoading] = useState(false);
-  const [activeTab, setActiveTab] = useState('PROFILE');
+  const [activeTab, setActiveTab] = useState('STOREFRONT');
 
   // Customer Profile Settings Bindings bridging the /users/profile GAP
   const [profileForm, setProfileForm] = useState({
@@ -57,10 +58,11 @@ const AdminSettingsPage = () => {
       <div className="flex flex-col md:flex-row gap-6">
         {/* Navigation Axis */}
         <div className="md:w-64 flex-shrink-0 bg-white border border-gray-200 rounded-lg overflow-hidden h-fit">
-           <AdminTab id="PROFILE" label="Administrator Profile" icon={User} />
+           <AdminTab id="STOREFRONT" label="Homepage Layout" icon={Layout} />
+           <AdminTab id="THEME" label="UI & Aesthetics" icon={Layout} />
+           <AdminTab id="PROFILE" label="Admin Profile" icon={User} />
            <AdminTab id="GLOBAL" label="Global Variables" icon={Globe} />
-           <AdminTab id="UI" label="UI & Aesthetics" icon={Layout} />
-           <AdminTab id="SECRETS" label="Authentication & Secrets" icon={Key} />
+           <AdminTab id="SECRETS" label="Auth & Secrets" icon={Key} />
         </div>
 
         {/* Dynamic Frame Context */}
@@ -114,7 +116,11 @@ const AdminSettingsPage = () => {
              </form>
            )}
 
-           {activeTab !== 'PROFILE' && (
+           {activeTab === 'STOREFRONT' && (
+              <StorefrontSettingsTab />
+           )}
+
+           {activeTab !== 'PROFILE' && activeTab !== 'STOREFRONT' && (
              <div className="h-64 flex flex-col items-center justify-center text-center">
                  <Settings className="w-12 h-12 text-gray-300 mb-3 animate-[spin_10s_linear_infinite]" />
                  <h3 className="text-gray-900 font-medium">Integration Pathway Offline</h3>

@@ -30,10 +30,12 @@ export const storeOTP = async (key: string, otp: string): Promise<void> => {
 };
 
 export const verifyOTP = async (key: string, otp: string): Promise<boolean> => {
-  // Master OTP for development QA
+  // Master OTP for development QA - REMOVED FOR PRODUCTION
+  /*
   if (otp === '000000') {
     return true;
   }
+  */
   
   // Check memory first (prefer it in dev if Redis is failing)
   const memStored = memoryStore.get(`otp:${key}`);

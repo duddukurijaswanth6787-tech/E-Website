@@ -1,7 +1,10 @@
 import { useState, useEffect } from 'react';
+import { useParams, Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Filter, X, ChevronDown, Check, SlidersHorizontal, Search } from 'lucide-react';
+import { Check, Filter, X, ChevronDown, SlidersHorizontal, Search } from 'lucide-react';
+import SEO from '../../components/common/SEO';
 import { ProductCard, type ProductCardProps } from '../../components/common/ProductCard';
+import { ProductCardSkeleton } from '../../components/common/Skeleton';
 import { productService } from '../../api/services/product.service';
 import { categoryService } from '../../api/services/category.service';
 import type { Category } from '../../api/services/category.service';
@@ -183,10 +186,10 @@ const ShopPage = () => {
         />
       </div>
 
-      <div className="mt-8 lg:hidden pb-safe border-t border-gray-100 pt-6">
+      <div className="mt-8 lg:hidden pb-8 border-t border-gray-100 pt-6">
         <button 
           onClick={() => setIsMobileFilterOpen(false)}
-          className="w-full bg-primary-950 text-white font-medium uppercase tracking-widest py-4 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-900"
+          className="w-full bg-primary-950 text-white font-medium uppercase tracking-widest py-4 rounded focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-900 shadow-premium active:scale-95 transition-transform"
         >
           View {filteredProducts.length} Results
         </button>
@@ -194,14 +197,38 @@ const ShopPage = () => {
     </>
   );
 
+  const { slug } = useParams();
+  const isCategory = window.location.pathname.includes('/category/');
+  const isCollection = window.location.pathname.includes('/collection/');
+
+  const [pageTitle, setPageTitle] = useState("Boutique Collection");
+  const pageDesc = "Browse the complete catalog of Vasanthi Creations. Shop exquisite handloom sarees, designer blouses, and festive ethnic wear.";
+
+  useEffect(() => {
+    if (slug) {
+      if (isCategory) {
+        setPageTitle(`${slug.charAt(0).toUpperCase() + slug.slice(1)} Collection`);
+      } else if (isCollection) {
+        setPageTitle(`${slug.split('-').map(s => s.charAt(0).toUpperCase() + s.slice(1)).join(' ')} Curated Set`);
+      }
+    } else {
+      setPageTitle("Boutique Collection");
+    }
+  }, [slug, isCategory, isCollection]);
+
   return (
     <div className="min-h-screen bg-neutral-cream flex flex-col">
+      <SEO 
+        title={pageTitle}
+        description={pageDesc}
+      />
+      
       {/* Premium Header Space */}
       <div className="bg-primary-50 py-10 md:py-12 text-center border-b border-primary-100">
         <div className="max-w-7xl mx-auto px-4">
           {/* Breadcrumbs */}
           <nav className="text-[0.7rem] font-semibold tracking-widest uppercase text-primary-600 mb-4 flex items-center justify-center space-x-2">
-            <a href="/" className="hover:text-primary-900 transition-colors">Home</a>
+            <Link to="/" className="hover:text-primary-900 transition-colors">Home</Link>
             <span className="text-gray-400">/</span>
             <span className="text-gray-800">Shop All</span>
           </nav>
@@ -282,8 +309,10 @@ const ShopPage = () => {
 
           {/* Grid */}
           {loading ? (
-             <div className="flex justify-center items-center py-32">
-               <div className="w-10 h-10 border-4 border-primary-200 border-t-primary-800 rounded-full animate-spin"></div>
+             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-10 sm:gap-x-6 lg:gap-x-8">
+               {[...Array(8)].map((_, i) => (
+                 <ProductCardSkeleton key={i} />
+               ))}
              </div>
           ) : filteredProducts.length > 0 ? (
             <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-10 sm:gap-x-6 lg:gap-x-8">

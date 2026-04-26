@@ -38,7 +38,7 @@ router.get('/', middlewares_1.authenticateAdmin, (0, middlewares_1.requirePermis
 router.put('/', middlewares_1.authenticateAdmin, (0, middlewares_1.requirePermission)(constants_1.PERMISSIONS.MANAGE_SETTINGS), async (req, res, next) => {
     try {
         const updates = req.body.settings;
-        await Promise.all(updates.map(({ key, value }) => setting_model_1.Setting.findOneAndUpdate({ key }, { value, updatedBy: req.admin.adminId }, { upsert: true, new: true })));
+        await Promise.all(updates.map(({ key, ...data }) => setting_model_1.Setting.findOneAndUpdate({ key }, { ...data, updatedBy: req.admin.adminId }, { upsert: true, new: true })));
         (0, responses_1.sendSuccess)(res, null, 'Settings updated');
     }
     catch (err) {

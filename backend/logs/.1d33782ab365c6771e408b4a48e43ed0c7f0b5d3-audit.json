@@ -6,19 +6,14 @@
     "auditLog": "C:\\Users\\duddu\\Desktop\\e-\\backend\\logs\\.1d33782ab365c6771e408b4a48e43ed0c7f0b5d3-audit.json",
     "files": [
         {
-            "date": 1775592761970,
-            "name": "C:\\Users\\duddu\\Desktop\\e-\\backend\\logs\\exceptions-2026-04-08.log",
-            "hash": "1e2a3550d07127d3e5cb9afb7dc8ecabc08390304fd9aeabc67c8959cd66df1f"
-        },
-        {
-            "date": 1775729429045,
-            "name": "C:\\Users\\duddu\\Desktop\\e-\\backend\\logs\\exceptions-2026-04-09.log",
-            "hash": "cc88e31dd5ba29ffa8f48ea319fb5ca4394e287206926ad2debb18e7116fdec5"
-        },
-        {
             "date": 1776771527963,
             "name": "C:\\Users\\duddu\\Desktop\\e-\\backend\\logs\\exceptions-2026-04-21.log",
             "hash": "ca8f5afe6891fd095cfc9ae729a6bd1529a1a0200a910339deb04045ca528eef"
+        },
+        {
+            "date": 1777185229353,
+            "name": "C:\\Users\\duddu\\Desktop\\e-\\backend\\logs\\exceptions-2026-04-26.log",
+            "hash": "f1f775772d32ffd6b0984bc39fe0128b9c29bf330505dcb4c782a97af0c90384"
         }
     ],
     "hashType": "sha256"

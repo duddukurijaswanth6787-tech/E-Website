@@ -14,6 +14,7 @@ const OtpVerificationPage = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const email = searchParams.get('email') || '';
+  const type = searchParams.get('type') || 'signup'; 
   const redirect = searchParams.get('redirect') || '/';
   const { setAuth } = useAuthStore();
 
@@ -81,15 +82,28 @@ const OtpVerificationPage = () => {
       }
 
       // REAL BACKEND VALIDATION
-      const res = await authService.verifyOtp(email, otpCode);
+      let res;
+      if (type === 'login') {
+        res = await authService.verifyLogin(email, otpCode);
+      } else if (type === 'admin') {
+        res = await authService.verifyAdminLogin(email, otpCode);
+      } else {
+        res = await authService.verifyOtp(email, otpCode);
+      }
       
+      if (type === 'forgot') {
+        toast.success('OTP verified. Proceed to update your credentials.');
+        navigate(`/reset-password?email=${encodeURIComponent(email)}&otp=${otpCode}`);
+        return;
+      }
+
       setAuth(
-        res.data.user,
+        res.data.user || (res.data as any).admin,
         res.data.accessToken,
         res.data.refreshToken
       );
       
-      toast.success(res.message || 'Account verified successfully!');
+      toast.success(res.message || 'Verification successful!');
       navigate(redirect);
 
     } catch (err: any) {
@@ -116,7 +130,7 @@ const OtpVerificationPage = () => {
       )}
 
       <form onSubmit={verifyOtp} className="space-y-8">
-        <div className="flex justify-between max-w-xs mx-auto gap-2">
+        <div className="flex justify-between sm:justify-center max-w-xs mx-auto gap-1.5 sm:gap-2">
           {otp.map((digit, index) => (
             <input
               key={index}
@@ -127,7 +141,7 @@ const OtpVerificationPage = () => {
               value={digit}
               onChange={(e) => handleChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
-              className="w-12 h-14 text-center text-xl font-bold bg-white border border-gray-300 rounded focus:border-primary-600 focus:ring-1 focus:ring-primary-600 transition-colors"
+              className="w-10 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-bold bg-white border border-gray-300 rounded focus:border-primary-600 focus:ring-1 focus:ring-primary-600 transition-colors"
             />
           ))}
         </div>

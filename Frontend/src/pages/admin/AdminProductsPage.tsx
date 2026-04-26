@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import { DataTable } from '../../components/admin/DataTable';
 import AdminProductFormModal, {
   emptyProductForm,
@@ -9,6 +9,7 @@ import type { Product } from '../../api/services/product.service';
 import { Plus, Edit2, Trash2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { categoryService, type Category } from '../../api/services/category.service';
+import { ImageWithSkeleton } from '../../components/common/Skeleton';
 
 function getParentId(c: Category): string | undefined {
   const p = c.parent;
@@ -260,7 +261,6 @@ const AdminProductsPage = () => {
     setModalOpen(true);
   };
 
-  /** Re-map category tree when taxonomy loads after opening edit. */
   useEffect(() => {
     if (!modalOpen || modalMode !== 'edit' || !activeProduct?._id) return;
     setForm(productToForm(activeProduct, categories));
@@ -297,7 +297,7 @@ const AdminProductsPage = () => {
     }
   };
 
-  const handleDelete = async (id: string, name: string) => {
+  const handleDelete = useCallback(async (id: string, name: string) => {
     if (!window.confirm(`Are you sure you want to delete ${name}? This action cannot be undone.`)) return;
     try {
       await productService.deleteProduct(id);
@@ -306,18 +306,19 @@ const AdminProductsPage = () => {
     } catch {
       toast.error('Error deleting product');
     }
-  };
+  }, [fetchProducts, pagination.page]);
 
-  const columns = [
+  const columns = useMemo(() => [
     {
       header: 'Product',
       accessor: (row: Product) => (
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 rounded overflow-hidden bg-gray-100 flex-shrink-0">
-            <img
+            <ImageWithSkeleton
               src={row.images?.[0] || 'https://placehold.co/100?text=IMG'}
               alt={row.name}
               className="w-full h-full object-cover"
+              containerClassName="w-full h-full"
             />
           </div>
           <div>
@@ -391,7 +392,7 @@ const AdminProductsPage = () => {
         </div>
       ),
     },
-  ];
+  ], [categories, openEdit, handleDelete]);
 
   return (
     <div className="space-y-6 max-w-[100vw] overflow-hidden">

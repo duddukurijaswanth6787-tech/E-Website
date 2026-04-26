@@ -21,6 +21,19 @@ router.get('/', async (_req, res, next) => {
         next(err);
     }
 });
+// ADMIN (read full taxonomy, including inactive)
+router.get('/admin/all', middlewares_1.authenticateAdmin, (0, middlewares_1.requirePermission)(constants_1.PERMISSIONS.MANAGE_CATEGORIES), async (_req, res, next) => {
+    try {
+        const categories = await category_model_1.Category.find({ deletedAt: null })
+            .populate('parent', 'name slug')
+            .sort({ order: 1 })
+            .lean();
+        (0, responses_1.sendSuccess)(res, categories);
+    }
+    catch (err) {
+        next(err);
+    }
+});
 router.get('/:slug', async (req, res, next) => {
     try {
         const category = await category_model_1.Category.findOne({ slug: req.params.slug, isActive: true, deletedAt: null });
