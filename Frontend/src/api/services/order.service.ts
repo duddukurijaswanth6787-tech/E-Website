@@ -37,5 +37,13 @@ export const orderService = {
 
   updateOrderStatus: async (id: string, status: string) => {
     return apiClient.patch(`/orders/admin/${id}/status`, { status });
+  },
+
+  updatePaymentStatus: async (id: string, status: string) => {
+    return apiClient.patch(`/orders/admin/${id}/payment-status`, { status });
+  },
+
+  getAdminOrderById: async (id: string) => {
+    return apiClient.get<any, { success: boolean, data: any }>(`/orders/admin/${id}`);
   }
 };

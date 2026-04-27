@@ -17,10 +17,47 @@ const recalcCart = async (cart: InstanceType<typeof Cart>) => {
   cart.total = subtotal - (cart.couponDiscount || 0);
 };
 
+const performMerge = async (userId: string, guestCartId: string) => {
+  const guestCart = await Cart.findOne({ sessionId: guestCartId });
+  if (!guestCart || guestCart.items.length === 0) return null;
+
+  let userCart = await Cart.findOne({ user: userId });
+  if (!userCart) {
+    userCart = new Cart({ user: userId, items: [] });
+  }
+
+  // Merge items
+  for (const gItem of guestCart.items) {
+    const existing = userCart.items.find(
+      (uItem) => uItem.product.toString() === gItem.product.toString() && uItem.variantId === gItem.variantId
+    );
+
+    if (existing) {
+      existing.quantity += gItem.quantity;
+    } else {
+      userCart.items.push(gItem as any);
+    }
+  }
+
+  await recalcCart(userCart);
+  await userCart.save();
+
+  // Safely discard the guest cart after merge
+  await Cart.deleteOne({ _id: guestCart._id });
+  return userCart;
+};
+
 // GET cart
 router.get('/', optionalAuthenticateUser, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const filter = req.user ? { user: req.user.userId } : { sessionId: req.headers['x-session-id'] };
+    const guestCartId = req.headers['x-guest-cart-id'] as string;
+    
+    // Auto-merge if logged in and guest cart exists
+    if (req.user && guestCartId) {
+      await performMerge(req.user.userId, guestCartId);
+    }
+
+    const filter = req.user ? { user: req.user.userId } : { sessionId: guestCartId };
     const cart = await Cart.findOne(filter).populate('items.product', 'name images price slug status');
     sendSuccess(res, cart || { items: [], subtotal: 0, total: 0, couponDiscount: 0 });
   } catch (err) { next(err); }
@@ -41,12 +78,12 @@ router.post('/items', optionalAuthenticateUser, async (req: Request, res: Respon
       if (variant) price = variant.price;
     }
 
-    const filter = req.user ? { user: req.user.userId } : { sessionId: req.headers['x-session-id'] };
+    const filter = req.user ? { user: req.user.userId } : { sessionId: req.headers['x-guest-cart-id'] };
     let cart = await Cart.findOne(filter);
 
     if (!cart) {
       cart = new Cart({
-        ...(req.user ? { user: req.user.userId } : { sessionId: req.headers['x-session-id'], expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) }),
+        ...(req.user ? { user: req.user.userId } : { sessionId: req.headers['x-guest-cart-id'], expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) }),
         items: [],
       });
     }
@@ -67,7 +104,7 @@ router.post('/items', optionalAuthenticateUser, async (req: Request, res: Respon
 // UPDATE item quantity
 router.patch('/items/:itemId', optionalAuthenticateUser, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const filter = req.user ? { user: req.user.userId } : { sessionId: req.headers['x-session-id'] };
+    const filter = req.user ? { user: req.user.userId } : { sessionId: req.headers['x-guest-cart-id'] };
     const cart = await Cart.findOne(filter);
     if (!cart) throw new NotFoundError('Cart');
 
@@ -89,7 +126,7 @@ router.patch('/items/:itemId', optionalAuthenticateUser, async (req: Request, re
 // REMOVE item
 router.delete('/items/:itemId', optionalAuthenticateUser, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const filter = req.user ? { user: req.user.userId } : { sessionId: req.headers['x-session-id'] };
+    const filter = req.user ? { user: req.user.userId } : { sessionId: req.headers['x-guest-cart-id'] };
     const cart = await Cart.findOne(filter);
     if (!cart) throw new NotFoundError('Cart');
     (cart.items as any).pull(req.params.itemId);
@@ -103,7 +140,7 @@ router.delete('/items/:itemId', optionalAuthenticateUser, async (req: Request, r
 router.post('/coupon', optionalAuthenticateUser, async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { code } = req.body;
-    const filter = req.user ? { user: req.user.userId } : { sessionId: req.headers['x-session-id'] };
+    const filter = req.user ? { user: req.user.userId } : { sessionId: req.headers['x-guest-cart-id'] };
     const cart = await Cart.findOne(filter);
     if (!cart) throw new NotFoundError('Cart');
 
@@ -131,7 +168,7 @@ router.post('/coupon', optionalAuthenticateUser, async (req: Request, res: Respo
 // REMOVE coupon
 router.delete('/coupon', optionalAuthenticateUser, async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const filter = req.user ? { user: req.user.userId } : { sessionId: req.headers['x-session-id'] };
+    const filter = req.user ? { user: req.user.userId } : { sessionId: req.headers['x-guest-cart-id'] };
     const cart = await Cart.findOne(filter);
     if (!cart) throw new NotFoundError('Cart');
     cart.coupon = undefined;
@@ -139,6 +176,21 @@ router.delete('/coupon', optionalAuthenticateUser, async (req: Request, res: Res
     cart.total = cart.subtotal;
     await cart.save();
     sendSuccess(res, cart, 'Coupon removed');
+  } catch (err) { next(err); }
+});
+
+// MERGE guest cart into user cart
+router.post('/merge', authenticateUser, async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const guestCartId = req.headers['x-guest-cart-id'] as string;
+    if (!guestCartId) return sendSuccess(res, null, 'No guest cart to merge');
+
+    const mergedCart = await performMerge(req.user!.userId, guestCartId);
+    if (!mergedCart) {
+      return sendSuccess(res, null, 'Guest cart empty or not found');
+    }
+
+    sendSuccess(res, mergedCart, 'Cart merged successfully');
   } catch (err) { next(err); }
 });
 

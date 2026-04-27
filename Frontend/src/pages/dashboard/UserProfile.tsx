@@ -12,6 +12,7 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Skeleton } from '../../components/common/Skeleton';
+import { motion } from 'framer-motion';
 
 interface ProfileStats {
   totalOrders: number;
@@ -57,12 +58,10 @@ const UserProfile = () => {
     const fetchProfileData = async () => {
       try {
         setLoading(true);
-        const [ordersRes, addressRes, userRes, wishlistRes, customRes] = await Promise.allSettled([
+        // Phase 1: Critical Identity & Primary Order History
+        const [ordersRes, userRes] = await Promise.allSettled([
           orderService.getUserOrders(),
-          addressService.getAddresses(),
-          apiClient.get('/users/me'),
-          apiClient.get('/wishlist').catch(() => null),
-          apiClient.get('/custom-blouse/user').catch(() => null)
+          apiClient.get('/users/me')
         ]);
 
         if (userRes.status === 'fulfilled' && userRes.value.data?.data) {
@@ -70,15 +69,24 @@ const UserProfile = () => {
         }
 
         let orderData: any[] = [];
-        let addressCount = 0;
-        let wishlistCount = 0;
-        let customCount = 0;
-
         if (ordersRes.status === 'fulfilled') {
           const rawOrders = (ordersRes.value as any)?.data?.data || (ordersRes.value as any)?.data || (ordersRes.value as any) || [];
           orderData = Array.isArray(rawOrders) ? rawOrders : [];
           setOrders(orderData.slice(0, 5));
         }
+
+        // Release the skeleton loading screen as soon as core history is ready
+        setLoading(false);
+
+        // Phase 2: Background Secondary Statistics
+        let addressCount = 0;
+        let wishlistCount = 0;
+        let customCount = 0;
+        const [addressRes, wishlistRes, customRes] = await Promise.allSettled([
+          addressService.getAddresses(),
+          apiClient.get('/wishlist').catch(() => null),
+          apiClient.get('/custom-blouse/my').catch(() => null)
+        ]);
 
         if (addressRes.status === 'fulfilled') {
            const addrs = addressRes.value.data?.data || addressRes.value.data || [];
@@ -97,9 +105,9 @@ const UserProfile = () => {
 
         setStats({
           totalOrders: orderData.length,
-          activeOrders: orderData.filter(o => ['PENDING', 'PROCESSING', 'SHIPPED', 'PACKED'].includes((o.orderStatus || o.status || '').toUpperCase())).length,
-          deliveredOrders: orderData.filter(o => (o.orderStatus || o.status || '').toUpperCase() === 'DELIVERED').length,
-          totalSpent: orderData.reduce((acc, o) => acc + (o.totalAmount || o.total || 0), 0),
+          activeOrders: orderData.filter(o => ['PENDING', 'CONFIRMED', 'PROCESSING', 'SHIPPED', 'PACKED'].includes((o.status || o.orderStatus || '').toUpperCase())).length,
+          deliveredOrders: orderData.filter(o => (o.status || o.orderStatus || '').toUpperCase() === 'DELIVERED').length,
+          totalSpent: orderData.reduce((acc, o) => acc + (o.total || o.totalAmount || 0), 0),
           savedAddresses: addressCount,
           wishlistItems: wishlistCount,
           customRequests: customCount
@@ -145,8 +153,8 @@ const UserProfile = () => {
     if (s === 'CANCELLED') return -1;
     if (s === 'DELIVERED') return 4;
     if (s === 'SHIPPED') return 3;
-    if (s === 'PACKED' || s === 'PROCESSING') return 2;
-    if (s === 'CONFIRMED') return 1;
+    if (s === 'PACKED') return 2;
+    if (s === 'CONFIRMED' || s === 'PROCESSING') return 1;
     return 0; // Pending
   };
 
@@ -360,7 +368,7 @@ const UserProfile = () => {
             ) : (
               <div className="space-y-5 relative z-10">
                 {orders.map((order, idx) => {
-                  const orderStatus = (order.orderStatus || order.status || 'PENDING').toUpperCase();
+                  const orderStatus = (order.status || order.orderStatus || 'PENDING').toUpperCase();
                   const progressIndex = getOrderStatusProgress(orderStatus);
                   const isCancelled = progressIndex === -1;
 
@@ -381,7 +389,7 @@ const UserProfile = () => {
                          <div>
                             <p className="text-[0.6rem] font-bold text-[#A51648] uppercase tracking-[0.15em] mb-1.5 leading-none">ORDER #{String(order._id).substring(0,8).toUpperCase()}</p>
                             <div className="flex items-center text-[0.9rem] font-bold text-[#1F1A1C] mb-1.5 font-serif tracking-wide">
-                              ₹{(order.totalAmount || order.total || 0).toLocaleString('en-IN')} 
+                              ₹{(order.total || order.totalAmount || 0).toLocaleString('en-IN')} 
                             </div>
                             <span className="text-[0.65rem] font-semibold text-[#1F1A1C]/50 tracking-wide uppercase">
                               {new Date(order.createdAt).toLocaleDateString('en-US', { month: 'short', day: '2-digit' })} • {order.items?.length || 0} ITEM(S)
@@ -400,44 +408,84 @@ const UserProfile = () => {
                            </div>
                         ) : (
                           <>
-                            <div className="flex items-center justify-between mb-4">
-                               <span className={`text-[0.65rem] font-bold uppercase tracking-[0.15em] px-3 py-1 rounded-full border shadow-sm ${orderStatus === 'DELIVERED' ? 'bg-[#FFF8F1] text-[#D4AF37] border-[#D4AF37]/30' : 'bg-[#FBEAF0] text-[#A51648] border-[#A51648]/10'}`}>
-                                 {orderStatus} {orderStatus === 'DELIVERED' && <CheckCircle className="w-3 h-3 inline pb-0.5 ml-0.5" />}
-                               </span>
-                               <Link to={`/my/orders/${order._id}`} className="text-[#A51648] text-[0.65rem] font-bold uppercase tracking-widest hover:text-[#5A001F] transition-colors pb-1 border-b border-[#A51648]/30 hover:border-[#5A001F]">View Details</Link>
+                            <div className="flex items-center justify-between mb-6">
+                               <motion.span 
+                                 initial={{ opacity: 0, x: -10 }}
+                                 animate={{ opacity: 1, x: 0 }}
+                                 className={`text-[0.65rem] font-bold uppercase tracking-[0.15em] px-4 py-1.5 rounded-full border shadow-sm ${orderStatus === 'DELIVERED' ? 'bg-[#5A001F] text-[#D4AF37] border-[#D4AF37]/30' : 'bg-[#FBEAF0] text-[#A51648] border-[#A51648]/10'}`}
+                               >
+                                 {orderStatus} {orderStatus === 'DELIVERED' && <CheckCircle className="w-3.5 h-3.5 inline pb-0.5 ml-1" />}
+                               </motion.span>
+                               <Link to={`/my/orders/${order._id}`} className="group flex items-center text-[#A51648] text-[0.65rem] font-bold uppercase tracking-widest hover:text-[#5A001F] transition-all">
+                                 View History <span className="ml-1 group-hover:translate-x-1 transition-transform">→</span>
+                               </Link>
                             </div>
-                            <div className="relative mx-3">
-                              {/* Track Base */}
-                              <div className="absolute left-0 right-0 top-3 h-[2px] bg-[#FBEAF0] rounded-full" />
-                              {/* Track Fill */}
-                              <div 
-                                className="absolute left-0 h-[2px] bg-gradient-to-r from-[#A51648] to-[#D4AF37] rounded-full transition-all duration-700" 
-                                style={{ width: `${(progressIndex / (timelineSteps.length - 1)) * 100}%` }} 
+
+                            <div className="relative mx-4 h-16 flex items-center">
+                              {/* Background Line */}
+                              <div className="absolute left-0 right-0 h-[3px] bg-[#FBEAF0] rounded-full overflow-hidden">
+                                 <div className="absolute inset-0 shimmer-luxury opacity-40"></div>
+                              </div>
+
+                              {/* Animated Progress Fill */}
+                              <motion.div 
+                                className="absolute left-0 h-[3px] bg-gradient-to-r from-[#5A001F] via-[#A51648] to-[#D4AF37] rounded-full z-10" 
+                                initial={{ width: 0 }}
+                                animate={{ width: `${(progressIndex / (timelineSteps.length - 1)) * 100}%` }}
+                                transition={{ duration: 1.5, ease: "circOut", delay: 0.2 }}
                               />
                               
-                              <div className="relative flex justify-between">
+                              <div className="relative w-full flex justify-between">
                                 {timelineSteps.map((step, stepIdx) => {
-                                  const isActive = stepIdx <= progressIndex;
+                                  const isCompleted = stepIdx < progressIndex;
+                                  const isCurrent = stepIdx === progressIndex;
+
                                   return (
-                                    <div key={stepIdx} className="flex flex-col items-center">
-                                      <div className={`w-6 h-6 rounded-full flex items-center justify-center border-2 z-10 transition-all duration-500 shadow-sm
-                                        ${isActive ? 'bg-[#5A001F] border-[#5A001F] text-[#D4AF37]' : 'bg-white border-[#FBEAF0] text-[#FBEAF0]'} 
-                                      `}>
-                                        {stepIdx < progressIndex ? (
-                                           <CheckCircle className="w-3 h-3 text-[#D4AF37]" strokeWidth={2.5} />
-                                        ) : (
-                                           <step.icon className={`w-2.5 h-2.5 ${isActive ? 'text-[#D4AF37]' : 'text-[#FBEAF0]'}`} strokeWidth={2.5} />
-                                        )}
+                                    <div key={stepIdx} className="flex flex-col items-center group/step">
+                                      {/* Node Circle */}
+                                      <div className="relative">
+                                         {isCurrent && !isCancelled && (
+                                            <div className="absolute inset-0 -m-2 rounded-full border border-[#D4AF37]/40 animate-pulse-luxury"></div>
+                                         )}
+                                         
+                                         <motion.div 
+                                           initial={{ scale: 0.8, opacity: 0 }}
+                                           animate={{ scale: isCurrent ? 1.2 : 1, opacity: 1 }}
+                                           transition={{ delay: 0.5 + (stepIdx * 0.1) }}
+                                           className={`w-7 h-7 rounded-full flex items-center justify-center border-2 z-20 transition-all duration-500 shadow-md relative
+                                             ${isCompleted ? 'bg-[#5A001F] border-[#5A001F] text-[#D4AF37]' : 
+                                               isCurrent ? 'bg-white border-[#D4AF37] text-[#5A001F]' : 
+                                               'bg-white border-[#FBEAF0] text-[#F3F4F6]'} 
+                                           `}
+                                         >
+                                           {isCompleted ? (
+                                              <CheckCircle className="w-3.5 h-3.5 text-[#D4AF37]" strokeWidth={3} />
+                                           ) : (
+                                              <step.icon className={`w-3 h-3 ${isCurrent ? 'text-[#D4AF37]' : 'text-[#F1F1F1]'}`} strokeWidth={2.5} />
+                                           )}
+                                         </motion.div>
+
+                                         {/* Tooltip Label */}
+                                         <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 whitespace-nowrap opacity-0 group-hover/step:opacity-100 transition-opacity bg-[#1F1A1C] text-white text-[10px] px-2 py-1 rounded pointer-events-none z-30 font-bold uppercase tracking-widest">
+                                            {step.label}
+                                         </div>
                                       </div>
                                     </div>
                                   );
                                 })}
                               </div>
                             </div>
-                            <div className="flex justify-between mt-2.5 px-1 text-[0.55rem] font-bold uppercase tracking-[0.1em] text-[#1F1A1C]/40">
-                              <span className={progressIndex >= 0 ? 'text-[#A51648]' : ''}>Start</span>
-                              <span className={progressIndex >= 2 ? 'text-[#A51648] text-center w-full' : 'text-center w-full'}>Shipped</span>
-                              <span className={progressIndex >= 4 ? 'text-[#D4AF37]' : ''}>Done</span>
+
+                            <div className="flex justify-between mt-6 px-1 text-[0.6rem] font-bold uppercase tracking-[0.2em]">
+                              <span className={progressIndex >= 0 ? 'text-[#5A001F]' : 'text-gray-300'}>Ordered</span>
+                               <motion.span 
+                                 animate={progressIndex === 2 ? { y: [0, -3, 0] } : {}}
+                                 transition={{ repeat: Infinity, duration: 2 }}
+                                 className={progressIndex >= 2 ? 'text-[#A51648] text-center' : 'text-gray-300 text-center'}
+                               >
+                                 Transit
+                               </motion.span>
+                              <span className={progressIndex === 4 ? 'text-[#D4AF37]' : 'text-gray-300'}>Arrived</span>
                             </div>
                           </>
                         )}

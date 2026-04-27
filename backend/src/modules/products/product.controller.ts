@@ -1,11 +1,44 @@
 import { Request, Response, NextFunction } from 'express';
 import { productService } from './product.service';
 import { sendSuccess, sendCreated, sendNoContent, sendPaginated } from '../../common/responses';
+import { getFileUrl } from '../../common/middlewares/upload.middleware';
 
 export class ProductController {
   async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const product = await productService.create(req.body, req.admin!.adminId);
+      const data = { ...req.body };
+      let finalImages: string[] = [];
+
+      // 1. Process existing/remote URLs first
+      if (data.images) {
+        try {
+          const parsed = typeof data.images === 'string' ? JSON.parse(data.images) : data.images;
+          if (Array.isArray(parsed)) finalImages = parsed.filter(i => typeof i === 'string' && i.startsWith('http'));
+        } catch {
+           // Fallback if not JSON
+           if (typeof data.images === 'string') finalImages = [data.images];
+        }
+      }
+
+      // 2. Process newly uploaded binary files
+      if (req.files && Array.isArray(req.files)) {
+        const uploadedUrls = req.files.map(file => getFileUrl(req, file.path));
+        finalImages = [...finalImages, ...uploadedUrls];
+      }
+
+      data.images = finalImages;
+
+      // 3. Robust parsing for other complex fields
+      const parseField = (field: any) => {
+        if (!field) return undefined;
+        try { return typeof field === 'string' ? JSON.parse(field) : field; } catch { return field; }
+      };
+
+      data.attributes = parseField(data.attributes);
+      data.occasions = parseField(data.occasions);
+      data.tags = parseField(data.tags);
+
+      const product = await productService.create(data, req.admin!.adminId);
       sendCreated(res, product, 'Product created successfully');
     } catch (err) { next(err); }
   }
@@ -33,7 +66,37 @@ export class ProductController {
 
   async update(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
-      const product = await productService.update(req.params.id as string, req.body, req.admin!.adminId);
+      const data = { ...req.body };
+      let finalImages: string[] = [];
+
+      // 1. Process currently kept images (URLs)
+      if (data.images) {
+        try {
+          const parsed = typeof data.images === 'string' ? JSON.parse(data.images) : data.images;
+          if (Array.isArray(parsed)) finalImages = parsed.filter(i => typeof i === 'string' && i.startsWith('http'));
+        } catch {
+           if (typeof data.images === 'string') finalImages = [data.images];
+        }
+      }
+
+      // 2. Append new uploads
+      if (req.files && Array.isArray(req.files)) {
+        const uploadedUrls = req.files.map(file => getFileUrl(req, file.path));
+        finalImages = [...finalImages, ...uploadedUrls];
+      }
+
+      data.images = finalImages;
+
+      const parseField = (field: any) => {
+        if (!field) return undefined;
+        try { return typeof field === 'string' ? JSON.parse(field) : field; } catch { return field; }
+      };
+
+      data.attributes = parseField(data.attributes);
+      data.occasions = parseField(data.occasions);
+      data.tags = parseField(data.tags);
+
+      const product = await productService.update(req.params.id as string, data, req.admin!.adminId);
       sendSuccess(res, product, 'Product updated successfully');
     } catch (err) { next(err); }
   }

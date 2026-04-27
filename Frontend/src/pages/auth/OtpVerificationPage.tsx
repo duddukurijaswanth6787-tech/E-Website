@@ -97,13 +97,20 @@ const OtpVerificationPage = () => {
         return;
       }
 
-      setAuth(
-        res.data.user || (res.data as any).admin,
-        res.data.accessToken,
-        res.data.refreshToken
-      );
+      const { user, accessToken, refreshToken } = (res as any).data;
+      const { useAuthStore } = await import('../../store/authStore'); 
+      useAuthStore.getState().setAuth(user, accessToken, refreshToken);
       
-      toast.success(res.message || 'Verification successful!');
+      try {
+         const { cartService } = await import('../../api/services/cart.service');
+         await cartService.mergeCart();
+         const { useCartStore } = await import('../../store/cartStore');
+         await useCartStore.getState().syncBackendCart();
+      } catch (e) {
+         console.error("Cart merge skipped", e);
+      }
+
+      toast.success('Email verified successfully. Welcome!');
       navigate(redirect);
 
     } catch (err: any) {

@@ -1,6 +1,7 @@
 import type { Dispatch, SetStateAction } from 'react';
 import type { Category } from '../../api/services/category.service';
 import { previewSemanticSku } from '../../utils/productSkuPreview';
+import { X, UploadCloud } from 'lucide-react';
 
 export type ProductFormState = {
   name: string;
@@ -48,6 +49,7 @@ export type ProductFormState = {
   exchangeAvailable: boolean;
   cancellationAllowed: boolean;
   tagsCsv: string;
+  uploadedFiles: File[];
 };
 
 export const emptyProductForm = (): ProductFormState => ({
@@ -96,6 +98,7 @@ export const emptyProductForm = (): ProductFormState => ({
   exchangeAvailable: true,
   cancellationAllowed: true,
   tagsCsv: '',
+  uploadedFiles: [],
 });
 
 type Props = {
@@ -175,12 +178,19 @@ const AdminProductFormModal = ({
   }
 
   const previewImages = [
-    form.mainImageUrl.trim() && { url: form.mainImageUrl.trim(), role: 'Main / thumbnail' },
-    ...galleryUrls.map((url, i) => ({
-      url,
-      role: galleryLabels[i] || `Gallery ${i + 1}`,
-    })),
-  ].filter(Boolean) as { url: string; role: string }[];
+    ...form.uploadedFiles.map(file => ({ url: URL.createObjectURL(file), role: 'New Upload', isLocal: true, file })),
+    ...(form.mainImageUrl ? [{ url: form.mainImageUrl, role: 'Main Image', isLocal: false }] : []),
+    ...galleryUrls.map((url, i) => ({ url, role: galleryLabels[i] || `Gallery ${i+1}`, isLocal: false }))
+  ];
+
+  const removeRemoteImage = (urlToRemove: string) => {
+    if (form.mainImageUrl === urlToRemove) {
+      setForm(f => ({ ...f, mainImageUrl: '' }));
+    } else {
+      const remaining = galleryUrls.filter(u => u !== urlToRemove);
+      setForm(f => ({ ...f, galleryImagesCsv: remaining.join(', ') }));
+    }
+  };
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onMouseDown={onClose}>
@@ -523,31 +533,86 @@ const AdminProductFormModal = ({
             </p>
             <div className="grid grid-cols-1 gap-4">
               <div>
-                <label className={labelCls}>Main image URL</label>
-                <input
-                  value={form.mainImageUrl}
-                  onChange={(e) => setForm((f) => ({ ...f, mainImageUrl: e.target.value }))}
-                  className={inputCls}
-                  placeholder="https://…"
-                />
+                <label className={labelCls}>Direct Image Upload (Multiple)</label>
+                <div className="mt-1 flex flex-col items-center justify-center px-6 pt-5 pb-6 border-2 border-primary-200 border-dashed rounded-xl bg-primary-50/10 hover:bg-primary-50/20 transition-all cursor-pointer relative group">
+                  <input
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className="absolute inset-0 w-full h-full opacity-0 cursor-pointer z-10"
+                    onChange={(e) => {
+                      const files = Array.from(e.target.files || []);
+                      if (files.length > 0) {
+                        setForm(f => ({ ...f, uploadedFiles: [...f.uploadedFiles, ...files] }));
+                      }
+                    }}
+                  />
+                  <div className="flex flex-col items-center pointer-events-none group-hover:scale-105 transition-transform">
+                    <UploadCloud className="mx-auto h-12 w-12 text-primary-400" strokeWidth={1.5} />
+                    <p className="mt-1 text-sm font-bold text-primary-950 uppercase tracking-widest text-center">Click to upload or drag and drop</p>
+                    <p className="text-[10px] text-gray-500 uppercase tracking-widest font-black mt-1">PNG, JPG, WebP up to 10MB each</p>
+                  </div>
+                </div>
+
+                {previewImages.length > 0 && (
+                  <div className="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-4 p-4 bg-gray-50 rounded-2xl border border-gray-100 shadow-inner">
+                    {previewImages.map((img, idx) => (
+                      <div key={idx} className="relative group/thumb aspect-[3/4] rounded-xl overflow-hidden border border-white shadow-soft bg-white">
+                         <img 
+                           src={img.url} 
+                           className="w-full h-full object-cover" 
+                           onLoad={(e) => img.isLocal && URL.revokeObjectURL((e.target as any).src)}
+                           alt=""
+                         />
+                         <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/thumb:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                           <button 
+                             type="button"
+                             onClick={() => {
+                               if (img.isLocal && 'file' in img) {
+                                 setForm(f => ({ ...f, uploadedFiles: f.uploadedFiles.filter(file => file !== img.file) }));
+                               } else {
+                                 removeRemoteImage(img.url);
+                               }
+                             }}
+                             className="p-1.5 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                             title="Remove Image"
+                           >
+                             <X size={14} className="w-4 h-4" />
+                           </button>
+                         </div>
+                         <div className={`absolute top-2 left-2 px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-widest ${img.isLocal ? 'bg-primary-600 text-white' : 'bg-white text-gray-900 border border-gray-200'}`}>
+                            {img.role}
+                         </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
-              <div>
-                <label className={labelCls}>Gallery image URLs (comma-separated)</label>
-                <input
-                  value={form.galleryImagesCsv}
-                  onChange={(e) => setForm((f) => ({ ...f, galleryImagesCsv: e.target.value }))}
-                  className={inputCls}
-                  placeholder="https://…/1.jpg, https://…/2.jpg"
-                />
+              
+              <div className="relative py-4">
+                 <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-100"></div></div>
+                 <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-black"><span className="px-3 bg-white text-gray-400 font-serif italic capitalize">Advanced Source Management</span></div>
               </div>
-              <div>
-                <label className={labelCls}>Gallery labels (optional, comma-separated)</label>
-                <input
-                  value={form.galleryLabelsCsv}
-                  onChange={(e) => setForm((f) => ({ ...f, galleryLabelsCsv: e.target.value }))}
-                  className={inputCls}
-                  placeholder="front full, side drape, pallu close-up, border"
-                />
+
+              <div className="bg-gray-50/50 p-4 rounded-xl border border-gray-100 space-y-4">
+                <div>
+                  <label className={labelCls}>Main Remote URL (Legacy)</label>
+                  <input
+                    value={form.mainImageUrl}
+                    onChange={(e) => setForm((f) => ({ ...f, mainImageUrl: e.target.value }))}
+                    className={inputCls}
+                    placeholder="https://…"
+                  />
+                </div>
+                <div>
+                  <label className={labelCls}>Additional Gallery URLs (Comma separated)</label>
+                  <textarea
+                    value={form.galleryImagesCsv}
+                    onChange={(e) => setForm((f) => ({ ...f, galleryImagesCsv: e.target.value }))}
+                    className={`${inputCls} min-h-[60px]`}
+                    placeholder="https://…/1.jpg, https://…/2.jpg"
+                  />
+                </div>
               </div>
             </div>
           </section>

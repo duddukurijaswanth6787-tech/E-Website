@@ -31,6 +31,9 @@ export interface IOrder extends Document {
     state: string;
     pincode: string;
     country: string;
+    landmark?: string;
+    altMobile?: string;
+    deliveryInstructions?: string;
   };
   coupon?: mongoose.Types.ObjectId;
   couponCode?: string;
@@ -90,6 +93,9 @@ const OrderSchema = new Schema<IOrder>(
       state: { type: String, required: true },
       pincode: { type: String, required: true },
       country: { type: String, default: 'India' },
+      landmark: { type: String },
+      altMobile: { type: String },
+      deliveryInstructions: { type: String },
     },
     coupon: { type: Schema.Types.ObjectId, ref: 'Coupon' },
     couponCode: { type: String },

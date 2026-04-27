@@ -47,6 +47,15 @@ const LoginPage = () => {
         res.data.refreshToken
       );
       
+      try {
+         const { cartService } = await import('../../api/services/cart.service');
+         await cartService.mergeCart();
+         const { useCartStore } = await import('../../store/cartStore');
+         await useCartStore.getState().syncBackendCart();
+      } catch (e) {
+         console.error("Cart merge skipped", e);
+      }
+      
       toast.success(res.message || 'Successfully logged in');
       navigate(redirect);
       
@@ -77,6 +86,16 @@ const LoginPage = () => {
     try {
       const res = await authService.login({ email: 'customer@test.com', password: 'Customer@123' });
       setAuth(res.data.user, res.data.accessToken, res.data.refreshToken);
+      
+      try {
+         const { cartService } = await import('../../api/services/cart.service');
+         await cartService.mergeCart();
+         const { useCartStore } = await import('../../store/cartStore');
+         await useCartStore.getState().syncBackendCart();
+      } catch (e) {
+         console.error("Cart merge skipped", e);
+      }
+
       toast.success('Customer Session Established');
       navigate(redirect);
     } catch (err: any) {

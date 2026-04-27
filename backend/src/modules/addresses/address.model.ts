@@ -12,6 +12,8 @@ export interface IAddress extends Document {
   state: string;
   pincode: string;
   country: string;
+  altMobile?: string;
+  deliveryInstructions?: string;
   isDefault: boolean;
   deletedAt?: Date;
   createdAt: Date;
@@ -31,6 +33,8 @@ const AddressSchema = new Schema<IAddress>(
     state: { type: String, required: true, trim: true },
     pincode: { type: String, required: true, trim: true },
     country: { type: String, default: 'India' },
+    altMobile: { type: String, trim: true },
+    deliveryInstructions: { type: String },
     isDefault: { type: Boolean, default: false },
     deletedAt: { type: Date },
   },

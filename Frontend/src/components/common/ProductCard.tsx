@@ -3,6 +3,8 @@ import { Link } from 'react-router-dom';
 import { Heart, ShoppingBag } from 'lucide-react';
 import { motion } from 'framer-motion';
 import { ImageWithSkeleton } from './Skeleton';
+import { useCartStore } from '../../store/cartStore';
+import { useState } from 'react';
 
 export interface ProductCardProps {
   id: string;
@@ -16,6 +18,28 @@ export interface ProductCardProps {
 }
 
 export const ProductCard = memo(({ product }: { product: ProductCardProps }) => {
+  const addItem = useCartStore((state) => state.addItem);
+  const [isAdding, setIsAdding] = useState(false);
+
+  const handleQuickAdd = async (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (isAdding) return;
+    setIsAdding(true);
+    
+    await addItem({
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      price: product.price,
+      image: product.image,
+      quantity: 1,
+    });
+    
+    setIsAdding(false);
+  };
+
   return (
     <motion.div 
       className="group relative flex flex-col bg-white overflow-hidden"
@@ -53,10 +77,20 @@ export const ProductCard = memo(({ product }: { product: ProductCardProps }) => 
         </div>
 
         {/* Quick Add Button (Desktop Only) */}
-        <div className="hidden lg:block absolute bottom-0 left-0 w-full p-4 opacity-0 transform translate-y-full group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out">
-          <button className="w-full bg-primary-950/90 backdrop-blur-md text-white border border-primary-800 text-sm py-3 font-medium tracking-wide uppercase hover:bg-accent hover:text-primary-950 hover:border-accent transition-colors flex items-center justify-center shadow-lg">
-            <ShoppingBag size={15} className="mr-2" />
-            Quick Add
+        <div className="hidden lg:block absolute bottom-0 left-0 w-full p-4 opacity-0 transform translate-y-full group-hover:opacity-100 group-hover:translate-y-0 transition-all duration-300 ease-out z-10">
+          <button 
+            onClick={handleQuickAdd}
+            disabled={isAdding}
+            className="w-full bg-primary-950/90 backdrop-blur-md text-white border border-primary-800 text-sm py-3 font-medium tracking-wide uppercase hover:bg-accent hover:text-primary-950 hover:border-accent transition-colors flex items-center justify-center shadow-lg disabled:opacity-80"
+          >
+            {isAdding ? (
+               <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            ) : (
+               <>
+                 <ShoppingBag size={15} className="mr-2" />
+                 Quick Add
+               </>
+            )}
           </button>
         </div>
       </div>

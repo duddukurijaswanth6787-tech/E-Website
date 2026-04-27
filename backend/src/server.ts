@@ -1,8 +1,4 @@
 import { env } from './config/env';
-// Must be first import
-import dotenv from 'dotenv';
-dotenv.config();
-
 import app from './app';
 import { connectMongoDB, disconnectMongoDB } from './config/database';
 import { connectRedis, disconnectRedis } from './config/redis';
@@ -78,4 +74,8 @@ process.on('uncaughtException', (err) => {
   process.exit(1);
 });
 
-start();
+// Execute server
+start().catch(err => {
+  console.error('🔥 FATAL ERROR DURING STARTUP:', err);
+  process.exit(1);
+});

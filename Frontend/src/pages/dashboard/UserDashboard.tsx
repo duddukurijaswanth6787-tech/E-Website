@@ -19,7 +19,7 @@ const UserDashboard = () => {
         
         setStats({
           orders: orders.length,
-          processing: orders.filter((o: any) => o.orderStatus === 'PROCESSING').length
+          processing: orders.filter((o: any) => ['PENDING', 'CONFIRMED', 'PROCESSING', 'PACKED', 'SHIPPED'].includes((o.status || '').toUpperCase())).length
         });
 
         if (orders.length > 0) {
@@ -78,10 +78,10 @@ const UserDashboard = () => {
                   <p className="text-sm text-gray-500 mt-1">Placed on {new Date(recentOrder.createdAt).toLocaleDateString()}</p>
                </div>
                <div className="mt-4 sm:mt-0 text-center sm:text-right">
-                  <span className={`px-3 py-1 rounded text-xs font-bold uppercase tracking-widest ${recentOrder.orderStatus === 'DELIVERED' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'}`}>
-                     {recentOrder.orderStatus}
+                  <span className={`px-3 py-1 rounded text-xs font-bold uppercase tracking-widest ${recentOrder.status?.toUpperCase() === 'DELIVERED' ? 'bg-green-100 text-green-800' : 'bg-orange-100 text-orange-800'}`}>
+                     {recentOrder.status}
                   </span>
-                  <p className="text-gray-900 font-semibold mt-2">₹{recentOrder.totalAmount.toLocaleString('en-IN')}</p>
+                  <p className="text-gray-900 font-semibold mt-2">₹{(recentOrder.total || 0).toLocaleString('en-IN')}</p>
                </div>
             </div>
           ) : (

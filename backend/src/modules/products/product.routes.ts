@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import { productController } from './product.controller';
 import { authenticateAdmin, requirePermission } from '../../common/middlewares';
-import { PERMISSIONS } from '../../common/constants';
+import { PERMISSIONS, UPLOAD_FOLDER } from '../../common/constants';
+import { uploadMultipleImages } from '../../common/middlewares/upload.middleware';
 
 const router = Router();
 
@@ -34,12 +35,14 @@ router.get('/admin/:id',
 router.post('/',
   authenticateAdmin,
   requirePermission(PERMISSIONS.MANAGE_PRODUCTS),
+  uploadMultipleImages(UPLOAD_FOLDER.PRODUCTS, 'images', 10),
   productController.create.bind(productController),
 );
 
 router.put('/:id',
   authenticateAdmin,
   requirePermission(PERMISSIONS.MANAGE_PRODUCTS),
+  uploadMultipleImages(UPLOAD_FOLDER.PRODUCTS, 'images', 10),
   productController.update.bind(productController),
 );
 

@@ -250,6 +250,31 @@ export class OrderService {
 
     return order;
   }
+
+  async updatePaymentStatus(orderId: string, paymentStatus: string, adminId: string) {
+    const order = await Order.findById(orderId);
+    if (!order) throw new NotFoundError('Order');
+
+    order.paymentStatus = paymentStatus as typeof order.paymentStatus;
+    order.timeline.push({ 
+      status: order.status, 
+      note: `Payment status manually changed to ${paymentStatus}`, 
+      updatedBy: adminId, 
+      updatedAt: new Date() 
+    });
+    await order.save();
+
+    return order;
+  }
+
+  async getOrderDetailById(orderId: string) {
+    const order = await Order.findById(orderId)
+      .populate('user', 'name email mobile avatar createdAt')
+      .populate('items.product', 'name images sku')
+      .lean();
+    if (!order) throw new NotFoundError('Order');
+    return order;
+  }
 }
 
 export const orderService = new OrderService();

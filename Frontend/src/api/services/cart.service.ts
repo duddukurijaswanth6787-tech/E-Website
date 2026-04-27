@@ -10,6 +10,10 @@ export const cartService = {
     })) });
   },
 
+  mergeCart: async () => {
+    return apiClient.post('/cart/merge', {});
+  },
+
   // Fetch the active user cart from database
   getCart: async () => {
     return apiClient.get('/cart');

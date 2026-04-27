@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { orderService } from '../../api/services/order.service';
-import { Package, Clock, CheckCircle, XCircle, ArrowUpRight } from 'lucide-react';
+import { Package, Clock, CheckCircle, XCircle, ArrowUpRight, Truck } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Skeleton, ImageWithSkeleton } from '../../components/common/Skeleton';
 
@@ -12,7 +12,7 @@ const UserOrders = () => {
     const fetchOrders = async () => {
       try {
         const res = await orderService.getUserOrders();
-        setOrders(res.data || []);
+        setOrders((res as any).data?.data || (res as any).data || res || []);
       } catch (err) {
         console.error("Orders fetch error", err);
       } finally {
@@ -50,10 +50,11 @@ const UserOrders = () => {
             let StatusIcon = Clock;
             let statusColor = "text-orange-600 bg-orange-50 border-orange-200";
             
-            if (order.orderStatus === 'DELIVERED') {
+            const status = (order.status || 'pending').toUpperCase();
+            if (status === 'DELIVERED') {
                StatusIcon = CheckCircle;
                statusColor = "text-green-700 bg-green-50 border-green-200";
-            } else if (order.orderStatus === 'CANCELLED') {
+            } else if (status === 'CANCELLED') {
                StatusIcon = XCircle;
                statusColor = "text-red-700 bg-red-50 border-red-200";
             }
@@ -69,7 +70,7 @@ const UserOrders = () => {
                      <div className="hidden sm:block w-px h-10 bg-gray-200"></div>
                      <div>
                        <p className="text-xs font-semibold tracking-widest uppercase text-gray-500 mb-1">Total Amount</p>
-                       <p className="font-medium text-gray-900">₹{order.totalAmount.toLocaleString('en-IN')}</p>
+                       <p className="font-medium text-gray-900">₹{(order.total || 0).toLocaleString('en-IN')}</p>
                      </div>
                      <div className="hidden sm:block w-px h-10 bg-gray-200"></div>
                      <div>
@@ -78,21 +79,28 @@ const UserOrders = () => {
                      </div>
                    </div>
                    
-                   <Link to={`/my/orders/${order._id}`} className="flex items-center text-sm font-bold uppercase tracking-widest text-primary-700 hover:text-primary-900">
-                     Details <ArrowUpRight className="w-4 h-4 ml-1" />
-                   </Link>
+                   <div className="flex items-center gap-4">
+                     {order.trackingUrl && (
+                       <a href={order.trackingUrl} target="_blank" rel="noopener noreferrer" className="flex items-center text-xs font-bold uppercase tracking-widest text-[#D4AF37] hover:text-[#B38D19]">
+                         Track <Truck className="w-4 h-4 ml-1" />
+                       </a>
+                     )}
+                     <Link to={`/my/orders/${order._id}`} className="flex items-center text-sm font-bold uppercase tracking-widest text-primary-700 hover:text-primary-900">
+                       Details <ArrowUpRight className="w-4 h-4 ml-1" />
+                     </Link>
+                   </div>
                 </div>
                 
                 <div className="p-6">
                    <div className={`inline-flex items-center px-4 py-2 rounded-full border text-sm font-semibold mb-6 ${statusColor}`}>
                      <StatusIcon className="w-5 h-5 mr-2" />
-                     {order.orderStatus} {order.orderStatus === 'DELIVERED' ? 'ON ' + new Date(order.updatedAt).toLocaleDateString() : ''}
+                     {order.status} {order.status?.toUpperCase() === 'DELIVERED' ? 'ON ' + new Date(order.updatedAt).toLocaleDateString() : ''}
                    </div>
                    
                    <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
                      {order.items.map((item: any, idx: number) => (
                        <div key={idx} className="flex-shrink-0 w-24 h-32 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                          <ImageWithSkeleton src={item.product?.images?.[0] || 'https://placehold.co/400x600/f3f4f6/A51648?text=Item'} alt={item.product?.name || 'Product'} className="w-full h-full object-cover" containerClassName="w-full h-full" />
+                          <ImageWithSkeleton src={item.image || item.product?.images?.[0] || 'https://placehold.co/400x600/f3f4f6/A51648?text=Item'} alt={item.name || item.product?.name || 'Product'} className="w-full h-full object-cover" containerClassName="w-full h-full" />
                        </div>
                      ))}
                    </div>

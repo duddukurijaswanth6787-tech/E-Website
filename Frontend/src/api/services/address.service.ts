@@ -2,14 +2,18 @@ import apiClient from '../client';
 
 export interface Address {
   _id?: string;
-  type: string; // 'Home', 'Work', 'Other'
+  type: string; // 'home', 'work', 'other'
   name: string;
-  street: string;
+  mobile: string;
+  line1: string;
+  line2?: string;
+  landmark?: string;
   city: string;
   state: string;
-  zipCode: string;
-  country: string;
-  phone: string;
+  pincode: string;
+  country?: string;
+  altMobile?: string;
+  deliveryInstructions?: string;
   isDefault?: boolean;
 }
 

@@ -19,7 +19,7 @@ const UserAddresses = () => {
       if (err.response?.status === 404) {
         // Mock fallback if user route missing during Phase 3 rollout
         setAddresses([
-          { _id: '1', type: 'Home', name: 'Developer User', street: '45, Jubilee Hills Road No. 36', city: 'Hyderabad', state: 'Telangana', zipCode: '500033', country: 'India', phone: '9876543210', isDefault: true }
+          { _id: '1', type: 'home', name: 'Developer User', line1: '45, Jubilee Hills', line2: 'Road No. 36', city: 'Hyderabad', state: 'Telangana', pincode: '500033', country: 'India', mobile: '9876543210', isDefault: true }
         ]);
       } else {
         toast.error("Failed to load addresses");
@@ -98,14 +98,14 @@ const UserAddresses = () => {
 
               <h3 className="font-semibold text-gray-900 mb-1">{addr.name}</h3>
               <p className="text-sm text-gray-600 leading-relaxed mb-4">
-                 {addr.street}<br/>
-                 {addr.city}, {addr.state} {addr.zipCode}<br/>
+                 {addr.line1} {addr.line2 && `, ${addr.line2}`}<br/>
+                 {addr.city}, {addr.state} {addr.pincode}<br/>
                  {addr.country}
               </p>
               
               <div className="flex items-center text-sm text-gray-600 mb-6">
                  <MapPin className="w-4 h-4 mr-2 text-gray-400" />
-                 {addr.phone}
+                 {addr.mobile}
               </div>
 
               {!addr.isDefault && (

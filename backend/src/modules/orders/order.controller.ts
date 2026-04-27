@@ -61,6 +61,22 @@ export class OrderController {
       sendSuccess(res, order, 'Order status updated');
     } catch (err) { next(err); }
   }
+
+  async updatePaymentStatus(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const order = await orderService.updatePaymentStatus(
+        req.params.id as string, req.body.status, req.admin!.adminId
+      );
+      sendSuccess(res, order, 'Payment status updated');
+    } catch (err) { next(err); }
+  }
+
+  async getAdminOrderDetail(req: Request, res: Response, next: NextFunction): Promise<void> {
+    try {
+      const order = await orderService.getOrderDetailById(req.params.id as string);
+      sendSuccess(res, order);
+    } catch (err) { next(err); }
+  }
 }
 
 export const orderController = new OrderController();

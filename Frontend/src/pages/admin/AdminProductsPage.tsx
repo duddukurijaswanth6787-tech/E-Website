@@ -120,7 +120,7 @@ function productToForm(p: Product, categories: Category[]): ProductFormState {
   };
 }
 
-function buildPayload(form: ProductFormState): Record<string, unknown> {
+function buildPayload(form: ProductFormState): Record<string, unknown> | FormData {
   const leafCategoryId = form.subCategoryId.trim() || form.mainCategoryId.trim();
 
   const gallery = form.galleryImagesCsv
@@ -138,42 +138,30 @@ function buildPayload(form: ProductFormState): Record<string, unknown> {
     .map((s) => s.trim())
     .filter(Boolean);
 
-  const payload: Record<string, unknown> = {
+  const attributes = {
+    sareeLength: form.sareeLength.trim() || undefined,
+    sareeWidth: form.sareeWidth.trim() || undefined,
+    blouseLength: form.blouseLength.trim() || undefined,
+    blouseWidth: form.blouseWidth.trim() || undefined,
+    weight: form.weight.trim() || undefined,
+  };
+
+  const base: Record<string, any> = {
     name: form.name.trim(),
     shortDescription: form.shortDescription.trim() || undefined,
     description: form.description,
     category: leafCategoryId,
     color: form.color.trim() || undefined,
-    occasions,
-    careInstructions: form.careInstructions.trim() || undefined,
-    blouseDetails: form.blouseDetails.trim() || undefined,
-    weavingTechnique: form.weavingTechnique.trim() || undefined,
-    pallu: form.pallu.trim() || undefined,
-    speciality: form.speciality.trim() || undefined,
-    handloomCraftsmanship: form.handloomCraftsmanship.trim() || undefined,
-    designHighlight: form.designHighlight.trim() || undefined,
-    stylingTips: form.stylingTips.trim() || undefined,
     price: Number(form.price),
-    comparePrice:
-      form.comparePrice === '' ? undefined : Number(form.comparePrice),
+    comparePrice: form.comparePrice === '' ? undefined : Number(form.comparePrice),
     discountType: form.discountType,
-    discountValue:
-      form.discountValue === '' ? undefined : Number(form.discountValue),
+    discountValue: form.discountValue === '' ? undefined : Number(form.discountValue),
     taxPercent: form.taxPercent === '' ? undefined : Number(form.taxPercent),
     codAvailable: form.codAvailable,
     stock: Number(form.stock),
     stockStatus: form.stockStatus,
     lowStockThreshold: Number(form.lowStockThreshold),
-    images,
     fabric: form.fabric.trim() || undefined,
-    attributes: {
-      sareeLength: form.sareeLength.trim() || undefined,
-      sareeWidth: form.sareeWidth.trim() || undefined,
-      blouseLength: form.blouseLength.trim() || undefined,
-      blouseWidth: form.blouseWidth.trim() || undefined,
-      weight: form.weight.trim() || undefined,
-    },
-    tags,
     status: form.status,
     isFeatured: form.isFeatured,
     isTrending: form.isTrending,
@@ -185,9 +173,44 @@ function buildPayload(form: ProductFormState): Record<string, unknown> {
     returnWindowDays: Number(form.returnWindowDays),
     exchangeAvailable: form.exchangeAvailable,
     cancellationAllowed: form.cancellationAllowed,
+    careInstructions: form.careInstructions.trim() || undefined,
+    blouseDetails: form.blouseDetails.trim() || undefined,
+    weavingTechnique: form.weavingTechnique.trim() || undefined,
+    pallu: form.pallu.trim() || undefined,
+    speciality: form.speciality.trim() || undefined,
+    handloomCraftsmanship: form.handloomCraftsmanship.trim() || undefined,
+    designHighlight: form.designHighlight.trim() || undefined,
+    stylingTips: form.stylingTips.trim() || undefined,
   };
 
-  return payload;
+  // If uploading files, we use FormData
+  if (form.uploadedFiles.length > 0) {
+    const fd = new FormData();
+    Object.keys(base).forEach(key => {
+      if (base[key] !== undefined) fd.append(key, String(base[key]));
+    });
+    
+    // Complex fields must be stringified for Multer to receive them as strings to parse
+    fd.append('attributes', JSON.stringify(attributes));
+    fd.append('occasions', JSON.stringify(occasions));
+    fd.append('tags', JSON.stringify(tags));
+    fd.append('images', JSON.stringify(images));
+    
+    form.uploadedFiles.forEach(file => {
+      fd.append('images', file); // Multer maps this to req.files
+    });
+    
+    return fd;
+  }
+
+  // Otherwise, return standard object
+  return {
+    ...base,
+    images,
+    occasions,
+    tags,
+    attributes
+  };
 }
 
 const AdminProductsPage = () => {
@@ -289,6 +312,7 @@ const AdminProductsPage = () => {
       }
 
       setModalOpen(false);
+      setForm(f => ({ ...f, uploadedFiles: [] }));
       fetchProducts(pagination.page);
     } catch (e: any) {
       toast.error(e?.message || 'Failed to save product');

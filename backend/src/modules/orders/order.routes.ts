@@ -19,28 +19,19 @@ router.get('/admin',
   orderController.getAllOrders.bind(orderController),
 );
 
-// ADMIN: Single order detail (with populated user, items, addresses)
 router.get('/admin/:id',
   authenticateAdmin, requirePermission(PERMISSIONS.MANAGE_ORDERS),
-  async (req, res, next) => {
-    try {
-      const { Order } = await import('./order.model');
-      const order = await (Order as any).findById(req.params.id)
-        .populate('user', 'name email mobile avatar createdAt')
-        .lean();
-      if (!order) {
-        const { NotFoundError } = await import('../../common/errors');
-        throw new NotFoundError('Order');
-      }
-      const { sendSuccess } = await import('../../common/responses');
-      sendSuccess(res, order);
-    } catch (err) { next(err); }
-  }
+  orderController.getAdminOrderDetail.bind(orderController),
 );
 
 router.patch('/admin/:id/status',
   authenticateAdmin, requirePermission(PERMISSIONS.MANAGE_ORDERS),
   orderController.updateOrderStatus.bind(orderController),
+);
+
+router.patch('/admin/:id/payment-status',
+  authenticateAdmin, requirePermission(PERMISSIONS.MANAGE_ORDERS),
+  orderController.updatePaymentStatus.bind(orderController),
 );
 
 export default router;

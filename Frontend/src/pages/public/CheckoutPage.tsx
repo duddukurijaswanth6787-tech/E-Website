@@ -7,6 +7,7 @@ import toast from 'react-hot-toast';
 import { orderService } from '../../api/services/order.service';
 import { addressService } from '../../api/services/address.service';
 import type { Address } from '../../api/services/address.service';
+import { AddressFormModal } from '../../components/common/AddressFormModal';
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
@@ -18,6 +19,22 @@ const CheckoutPage = () => {
   const [paymentMethod, setPaymentMethod] = useState<'razorpay' | 'cod'>('razorpay');
   const [isProcessing, setIsProcessing] = useState(false);
   const [loadingAddrs, setLoadingAddrs] = useState(true);
+  const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
+
+  const fetchAddresses = () => {
+    setLoadingAddrs(true);
+    addressService.getAddresses()
+      .then(res => {
+         const fetched = res.data.data || res.data || [];
+         setAddresses(fetched);
+         if (fetched.length > 0) {
+            const def = fetched.find((a: Address) => a.isDefault);
+            setSelectedAddress(def?._id || fetched[0]._id);
+         }
+      })
+      .catch(err => console.warn('Address fetch failed', err))
+      .finally(() => setLoadingAddrs(false));
+  };
 
   // AUTH & CART GATING
   useEffect(() => {
@@ -27,23 +44,8 @@ const CheckoutPage = () => {
     } else if (items.length === 0) {
       navigate('/cart');
     } else {
-      // Fetch dynamic addresses
-      addressService.getAddresses()
-        .then(res => {
-           const fetched = res.data.data || res.data || [];
-           setAddresses(fetched);
-           if (fetched.length > 0) {
-              const def = fetched.find((a: Address) => a.isDefault);
-              setSelectedAddress(def?._id || fetched[0]._id);
-           }
-        })
-        .catch(err => {
-           console.warn('Address stub active', err);
-           // Fallback payload if missing in backend
-           setAddresses([{ _id: 'mock-1', type: 'Home', name: 'Developer User', street: '45 Jubilee', city: 'Hyderabad', state: 'TS', zipCode: '500033', country: 'India', phone: '9876543210' }]);
-           setSelectedAddress('mock-1');
-        })
-        .finally(() => setLoadingAddrs(false));
+      fetchAddresses();
+      useCartStore.getState().syncBackendCart();
     }
   }, [isAuthenticated, items.length, navigate]);
 
@@ -62,13 +64,17 @@ const CheckoutPage = () => {
       // Backend createOrder expects: { address, paymentMethod (lowercase), couponCode?, note? }
       const payload = {
         address: {
-           fullName: address.name || 'Customer',
-           street: address.street,
+           name: address.name || 'Customer',
+           line1: address.line1,
+           line2: address.line2 || '',
            city: address.city,
            state: address.state,
-           zipCode: address.zipCode,
+           pincode: address.pincode,
            country: address.country || 'India',
-           phone: address.phone || ''
+           mobile: address.mobile || '',
+           altMobile: address.altMobile || '',
+           landmark: address.landmark || '',
+           deliveryInstructions: address.deliveryInstructions || ''
         },
         paymentMethod: paymentMethod, // 'cod' or 'razorpay' — backend expects lowercase
       };
@@ -150,18 +156,21 @@ const CheckoutPage = () => {
                     </span>
                     <h4 className="font-semibold text-gray-900 mb-1">{addr.name}</h4>
                     <p className="text-sm text-gray-600 leading-relaxed mb-3">
-                      {addr.street}<br/>
-                      {addr.city}, {addr.state} {addr.zipCode}
+                      {addr.line1} {addr.line2 && `, ${addr.line2}`}<br/>
+                      {addr.city}, {addr.state} {addr.pincode}
                     </p>
                     <p className="text-sm text-gray-600 flex items-center">
                       <MapPin size={14} className="mr-1.5 opacity-70" />
-                      {addr.phone}
+                      {addr.mobile}
                     </p>
                   </div>
                 ))}
                 
                 {/* Add New Address Button */}
-                <div className="p-5 rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-500 hover:text-primary-700 hover:border-primary-400 hover:bg-gray-50 cursor-pointer transition-colors min-h-[160px]">
+                <div 
+                  onClick={() => setIsAddressModalOpen(true)}
+                  className="p-5 rounded-lg border-2 border-dashed border-gray-300 flex flex-col items-center justify-center text-gray-500 hover:text-primary-700 hover:border-primary-400 hover:bg-gray-50 cursor-pointer transition-colors min-h-[160px]"
+                >
                   <span className="text-2xl mb-1">+</span>
                   <span className="text-sm font-medium tracking-wide">Add New Address</span>
                 </div>
@@ -310,6 +319,12 @@ const CheckoutPage = () => {
 
         </div>
       </div>
+      
+      <AddressFormModal 
+        isOpen={isAddressModalOpen} 
+        onClose={() => setIsAddressModalOpen(false)} 
+        onSuccess={fetchAddresses} 
+      />
     </div>
   );
 };

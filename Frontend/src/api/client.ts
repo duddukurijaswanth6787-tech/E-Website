@@ -11,13 +11,24 @@ const apiClient = axios.create({
   withCredentials: true,
 });
 
-// Request Interceptor: Attach Token
+// Request Interceptor: Attach Token & Guest Cart ID
 apiClient.interceptors.request.use(
   (config) => {
     const token = useAuthStore.getState().token;
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
     }
+    
+    // Inject stable guest cart ID
+    let guestId = localStorage.getItem('vasanthi_guest_cart_id');
+    if (!guestId) {
+      guestId = crypto.randomUUID ? crypto.randomUUID() : 'guest_' + Date.now() + Math.random().toString(36).substring(2);
+      localStorage.setItem('vasanthi_guest_cart_id', guestId);
+    }
+    if (config.headers) {
+      config.headers['x-guest-cart-id'] = guestId;
+    }
+
     return config;
   },
   (error) => Promise.reject(error)

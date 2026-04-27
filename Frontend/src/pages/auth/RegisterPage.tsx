@@ -33,6 +33,16 @@ const RegisterPage = () => {
         const { user, accessToken, refreshToken } = payload;
         const { useAuthStore } = await import('../../store/authStore'); 
         useAuthStore.getState().setAuth(user, accessToken, refreshToken);
+        
+        try {
+           const { cartService } = await import('../../api/services/cart.service');
+           await cartService.mergeCart();
+           const { useCartStore } = await import('../../store/cartStore');
+           await useCartStore.getState().syncBackendCart();
+        } catch (e) {
+           console.error("Cart merge skipped", e);
+        }
+
         toast.success('Registration successful. Welcome!');
         navigate(redirect);
       }
