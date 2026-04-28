@@ -124,7 +124,10 @@ const ShopPage = () => {
           originalPrice: p.comparePrice,
           image: p.images && p.images.length > 0 ? p.images[0] : 'https://placehold.co/600x800/f3f4f6/A51648?text=No+Image',
           category: p.category?.name || 'Uncategorized',
-          tag: p.isFeatured ? 'Featured' : p.isTrending ? 'Trending' : p.isNewArrival ? 'New Arrival' : undefined
+          tag: p.isFeatured ? 'Featured' : p.isTrending ? 'Trending' : p.isNewArrival ? 'New Arrival' : undefined,
+          rating: p.ratings?.average,
+          ratingCount: p.ratings?.count,
+          rewardPoints: p.rewardPoints
         }));
         
         setProducts(mappedProducts);

@@ -2,7 +2,7 @@ import { Router, Request, Response, NextFunction } from 'express';
 import { Order } from '../orders/order.model';
 import { User } from '../users/user.model';
 import { Product } from '../products/product.model';
-import { CustomBlouseRequest } from '../customBlouse/customBlouse.model';
+import { CustomBlouse } from '../customBlouse/customBlouse.model';
 import { authenticateAdmin, requirePermission } from '../../common/middlewares';
 import { sendSuccess } from '../../common/responses';
 import { PERMISSIONS } from '../../common/constants';
@@ -24,7 +24,7 @@ router.get('/dashboard', async (_req: Request, res: Response, next: NextFunction
       Order.aggregate([{ $match: { paymentStatus: 'paid' } }, { $group: { _id: null, total: { $sum: '$total' } } }]),
       User.countDocuments({ deletedAt: null }),
       Product.countDocuments({ status: 'published', deletedAt: null }),
-      CustomBlouseRequest.countDocuments({ status: { $in: ['submitted', 'under_review', 'price_assigned'] } }),
+      CustomBlouse.countDocuments({ status: { $in: ['submitted', 'under_review', 'price_assigned'] } }),
       Product.countDocuments({ stock: { $lte: 5 }, status: 'published', deletedAt: null }),
       Order.find().populate('user', 'name email').sort({ createdAt: -1 }).limit(10).lean(),
       Order.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]),

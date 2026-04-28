@@ -50,6 +50,9 @@ export type ProductFormState = {
   cancellationAllowed: boolean;
   tagsCsv: string;
   uploadedFiles: File[];
+  rewardPoints: number;
+  averageRating: number | '';
+  ratingCount: number | '';
 };
 
 export const emptyProductForm = (): ProductFormState => ({
@@ -99,6 +102,9 @@ export const emptyProductForm = (): ProductFormState => ({
   cancellationAllowed: true,
   tagsCsv: '',
   uploadedFiles: [],
+  rewardPoints: 0,
+  averageRating: '',
+  ratingCount: '',
 });
 
 type Props = {
@@ -730,6 +736,49 @@ const AdminProductFormModal = ({
                   </select>
                 </div>
               ))}
+            </div>
+
+            <div className="mt-8 relative py-4">
+               <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-100"></div></div>
+               <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-black"><span className="px-3 bg-white text-primary-700 font-serif italic capitalize">Star Ratings & Rewards Editor</span></div>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+              <div>
+                <label className={labelCls}>Manual star rating (0-5)</label>
+                <input
+                  type="number"
+                  step="0.1"
+                  min="0"
+                  max="5"
+                  value={form.averageRating === '' ? '' : form.averageRating}
+                  onChange={(e) => setForm((f) => ({ ...f, averageRating: e.target.value === '' ? '' : Number(e.target.value) }))}
+                  className={inputCls}
+                  placeholder="4.5"
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Rating review count</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={form.ratingCount === '' ? '' : form.ratingCount}
+                  onChange={(e) => setForm((f) => ({ ...f, ratingCount: e.target.value === '' ? '' : Number(e.target.value) }))}
+                  className={inputCls}
+                  placeholder="120"
+                />
+              </div>
+              <div>
+                <label className={labelCls}>Reward points / Bonus</label>
+                <input
+                  type="number"
+                  min="0"
+                  value={form.rewardPoints}
+                  onChange={(e) => setForm((f) => ({ ...f, rewardPoints: Number(e.target.value) }))}
+                  className={inputCls}
+                  placeholder="100"
+                />
+              </div>
             </div>
           </section>
 

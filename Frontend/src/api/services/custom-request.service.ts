@@ -25,7 +25,7 @@ export const customRequestService = {
   },
 
   getUserRequests: async () => {
-    return apiClient.get('/custom-requests/my-requests');
+    return apiClient.get('/custom-requests/user');
   },
 
   getRequestById: async (id: string) => {
@@ -38,5 +38,13 @@ export const customRequestService = {
 
   updateRequestStatus: async (id: string, status: string, notes?: string) => {
     return apiClient.patch(`/custom-requests/${id}/status`, { status, notes });
+  },
+
+  updateRequestPrice: async (id: string, price: number) => {
+    return apiClient.patch(`/custom-requests/${id}/price`, { price });
+  },
+
+  updateRequestNotes: async (id: string, notes: string) => {
+    return apiClient.patch(`/custom-requests/${id}/notes`, { notes });
   }
 };

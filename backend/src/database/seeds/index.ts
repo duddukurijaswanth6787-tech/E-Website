@@ -11,6 +11,7 @@ import { Setting } from '../../modules/settings/setting.model';
 import { hashPassword } from '../../common/utils/hash';
 import { ROLE_PERMISSIONS, ADMIN_ROLES } from '../../common/constants';
 import { env } from '../../config/env';
+import { CustomBlouseOption } from '../../modules/customBlouse/customBlouseOption.model';
 
 const seed = async () => {
   console.log('🌱 Starting database seed...');
@@ -172,6 +173,51 @@ const seed = async () => {
       console.log(`✅ Product created: ${prod.name}`);
     }
   }
+
+  // ===== 5. Seed Custom Blouse Options =====
+  const blouseOptions = [
+    // Fabric Types
+    { category: 'fabricType', value: 'Silk', order: 1 },
+    { category: 'fabricType', value: 'Cotton', order: 2 },
+    { category: 'fabricType', value: 'Georgette', order: 3 },
+    { category: 'fabricType', value: 'Velvet', order: 4 },
+    { category: 'fabricType', value: 'Net', order: 5 },
+    { category: 'fabricType', value: 'Organza', order: 6 },
+    
+    // Front Neck Types
+    { category: 'frontNeckType', value: 'Boat', order: 1 },
+    { category: 'frontNeckType', value: 'V-Neck', order: 2 },
+    { category: 'frontNeckType', value: 'Round', order: 3 },
+    { category: 'frontNeckType', value: 'Square', order: 4 },
+    { category: 'frontNeckType', value: 'Sweetheart', order: 5 },
+    
+    // Back Neck Types
+    { category: 'backNeckType', value: 'U-Back', order: 1 },
+    { category: 'backNeckType', value: 'V-Back', order: 2 },
+    { category: 'backNeckType', value: 'Round Back', order: 3 },
+    { category: 'backNeckType', value: 'Deep Square', order: 4 },
+    { category: 'backNeckType', value: 'Keyhole', order: 5 },
+    
+    // Sleeve Types
+    { category: 'sleeveType', value: 'Short', order: 1 },
+    { category: 'sleeveType', value: 'Elbow', order: 2 },
+    { category: 'sleeveType', value: 'Three-Fourth', order: 3 },
+    { category: 'sleeveType', value: 'Full', order: 4 },
+    { category: 'sleeveType', value: 'Cap', order: 5 },
+    
+    // Sleeve Lengths
+    { category: 'sleeveLength', value: '3-5 inches', order: 1 },
+    { category: 'sleeveLength', value: '10-12 inches', order: 2 },
+    { category: 'sleeveLength', value: 'Full Length', order: 3 },
+  ];
+
+  for (const option of blouseOptions) {
+    const exists = await CustomBlouseOption.findOne({ category: option.category, value: option.value });
+    if (!exists) {
+      await CustomBlouseOption.create(option);
+    }
+  }
+  console.log('✅ Custom blouse options seeded');
 
   console.log('\n🎉 Database seed completed successfully!');
   console.log(`\n📧 Admin Login: ${env.seed.adminEmail}`);

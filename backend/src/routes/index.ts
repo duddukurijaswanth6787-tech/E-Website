@@ -26,6 +26,8 @@ import notificationRoutes from '../modules/notifications/notification.routes';
 import auditLogRoutes from '../modules/auditLogs/auditLog.routes';
 import paymentRoutes from '../modules/payments/payment.routes';
 
+import customBlouseOptionRoutes from '../modules/customBlouse/customBlouseOption.routes';
+
 const router = Router();
 
 router.use('/auth', authRoutes);
@@ -48,6 +50,7 @@ router.use('/reviews', reviewRoutes);
 router.use('/coupons', couponRoutes);
 router.use('/custom-blouse', customBlouseRoutes);
 router.use('/custom-requests', customBlouseRoutes);
+router.use('/custom-blouse-options', customBlouseOptionRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/settings', settingsRoutes);
 router.use('/uploads', uploadRoutes);

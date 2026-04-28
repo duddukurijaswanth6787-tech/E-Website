@@ -10,7 +10,7 @@ interface PaginationMeta {
   hasPrevPage: boolean;
 }
 
-interface ApiResponse<T = unknown> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   message: string;
   data?: T;
@@ -64,7 +64,7 @@ export const sendNoContent = (res: Response): Response => {
 export const sendError = (
   res: Response,
   message = 'An error occurred',
-  statusCode = HTTP_STATUS.INTERNAL_SERVER_ERROR,
+  statusCode: number = HTTP_STATUS.INTERNAL_SERVER_ERROR,
   error?: unknown,
 ): Response<ApiResponse> => {
   return res.status(statusCode).json({

@@ -117,6 +117,9 @@ function productToForm(p: Product, categories: Category[]): ProductFormState {
     exchangeAvailable: (p as any).exchangeAvailable !== false,
     cancellationAllowed: (p as any).cancellationAllowed !== false,
     tagsCsv,
+    rewardPoints: Number((p as any).rewardPoints ?? 0),
+    averageRating: p.ratings?.average ?? '',
+    ratingCount: p.ratings?.count ?? '',
   };
 }
 
@@ -181,6 +184,11 @@ function buildPayload(form: ProductFormState): Record<string, unknown> | FormDat
     handloomCraftsmanship: form.handloomCraftsmanship.trim() || undefined,
     designHighlight: form.designHighlight.trim() || undefined,
     stylingTips: form.stylingTips.trim() || undefined,
+    rewardPoints: Number(form.rewardPoints),
+    ratings: {
+      average: form.averageRating === '' ? 0 : Number(form.averageRating),
+      count: form.ratingCount === '' ? 0 : Number(form.ratingCount),
+    },
   };
 
   // If uploading files, we use FormData

@@ -14,7 +14,7 @@ const LoginPage = () => {
   const [searchParams] = useSearchParams();
   const { setAuth } = useAuthStore();
 
-  const redirect = searchParams.get('redirect') || '/';
+  const redirect = searchParams.get('redirect') || '/my/profile';
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

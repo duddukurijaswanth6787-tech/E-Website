@@ -3,7 +3,6 @@ import { Link } from 'react-router-dom';
 import { ProductCard, type ProductCardProps } from '../common/ProductCard';
 import { ProductCardSkeleton } from '../common/Skeleton';
 import { productService } from '../../api/services/product.service';
-import { extractPaginatedList } from '../../utils/extractPaginatedList';
 
 const TrendingProducts = () => {
   const [products, setProducts] = useState<ProductCardProps[]>([]);
@@ -12,8 +11,8 @@ const TrendingProducts = () => {
   useEffect(() => {
     const fetchTrending = async () => {
       try {
-        const res = await productService.getProducts({ limit: 4, sort: '-createdAt' });
-        const list = extractPaginatedList(res);
+        const res = await productService.getTrendingProducts();
+        const list = res.data;
 
         const mappedProducts = list.map((p: any) => ({
           id: p._id,
@@ -23,7 +22,10 @@ const TrendingProducts = () => {
           originalPrice: p.comparePrice ?? p.originalPrice,
           image: p.images && p.images.length > 0 ? p.images[0] : 'https://placehold.co/600x800/f3f4f6/A51648?text=No+Image',
           category: p.category?.name || 'Trending',
-          tag: p.tags && p.tags.length > 0 ? p.tags[0] : 'New'
+          tag: p.tags && p.tags.length > 0 ? p.tags[0] : (p.isNewArrival ? 'New' : (p.isBestSeller ? 'Bestseller' : undefined)),
+          rating: p.ratings?.average,
+          ratingCount: p.ratings?.count,
+          rewardPoints: p.rewardPoints
         }));
         setProducts(mappedProducts);
       } catch (error) {

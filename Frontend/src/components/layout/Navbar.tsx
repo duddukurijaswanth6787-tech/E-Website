@@ -63,11 +63,11 @@ const Navbar = () => {
           <div className="relative flex items-center justify-between gap-4">
             <button
               type="button"
-              className={`lg:hidden p-1 rounded-md transition-colors z-10 ${iconClass}`}
+              className={`lg:hidden p-2 rounded-md transition-colors z-10 flex items-center justify-center min-w-[44px] min-h-[44px] ${iconClass}`}
               onClick={() => setMobileMenuOpen(true)}
               aria-label="Open menu"
             >
-              <Menu size={22} strokeWidth={1.5} />
+              <Menu size={24} strokeWidth={1.5} />
             </button>
 
             <Link
@@ -106,7 +106,7 @@ const Navbar = () => {
               <Link to="/my/wishlist" title="Wishlist" className={`hidden sm:block transition-colors ${iconClass}`}>
                 <Heart size={20} strokeWidth={1.5} />
               </Link>
-              <Link to={isAuthenticated ? (user?.role === 'admin' || user?.role === 'super_admin' ? '/admin' : '/my/profile') : '/login'} title="Account" className={`transition-colors ${iconClass}`}>
+              <Link to={isAuthenticated ? (user?.role === 'admin' || user?.role === 'super_admin' ? '/admin' : '/my/profile') : `/login?redirect=${encodeURIComponent('/my/profile')}`} title="Account" className={`transition-colors ${iconClass}`}>
                 <User size={20} strokeWidth={1.5} />
               </Link>
               <Link to="/cart" title="Cart" className={`relative transition-colors ${iconClass}`}>

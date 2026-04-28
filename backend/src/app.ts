@@ -18,14 +18,22 @@ import { createSwaggerSpec } from './docs/swagger';
 const app: Application = express();
 
 // Security Middlewares
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" },
+  crossOriginEmbedderPolicy: false,
+}));
 app.use(cors({
   origin: (origin, callback) => {
     // Allow requests with no origin (like mobile apps or curl)
     if (!origin) return callback(null, true);
     
-    const allowedOrigins = [env.frontendUrl, 'http://localhost:5173', 'http://localhost:5174', 'http://localhost:5175', 'http://localhost:5176', 'http://localhost:5177'];
-    if (allowedOrigins.includes(origin) || origin.startsWith('http://localhost:')) {
+    const allowedOrigins = [
+      env.frontendUrl, 
+      'http://localhost:5173', 
+      'http://192.168.1.45:5173',
+      'http://127.0.0.1:5173'
+    ];
+    if (allowedOrigins.includes(origin) || origin.startsWith('http://localhost:') || origin.startsWith('http://192.168.1.45:')) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));

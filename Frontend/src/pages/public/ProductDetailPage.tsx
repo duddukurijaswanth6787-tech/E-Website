@@ -423,11 +423,11 @@ const ProductDetailPage = () => {
                 </div>
                 <div className="divide-y divide-gray-100">
                   {keyDetailsRows.map((row) => (
-                    <div key={row.label} className="grid grid-cols-5 sm:grid-cols-6">
-                      <div className="col-span-2 sm:col-span-2 bg-primary-50/60 px-5 sm:px-6 py-3 text-xs sm:text-sm font-semibold tracking-wide text-primary-950">
+                    <div key={row.label} className="flex flex-col sm:grid sm:grid-cols-6 border-b border-gray-100 last:border-0">
+                      <div className="w-full sm:col-span-2 bg-primary-50/60 px-5 sm:px-6 py-2.5 sm:py-3 text-[0.65rem] sm:text-sm font-semibold tracking-wide text-primary-950 uppercase sm:normal-case">
                         {row.label}
                       </div>
-                      <div className="col-span-3 sm:col-span-4 px-5 sm:px-6 py-3 text-xs sm:text-sm text-gray-700 leading-relaxed">
+                      <div className="w-full sm:col-span-4 px-5 sm:px-6 py-2.5 sm:py-3 text-xs sm:text-sm text-gray-700 leading-relaxed bg-white sm:bg-transparent">
                         {row.value}
                       </div>
                     </div>

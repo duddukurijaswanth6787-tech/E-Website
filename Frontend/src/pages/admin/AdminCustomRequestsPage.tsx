@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { DataTable } from '../../components/admin/DataTable';
 import { customRequestService } from '../../api/services/custom-request.service';
 import { Scissors, FileText, CheckCircle } from 'lucide-react';
@@ -124,18 +125,28 @@ const AdminCustomRequestsPage = () => {
     },
     {
        header: 'Actions',
-       accessor: (_row: any) => (
-         <div className="flex items-center space-x-2">
-           <button className="p-1.5 text-gray-400 hover:text-primary-700 transition-colors" title="View Full Design Spec">
+       accessor: (row: any) => (
+         <div className="flex items-center space-x-3">
+           <Link 
+             to={`/admin/custom-requests/${row._id}`} 
+             className="p-2 text-primary-600 hover:bg-primary-50 rounded-lg transition-all flex items-center gap-1.5"
+             title="View Full Design Spec"
+           >
              <FileText size={16} />
-           </button>
-           <button className="p-1.5 text-gray-400 hover:text-green-600 transition-colors" title="Assign Cost Parameters">
+             <span className="text-xs font-bold uppercase tracking-wider hidden xl:inline">View</span>
+           </Link>
+           <Link 
+             to={`/admin/custom-requests/${row._id}`} 
+             className="p-2 text-green-600 hover:bg-green-50 rounded-lg transition-all flex items-center gap-1.5"
+             title="Edit Status & Pricing"
+           >
              <CheckCircle size={16} />
-           </button>
+             <span className="text-xs font-bold uppercase tracking-wider hidden xl:inline">Edit</span>
+           </Link>
          </div>
        )
-    }
-  ];
+     }
+   ];
 
   return (
     <div className="space-y-6 max-w-[100vw] overflow-hidden">

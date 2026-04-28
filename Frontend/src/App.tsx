@@ -1,5 +1,5 @@
 import { lazy, Suspense } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import PublicLayout from './layouts/PublicLayout';
 import AuthLayout from './layouts/AuthLayout';
 import UserLayout from './layouts/UserLayout';
@@ -28,6 +28,7 @@ const AdminProductsPage = lazy(() => import('./pages/admin/AdminProductsPage'));
 const AdminOrdersPage = lazy(() => import('./pages/admin/AdminOrdersPage'));
 const AdminCustomersPage = lazy(() => import('./pages/admin/AdminCustomersPage'));
 const AdminCustomRequestsPage = lazy(() => import('./pages/admin/AdminCustomRequestsPage'));
+const AdminCustomRequestDetailPage = lazy(() => import('./pages/admin/AdminCustomRequestDetailPage'));
 const AdminCategoriesPage = lazy(() => import('./pages/admin/AdminCategoriesPage'));
 const AdminCollectionsPage = lazy(() => import('./pages/admin/AdminCollectionsPage'));
 const AdminBannersPage = lazy(() => import('./pages/admin/AdminBannersPage'));
@@ -49,6 +50,7 @@ const AdminNotificationsPage = lazy(() => import('./pages/admin/AdminNotificatio
 const AdminWishlistInsightsPage = lazy(() => import('./pages/admin/AdminWishlistInsightsPage'));
 const AdminOTPPage = lazy(() => import('./pages/admin/AdminOTPPage'));
 const AdminLogin = lazy(() => import('./pages/admin/AdminLogin'));
+const AdminCustomBlouseOptionsPage = lazy(() => import('./pages/admin/AdminCustomBlouseOptionsPage'));
 
 // Dashboard Pages
 const UserDashboard = lazy(() => import('./pages/dashboard/UserDashboard'));
@@ -79,8 +81,18 @@ interface ProtectedRouteProps {
 
 const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
   const { isAuthenticated, user } = useAuthStore();
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
-  if (allowedRoles && user && !allowedRoles.includes(user.role)) return <Navigate to="/" replace />;
+  const location = useLocation();
+
+  if (!isAuthenticated) {
+    return <Navigate to={`/login?redirect=${encodeURIComponent(location.pathname)}`} replace />;
+  }
+
+  if (allowedRoles && user && !allowedRoles.includes(user.role)) {
+    // If a customer tries to access admin, or vice versa
+    if (user.role === 'admin' || user.role === 'super_admin') return <Navigate to="/admin" replace />;
+    return <Navigate to="/my/profile" replace />;
+  }
+
   return <>{children}</>;
 };
 
@@ -133,6 +145,8 @@ function App() {
             <Route path="products" element={<AdminProductsPage />} />
             <Route path="customers" element={<AdminCustomersPage />} />
             <Route path="custom-requests" element={<AdminCustomRequestsPage />} />
+            <Route path="custom-requests/:id" element={<AdminCustomRequestDetailPage />} />
+            <Route path="custom-blouse-options" element={<AdminCustomBlouseOptionsPage />} />
             <Route path="categories" element={<AdminCategoriesPage />} />
             <Route path="collections" element={<AdminCollectionsPage />} />
             <Route path="banners" element={<AdminBannersPage />} />

@@ -85,7 +85,7 @@ const UserProfile = () => {
         const [addressRes, wishlistRes, customRes] = await Promise.allSettled([
           addressService.getAddresses(),
           apiClient.get('/wishlist').catch(() => null),
-          apiClient.get('/custom-blouse/my').catch(() => null)
+          apiClient.get('/custom-blouse/user').catch(() => null)
         ]);
 
         if (addressRes.status === 'fulfilled') {
@@ -259,28 +259,6 @@ const UserProfile = () => {
         </div>
       </div>
 
-      {/* 2. Quick Summary Cards Grid */}
-      <h3 className="font-serif text-xl tracking-wide text-[#5A001F] mb-4 px-2 flex items-center">
-         Account Overview <div className="ml-4 h-[1px] flex-grow bg-gradient-to-r from-[#D4AF37]/40 to-transparent max-w-xs"></div>
-      </h3>
-      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3 sm:gap-5 mb-10">
-         {[
-           { icon: Package, value: stats.totalOrders, label: 'Total Orders', color: 'text-[#A51648]', bg: 'bg-[#FBEAF0]' },
-           { icon: Clock, value: stats.activeOrders, label: 'In Progress', color: 'text-[#D4AF37]', bg: 'bg-[#D4AF37]/10' },
-           { icon: CheckCircle, value: stats.deliveredOrders, label: 'Delivered', color: 'text-emerald-700', bg: 'bg-emerald-50' },
-           { icon: MapPin, value: stats.savedAddresses, label: 'Addresses', color: 'text-[#5A001F]', bg: 'bg-[#5A001F]/5' },
-           { icon: Heart, value: stats.wishlistItems, label: 'Wishlist', color: 'text-rose-600', bg: 'bg-rose-50' },
-           { icon: Scissors, value: stats.customRequests, label: 'Custom Fits', color: 'text-amber-700', bg: 'bg-amber-50' }
-         ].map((stat, i) => (
-           <div key={i} className="bg-gradient-to-b from-white to-[#FFF8F1] p-5 rounded-2xl shadow-[0_4px_15px_rgba(90,0,31,0.03)] border border-[#FBEAF0] hover:-translate-y-1 hover:shadow-md transition-all duration-300 flex flex-col items-center justify-center text-center group cursor-default">
-              <div className={`w-10 h-10 rounded-full ${stat.bg} ${stat.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-                 <stat.icon className="w-5 h-5 stroke-[1.5]" />
-              </div>
-              <p className="text-3xl font-serif text-[#1F1A1C] leading-none mb-1.5">{stat.value}</p>
-              <p className="text-[0.6rem] font-bold text-[#A51648]/70 uppercase tracking-[0.15em]">{stat.label}</p>
-           </div>
-         ))}
-      </div>
 
       <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
         
@@ -344,12 +322,15 @@ const UserProfile = () => {
           <div className="bg-white p-7 md:p-9 rounded-3xl shadow-[0_8px_30px_rgba(90,0,31,0.04)] border border-[#FBEAF0] h-full relative overflow-hidden">
             <div className="absolute top-0 right-0 w-64 h-64 bg-[#FBEAF0]/50 rounded-full blur-[60px] -mr-20 -mt-20 pointer-events-none"></div>
 
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 border-b border-[#D4AF37]/20 pb-5 gap-4 relative z-10">
+            <div className="flex flex-col xs:flex-row xs:items-end justify-between mb-8 border-b border-[#D4AF37]/20 pb-5 gap-4 relative z-10">
               <div>
                 <h3 className="font-serif text-xl tracking-wide text-[#5A001F]">Recent Orders & Tracking</h3>
                 <p className="text-[0.75rem] font-medium text-[#1F1A1C]/60 mt-1">Track your boutique purchases</p>
               </div>
-              <Link to="/my/orders" className="text-[0.65rem] font-bold uppercase tracking-[0.15em] text-[#A51648] bg-[#FBEAF0] px-5 py-2.5 rounded-full hover:bg-[#5A001F] hover:text-white transition-colors whitespace-nowrap self-start sm:self-auto shadow-sm">
+              <Link 
+                to="/my/orders" 
+                className="w-full xs:w-auto text-center text-[0.65rem] font-bold uppercase tracking-[0.15em] text-[#A51648] bg-[#FBEAF0] px-6 py-3 rounded-full hover:bg-[#5A001F] hover:text-white transition-colors shadow-sm"
+              >
                 View All Orders
               </Link>
             </div>

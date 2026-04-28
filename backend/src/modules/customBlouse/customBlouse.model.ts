@@ -1,89 +1,124 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
-export interface ICustomBlouseRequest extends Document {
-  user: mongoose.Types.ObjectId;
-  requestNumber: string;
-  blouseType: string;
+export interface ICustomBlouse extends Document {
+  customerId: mongoose.Types.ObjectId;
+  customerInfo: {
+    name: string;
+    email: string;
+    phone: string;
+  };
+  // Step 1 – Fabric & Work
+  fabric: {
+    type: string;
+    color: string;
+    plainOrComputer: 'Plain' | 'Computer Work';
+    computerWorkDesign: 'Yes' | 'No';
+    workPatternType?: string;
+    threadWorkColor?: string;
+    borderWorkRequired: 'Yes' | 'No';
+  };
+  // Step 2 – Design
+  design: {
+    frontNeckType?: string;
+    backNeckType?: string;
+    sleeveType?: string;
+    sleeveLength?: string;
+    blouseLength?: string;
+    openingType?: 'Front Open' | 'Back Open';
+    closureStyle?: 'Hook' | 'Zip' | 'Dori';
+    paddingRequired: 'Yes' | 'No';
+    liningRequired: 'Yes' | 'No';
+  };
+  // Step 3 – Measurements
   measurements: {
     bust?: number;
     waist?: number;
-    hip?: number;
-    shoulderWidth?: number;
-    sleeveLength?: number;
-    blouseLength?: number;
-    neckDepthFront?: number;
-    neckDepthBack?: number;
+    shoulder?: number;
     armhole?: number;
+    sleeveRound?: number;
+    sleeveLengthMeas?: number;
+    blouseLengthMeas?: number;
+    frontNeckDepth?: number;
+    backNeckDepth?: number;
   };
-  preferredNeckStyle?: string;
-  preferredSleeveStyle?: string;
-  references: string[];
-  notes?: string;
-  preferredDeliveryDate?: Date;
-  estimatedPrice?: number;
-  finalPrice?: number;
-  status: string;
-  adminNotes?: string;
-  priceNote?: string;
-  timeline: Array<{
+  needsTailorSupport: boolean;
+  // Step 4 – Reference Images
+  referenceImages: string[]; // stored URLs
+  // Step 5 – Occasion & Delivery
+  occasion?: string;
+  deliveryDate?: Date;
+  budgetRange?: string;
+  specialInstructions?: string;
+  // Status & Pricing
+  statusHistory: {
     status: string;
-    note?: string;
-    updatedBy?: string;
     updatedAt: Date;
-  }>;
-  deliveryNote?: string;
-  rejectionReason?: string;
+    updatedBy: mongoose.Types.ObjectId;
+  }[];
+  price?: number;
+  adminNotes?: string;
+  assignedTailorId?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
 
-const CustomBlouseSchema = new Schema<ICustomBlouseRequest>(
+const CustomBlouseSchema = new Schema<ICustomBlouse>(
   {
-    user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    requestNumber: { type: String, required: true, unique: true },
-    blouseType: {
-      type: String,
-      enum: ['ready_made', 'custom_stitched', 'designer', 'bridal'],
-      required: true,
+    customerId: { type: Schema.Types.ObjectId, ref: 'User', required: true },
+    customerInfo: {
+      name: { type: String, required: true },
+      email: { type: String, required: true },
+      phone: { type: String, required: true },
+    },
+    fabric: {
+      type: { type: String, required: true },
+      color: { type: String, required: true },
+      plainOrComputer: { type: String, enum: ['Plain', 'Computer Work'], default: 'Plain' },
+      computerWorkDesign: { type: String, enum: ['Yes', 'No'], default: 'No' },
+      workPatternType: { type: String },
+      threadWorkColor: { type: String },
+      borderWorkRequired: { type: String, enum: ['Yes', 'No'], default: 'No' },
+    },
+    design: {
+      frontNeckType: { type: String },
+      backNeckType: { type: String },
+      sleeveType: { type: String },
+      sleeveLength: { type: String },
+      blouseLength: { type: String },
+      openingType: { type: String, enum: ['Front Open', 'Back Open'] },
+      closureStyle: { type: String, enum: ['Hook', 'Zip', 'Dori'] },
+      paddingRequired: { type: String, enum: ['Yes', 'No'], default: 'No' },
+      liningRequired: { type: String, enum: ['Yes', 'No'], default: 'No' },
     },
     measurements: {
-      bust: { type: Number },
-      waist: { type: Number },
-      hip: { type: Number },
-      shoulderWidth: { type: Number },
-      sleeveLength: { type: Number },
-      blouseLength: { type: Number },
-      neckDepthFront: { type: Number },
-      neckDepthBack: { type: Number },
-      armhole: { type: Number },
+      bust: Number,
+      waist: Number,
+      shoulder: Number,
+      armhole: Number,
+      sleeveRound: Number,
+      sleeveLengthMeas: Number,
+      blouseLengthMeas: Number,
+      frontNeckDepth: Number,
+      backNeckDepth: Number,
     },
-    preferredNeckStyle: { type: String },
-    preferredSleeveStyle: { type: String },
-    references: [{ type: String }],
-    notes: { type: String },
-    preferredDeliveryDate: { type: Date },
-    estimatedPrice: { type: Number },
-    finalPrice: { type: Number },
-    status: {
-      type: String,
-      enum: ['submitted', 'under_review', 'price_assigned', 'approved', 'rejected', 'in_progress', 'completed', 'delivered'],
-      default: 'submitted',
-    },
+    needsTailorSupport: { type: Boolean, default: false },
+    referenceImages: [{ type: String }],
+    occasion: { type: String },
+    deliveryDate: { type: Date },
+    budgetRange: { type: String },
+    specialInstructions: { type: String },
+    statusHistory: [
+      {
+        status: { type: String, required: true },
+        updatedAt: { type: Date, default: Date.now },
+        updatedBy: { type: Schema.Types.ObjectId, ref: 'User' },
+      },
+    ],
+    price: { type: Number },
     adminNotes: { type: String },
-    priceNote: { type: String },
-    timeline: [{
-      status: { type: String },
-      note: { type: String },
-      updatedBy: { type: String },
-      updatedAt: { type: Date, default: Date.now },
-    }],
-    deliveryNote: { type: String },
-    rejectionReason: { type: String },
+    assignedTailorId: { type: Schema.Types.ObjectId, ref: 'User' },
   },
-  { timestamps: true },
+  { timestamps: true }
 );
 
-CustomBlouseSchema.index({ user: 1 });
-CustomBlouseSchema.index({ status: 1 });
-
-export const CustomBlouseRequest = mongoose.model<ICustomBlouseRequest>('CustomBlouseRequest', CustomBlouseSchema);
+export const CustomBlouse = mongoose.model<ICustomBlouse>('CustomBlouse', CustomBlouseSchema);

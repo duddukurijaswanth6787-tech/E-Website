@@ -36,3 +36,10 @@ yarn-error.log*
 # Misc
 temp/
 tmp/
+coverage/
+.vercel
+.next/
+backend/uploads/
+Frontend/build/
+all_text.txt
+*.txt

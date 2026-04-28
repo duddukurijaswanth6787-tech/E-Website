@@ -50,6 +50,11 @@ export interface Product {
   returnWindowDays?: number;
   exchangeAvailable?: boolean;
   cancellationAllowed?: boolean;
+  rewardPoints?: number;
+  ratings?: {
+    average: number;
+    count: number;
+  };
 }
 
 export interface ProductsResponse {
@@ -101,6 +106,16 @@ export const productService = {
     return apiClient.put(`/products/${id}`, productData, {
       headers: isFormData ? { 'Content-Type': 'multipart/form-data' } : undefined
     });
+  },
+
+  // Featured items
+  getFeaturedProducts: async () => {
+    return apiClient.get<any, { success: boolean; data: Product[] }>('/products/featured');
+  },
+
+  // Trending items
+  getTrendingProducts: async () => {
+    return apiClient.get<any, { success: boolean; data: Product[] }>('/products/trending');
   },
 
   deleteProduct: async (id: string) => {

@@ -15,11 +15,21 @@ const DEFAULT_STOREFRONT = {
   ]
 };
 
+const DEFAULT_BRIDAL_SPOTLIGHT = {
+  title: 'The Bridal Edit',
+  subtitle: 'Legacy of Opulence & Grace.',
+  description: 'Your special day deserves the finest craftsmanship. Explore our exclusive bridal catalog featuring handcrafted zari work, heirloom quality silks, and custom-tailored designer blouses.',
+  image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1500&auto=format&fit=crop',
+  ctaText: 'Explore Bridal Wear',
+  ctaPath: '/category/bridal'
+};
+
 export const StorefrontSettingsTab = () => {
   const [loading, setLoading] = useState(false);
   const [fetching, setFetching] = useState(true);
   
   const [form, setForm] = useState(DEFAULT_STOREFRONT);
+  const [bridalForm, setBridalForm] = useState(DEFAULT_BRIDAL_SPOTLIGHT);
 
   useEffect(() => {
     const loadSettings = async () => {
@@ -36,6 +46,14 @@ export const StorefrontSettingsTab = () => {
 
         if (curatedSetting && curatedSetting.value) {
           setForm(curatedSetting.value);
+        }
+
+        const bridalSetting = Array.isArray(settingsList)
+          ? settingsList.find((s: Setting) => s.key === 'homepage_bridal_spotlight')
+          : undefined;
+        
+        if (bridalSetting && bridalSetting.value) {
+          setBridalForm(bridalSetting.value);
         }
       } catch (err) {
         console.warn('Failed to fetch storefront settings:', err);
@@ -57,6 +75,13 @@ export const StorefrontSettingsTab = () => {
           isPublic: true,
           group: 'general',
           label: 'Homepage Featured Categories'
+        },
+        {
+          key: 'homepage_bridal_spotlight',
+          value: bridalForm,
+          isPublic: true,
+          group: 'general',
+          label: 'Homepage Bridal Spotlight'
         }
       ]);
       
@@ -167,15 +192,70 @@ export const StorefrontSettingsTab = () => {
          ))}
       </div>
 
-      <div className="pt-4 border-t">
-         <button 
-           type="submit"
-           disabled={loading}
-           className="flex items-center px-6 py-2.5 bg-primary-950 text-white text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors disabled:opacity-50"
-         >
-           {loading ? 'Publishing...' : 'Publish Layout'}
-         </button>
-      </div>
+       <div className="space-y-6 pt-10 border-t">
+          <div className="border-b pb-4">
+            <h2 className="text-lg font-serif text-gray-900">Bridal Spotlight (Luxury Section)</h2>
+            <p className="text-sm text-gray-500">Customize the high-end bridal highlight section on your homepage.</p>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Headline</label>
+              <input 
+                type="text" 
+                value={bridalForm.title}
+                onChange={e => setBridalForm({...bridalForm, title: e.target.value})}
+                className="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary-500 outline-none"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Sub-headline (Italics)</label>
+              <input 
+                type="text" 
+                value={bridalForm.subtitle}
+                onChange={e => setBridalForm({...bridalForm, subtitle: e.target.value})}
+                className="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary-500 outline-none"
+              />
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Body Text</label>
+              <textarea 
+                rows={3}
+                value={bridalForm.description}
+                onChange={e => setBridalForm({...bridalForm, description: e.target.value})}
+                className="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary-500 outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Featured Image URL</label>
+              <input 
+                type="text" 
+                value={bridalForm.image}
+                onChange={e => setBridalForm({...bridalForm, image: e.target.value})}
+                className="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary-500 outline-none"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Button Text</label>
+              <input 
+                type="text" 
+                value={bridalForm.ctaText}
+                onChange={e => setBridalForm({...bridalForm, ctaText: e.target.value})}
+                className="w-full px-4 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-primary-500 outline-none"
+              />
+            </div>
+          </div>
+       </div>
+
+       <div className="pt-8 border-t">
+          <button 
+            type="submit"
+            disabled={loading}
+            className="flex items-center px-8 py-3 bg-primary-950 text-white text-sm font-bold tracking-widest uppercase rounded shadow-premium hover:bg-primary-800 transition-all disabled:opacity-50"
+          >
+            {loading ? 'Publishing Matrix...' : 'Publish Storefront Layout'}
+          </button>
+       </div>
     </form>
   );
 };

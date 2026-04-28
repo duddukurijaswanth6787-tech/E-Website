@@ -14,6 +14,7 @@ const navItems = [
     { label: 'Dashboard', icon: <BarChart size={18} />, path: '/admin', roles: ['admin', 'super_admin'] },
     { label: 'Orders Pipeline', icon: <ShoppingBag size={18} />, path: '/admin/orders', roles: ['admin', 'super_admin'] },
     { label: 'Custom Blouses', icon: <Package size={18} />, path: '/admin/custom-requests', roles: ['admin', 'super_admin'] },
+    { label: 'Blouse Config', icon: <Settings size={18} />, path: '/admin/custom-blouse-options', roles: ['admin', 'super_admin'] },
     { label: 'Inventory', icon: <Package size={18} />, path: '/admin/products', roles: ['admin', 'super_admin'] },
     
     // CRM Target

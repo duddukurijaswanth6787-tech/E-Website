@@ -1,7 +1,35 @@
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
+import { useState, useEffect } from 'react';
+import { settingsService } from '../../api/services/settings.service';
+
+const DEFAULT_BRIDAL = {
+  title: 'The Bridal Edit',
+  subtitle: 'Legacy of Opulence & Grace.',
+  description: 'Your special day deserves the finest craftsmanship. Explore our exclusive bridal catalog featuring handcrafted zari work, heirloom quality silks, and custom-tailored designer blouses.',
+  image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1500&auto=format&fit=crop',
+  ctaText: 'Explore Bridal Wear',
+  ctaPath: '/category/bridal'
+};
 
 const BridalSpotlight = () => {
+  const [data, setData] = useState(DEFAULT_BRIDAL);
+
+  useEffect(() => {
+    const fetchBridal = async () => {
+      try {
+        const res = await settingsService.getPublicSettings();
+        const settingsData = res.data?.data || res.data;
+        if (settingsData && settingsData.homepage_bridal_spotlight) {
+          setData(settingsData.homepage_bridal_spotlight);
+        }
+      } catch (err) {
+        console.warn('Bridal Spotlight fallback triggered');
+      }
+    };
+    fetchBridal();
+  }, []);
+
   return (
     <section className="py-20 lg:py-32 bg-primary-950 relative overflow-hidden">
       {/* Decorative Elements */}
@@ -25,20 +53,25 @@ const BridalSpotlight = () => {
             </div>
             
             <h2 className="text-4xl sm:text-5xl lg:text-6xl font-serif text-white leading-tight mb-8">
-              A Legacy Of <br/>
-              <span className="italic font-light opacity-90">Opulence</span> & Grace.
+              {data.title.split(' ').map((word, i, arr) => (
+                <span key={i}>
+                  {word}{' '}
+                  {i === arr.length - 2 && <br/>}
+                </span>
+              ))}
+              <span className="italic font-light opacity-90">{data.subtitle}</span>
             </h2>
             
             <p className="text-primary-100 text-lg leading-relaxed mb-10 max-w-md font-light">
-              Your special day deserves the finest craftsmanship. Explore our exclusive bridal catalog featuring handcrafted zari work, heirloom quality silks, and custom-tailored designer blouses.
+              {data.description}
             </p>
 
             <div className="flex flex-col sm:flex-row space-y-3 sm:space-y-0 sm:space-x-5 w-full">
               <Link 
-                to="/category/bridal" 
+                to={data.ctaPath} 
                 className="w-full sm:w-auto bg-accent text-primary-950 px-6 sm:px-8 py-3.5 sm:py-4 rounded text-sm sm:text-base font-semibold uppercase tracking-wider hover:bg-accent-light transition-colors text-center shadow-premium"
               >
-                Explore Bridal Wear
+                {data.ctaText}
               </Link>
               <Link 
                 to="/custom-blouse" 
@@ -63,7 +96,7 @@ const BridalSpotlight = () => {
               
               <div className="relative h-full w-full rounded-t-full rounded-b-xl overflow-hidden shadow-2xl">
                 <img 
-                  src="https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1500&auto=format&fit=crop" 
+                  src={data.image} 
                   alt="Vasanthi Creations Bridal Saree" 
                   className="w-full h-full object-cover object-center"
                 />

@@ -15,6 +15,9 @@ export interface ProductCardProps {
   image: string;
   category: string;
   tag?: string;
+  rating?: number;
+  ratingCount?: number;
+  rewardPoints?: number;
 }
 
 export const ProductCard = memo(({ product }: { product: ProductCardProps }) => {
@@ -113,6 +116,32 @@ export const ProductCard = memo(({ product }: { product: ProductCardProps }) => 
             <span className="text-xs text-gray-400 line-through">
               ₹{product.originalPrice.toLocaleString('en-IN')}
             </span>
+          )}
+        </div>
+        
+        {/* Rating & Rewards Row */}
+        <div className="mt-2 flex items-center justify-center lg:justify-start space-x-3">
+          {product.rating !== undefined && product.rating > 0 && (
+            <div className="flex items-center">
+              {[...Array(5)].map((_, i) => (
+                <svg 
+                  key={i} 
+                  className={`w-3 h-3 ${i < Math.floor(product.rating || 0) ? 'text-yellow-400 fill-yellow-400' : 'text-gray-200 fill-gray-200'}`} 
+                  xmlns="http://www.w3.org/2000/svg" 
+                  viewBox="0 0 24 24"
+                >
+                  <path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z" />
+                </svg>
+              ))}
+              <span className="text-[10px] text-gray-400 ml-1">({product.ratingCount})</span>
+            </div>
+          )}
+
+          {product.rewardPoints !== undefined && product.rewardPoints > 0 && (
+            <div className="flex items-center px-1.5 py-0.5 bg-primary-50 rounded text-[9px] font-bold text-primary-700 uppercase tracking-tight">
+              <span className="mr-1">🎁</span>
+              {product.rewardPoints} Pts
+            </div>
           )}
         </div>
       </div>

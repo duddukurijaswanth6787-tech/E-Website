@@ -12,7 +12,7 @@ const AuthLayout = () => {
      if (user?.role === 'admin' || user?.role === 'super_admin') {
        return <Navigate to="/admin" replace />;
      }
-     return <Navigate to="/my" replace />;
+     return <Navigate to="/my/profile" replace />;
   }
 
   return (

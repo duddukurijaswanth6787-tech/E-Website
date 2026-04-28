@@ -4,6 +4,12 @@ import { NotFoundError, ConflictError, BadRequestError } from '../../common/erro
 import { generateUniqueSlug, buildSemanticSkuPrefix } from '../../common/utils/helpers';
 import { parsePagination, buildPaginationMeta, parseSearchRegex } from '../../common/utils/pagination';
 import { Request } from 'express';
+import { cacheService } from '../../common/utils/cache';
+
+const CACHE_KEYS = {
+  TRENDING: 'products:trending',
+  FEATURED: 'products:featured',
+};
 
 
 async function generateUniqueSemanticSku(prefixBase: string): Promise<string> {
@@ -43,6 +49,7 @@ export class ProductService {
       updatedBy: adminId,
     });
 
+    await this.clearFeaturedTrendingCache();
     return product;
   }
 
@@ -139,6 +146,7 @@ export class ProductService {
 
     Object.assign(product, { ...data, updatedBy: adminId });
     await product.save();
+    await this.clearFeaturedTrendingCache();
     return product;
   }
 
@@ -147,6 +155,7 @@ export class ProductService {
     if (!product) throw new NotFoundError('Product');
     product.deletedAt = new Date();
     await product.save();
+    await this.clearFeaturedTrendingCache();
   }
 
   async updateStock(id: string, variantId: string | undefined, quantity: number) {
@@ -164,17 +173,36 @@ export class ProductService {
   }
 
   async getFeatured() {
-    return Product.find({ isFeatured: true, status: 'published', deletedAt: null })
+    const cached = await cacheService.get<any[]>(CACHE_KEYS.FEATURED);
+    if (cached) return cached;
+
+    const products = await Product.find({ isFeatured: true, status: 'published', deletedAt: null })
       .populate('category', 'name slug')
       .limit(12)
       .lean();
+
+    await cacheService.set(CACHE_KEYS.FEATURED, products, 600); // 10 mins
+    return products;
   }
 
   async getTrending() {
-    return Product.find({ isTrending: true, status: 'published', deletedAt: null })
+    const cached = await cacheService.get<any[]>(CACHE_KEYS.TRENDING);
+    if (cached) return cached;
+
+    const products = await Product.find({ isTrending: true, status: 'published', deletedAt: null })
       .populate('category', 'name slug')
       .limit(12)
       .lean();
+
+    await cacheService.set(CACHE_KEYS.TRENDING, products, 600); // 10 mins
+    return products;
+  }
+
+  async clearFeaturedTrendingCache() {
+    await Promise.all([
+      cacheService.del(CACHE_KEYS.FEATURED),
+      cacheService.del(CACHE_KEYS.TRENDING),
+    ]);
   }
 
   async getRelated(productId: string, categoryId: string) {

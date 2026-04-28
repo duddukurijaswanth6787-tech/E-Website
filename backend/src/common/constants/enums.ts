@@ -108,6 +108,7 @@ export const UPLOAD_FOLDER = {
   BLOGS: 'blogs',
   PROFILES: 'profiles',
   CUSTOM_BLOUSE: 'custom-blouse',
+  CUSTOM_BLOUSE_OPTIONS: 'custom-blouse-options',
   MISC: 'misc',
 } as const;
 

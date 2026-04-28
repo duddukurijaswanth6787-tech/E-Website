@@ -6,7 +6,7 @@ import { Request } from 'express';
 import { env } from '../../config/env';
 import { BadRequestError } from '../errors';
 
-const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const ALLOWED_DOC_TYPES = ['application/pdf'];
 const MAX_FILE_SIZE = env.upload.maxFileSizeMb * 1024 * 1024;
 
@@ -77,6 +77,16 @@ export const uploadCustomBlouseFiles = (folder: string) =>
 export const getFileUrl = (req: Request, filePath: string): string => {
   const proto = req.protocol;
   const host = req.get('host');
-  const relative = filePath.replace(/\\/g, '/').replace(env.upload.uploadDir, '');
-  return `${proto}://${host}/uploads${relative}`;
+  
+  // Use absolute path for comparison to ensure clean replacement
+  const absoluteUploadDir = path.resolve(env.upload.uploadDir);
+  const absoluteFilePath = path.resolve(filePath);
+  
+  // Get relative path from upload root
+  const relativePath = path.relative(absoluteUploadDir, absoluteFilePath);
+  
+  // Clean up forward slashes for URL
+  const urlPath = relativePath.replace(/\\/g, '/');
+  
+  return `${proto}://${host}/uploads/${urlPath}`;
 };

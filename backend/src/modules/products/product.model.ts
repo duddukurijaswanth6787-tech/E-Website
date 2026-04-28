@@ -63,6 +63,7 @@ export interface IProduct extends Document {
   isTrending: boolean;
   isNewArrival: boolean;
   lowStockThreshold: number;
+  rewardPoints: number;
   status: string;
   seo?: {
     title?: string;
@@ -148,6 +149,7 @@ const ProductSchema = new Schema<IProduct>(
     isTrending: { type: Boolean, default: false },
     isNewArrival: { type: Boolean, default: false },
     lowStockThreshold: { type: Number, default: 5 },
+    rewardPoints: { type: Number, default: 0 },
     status: { type: String, enum: ['draft', 'published', 'archived'], default: 'draft' },
     seo: {
       title: { type: String },
