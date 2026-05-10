@@ -1,5 +1,8 @@
 export const USER_ROLES = {
   CUSTOMER: 'customer',
+  BOUTIQUE_OWNER: 'boutique_owner',
+  TAILOR: 'tailor',
+  MANAGER: 'manager',
 } as const;
 
 export const ADMIN_ROLES = {
@@ -58,6 +61,14 @@ export const PERMISSIONS = {
 
   // Notifications
   MANAGE_NOTIFICATIONS: 'manage_notifications',
+
+  // Boutiques
+  MANAGE_BOUTIQUES: 'manage_boutiques',
+
+  // Tailors & Workflows
+  MANAGE_TAILORS: 'manage_tailors',
+  VIEW_WORKFLOWS: 'view_workflows',
+  ASSIGN_ORDERS: 'assign_orders',
 } as const;
 
 export const ROLE_PERMISSIONS: Record<string, string[]> = {
@@ -71,7 +82,7 @@ export const ROLE_PERMISSIONS: Record<string, string[]> = {
     PERMISSIONS.MANAGE_REVIEWS, PERMISSIONS.VIEW_ANALYTICS,
     PERMISSIONS.MANAGE_SUPPORT, PERMISSIONS.VIEW_AUDIT_LOGS,
     PERMISSIONS.MANAGE_MEDIA, PERMISSIONS.MANAGE_NOTIFICATIONS,
-    PERMISSIONS.MANAGE_SHIPPING,
+    PERMISSIONS.MANAGE_SHIPPING, PERMISSIONS.MANAGE_BOUTIQUES,
   ],
   [ADMIN_ROLES.CATALOG_MANAGER]: [
     PERMISSIONS.MANAGE_PRODUCTS, PERMISSIONS.MANAGE_CATEGORIES,

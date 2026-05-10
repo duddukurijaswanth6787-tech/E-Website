@@ -30,10 +30,9 @@ app.use(cors({
     const allowedOrigins = [
       env.frontendUrl, 
       'http://localhost:5173', 
-      'http://192.168.1.45:5173',
       'http://127.0.0.1:5173'
     ];
-    if (allowedOrigins.includes(origin) || origin.startsWith('http://localhost:') || origin.startsWith('http://192.168.1.45:')) {
+    if (allowedOrigins.includes(origin) || origin.startsWith('http://localhost:') || origin.startsWith('http://192.168.1.')) {
       callback(null, true);
     } else {
       callback(new Error('Not allowed by CORS'));
@@ -58,9 +57,6 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
 // Logging
 if (env.nodeEnv !== 'test') {
-  app.use(morgan(env.nodeEnv === 'development' ? 'dev' : 'combined', {
-    stream: { write: (message) => logger.http(message.trim()) },
-  }));
   app.use(requestLogger);
 }
 
@@ -80,12 +76,42 @@ app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec, {
 app.use('/', seoRoutes);
 
 // Health Check
-app.get('/api/health', (_req: Request, res: Response) => {
+app.get('/api/health', async (_req: Request, res: Response) => {
+  const { getMongoStatus } = await import('./config/database');
+  const { getRedisStatus } = await import('./config/redis');
+  const { socketMetrics } = await import('./realtime/socketServer');
+  
+  const db = getMongoStatus();
+  const redis = getRedisStatus();
+
   res.status(200).json({
-    success: true,
-    message: 'Server is healthy',
+    status: db.status === 'connected' ? 'ok' : 'error',
+    server: 'live',
+    database: db.status,
+    redis: redis.status,
+    realtime: socketMetrics.adapterMode === 'redis' ? 'active' : 'degraded',
+    uptime: Math.floor(process.uptime()),
     timestamp: new Date().toISOString(),
-    env: env.nodeEnv,
+  });
+});
+
+/**
+ * Realtime Health Endpoint (Phase 3.2)
+ * Exposes distributed transport metrics and scaling status.
+ */
+app.get('/api/health/realtime', async (_req: Request, res: Response) => {
+  const { getRedisStatus } = await import('./config/redis');
+  const { socketMetrics } = await import('./realtime/socketServer');
+  const redis = getRedisStatus();
+  
+  res.status(200).json({
+    socketIo: 'active',
+    redisAdapter: redis.status,
+    namespaces: Object.keys(socketMetrics.namespaces).length,
+    rooms: 'dynamic', 
+    activeSockets: socketMetrics.totalConnections,
+    mode: socketMetrics.adapterMode === 'redis' ? 'distributed' : 'standalone',
+    timestamp: new Date().toISOString(),
   });
 });
 

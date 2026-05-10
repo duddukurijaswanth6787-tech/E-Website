@@ -1,5 +1,11 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+export interface IProductImage {
+  url: string;
+  key: string;
+  isPrimary?: boolean;
+}
+
 export interface IProductVariant {
   _id?: mongoose.Types.ObjectId;
   color?: string;
@@ -9,7 +15,7 @@ export interface IProductVariant {
   comparePrice?: number;
   stock: number;
   sku: string;
-  images: string[];
+  images: IProductImage[];
   isActive: boolean;
 }
 
@@ -20,7 +26,7 @@ export interface IProduct extends Document {
   description: string;
   category: mongoose.Types.ObjectId;
   collections: mongoose.Types.ObjectId[];
-  images: string[];
+  images: IProductImage[];
   price: number;
   comparePrice?: number;
   stock: number;
@@ -82,6 +88,12 @@ export interface IProduct extends Document {
   updatedAt: Date;
 }
 
+const ImageSchema = new Schema<IProductImage>({
+  url: { type: String, required: true },
+  key: { type: String, required: true },
+  isPrimary: { type: Boolean, default: false }
+}, { _id: false });
+
 const VariantSchema = new Schema<IProductVariant>({
   color: { type: String },
   colorHex: { type: String },
@@ -90,7 +102,7 @@ const VariantSchema = new Schema<IProductVariant>({
   comparePrice: { type: Number, min: 0 },
   stock: { type: Number, required: true, default: 0, min: 0 },
   sku: { type: String, required: true },
-  images: [{ type: String }],
+  images: [ImageSchema],
   isActive: { type: Boolean, default: true },
 });
 
@@ -102,7 +114,7 @@ const ProductSchema = new Schema<IProduct>(
     description: { type: String, required: true },
     category: { type: Schema.Types.ObjectId, ref: 'Category', required: true },
     collections: [{ type: Schema.Types.ObjectId, ref: 'Collection' }],
-    images: [{ type: String }],
+    images: [ImageSchema],
     price: { type: Number, required: true, min: 0 },
     comparePrice: { type: Number, min: 0 },
     stock: { type: Number, default: 0, min: 0 },

@@ -3,17 +3,7 @@ import { persist } from 'zustand/middleware';
 import { getPersistStorage } from '../lib/safeStorage';
 import toast from 'react-hot-toast';
 import { cartService } from '../api/services/cart.service';
-
-
-export interface CartItem {
-  id: string; // Typically productId
-  name: string;
-  slug: string;
-  price: number;
-  image: string;
-  quantity: number;
-  fabric?: string;
-}
+import type { CartItem } from '../types/cart';
 
 interface CartState {
   items: CartItem[];
@@ -40,11 +30,10 @@ export const useCartStore = create<CartState>()(
       isOpen: false,
 
       setIsOpen: (isOpen) => set({ isOpen }),
-
       addItem: async (newItem) => {
         try {
           // Explicitly push to backend (handled via guest or user token interceptors natively)
-          await cartService.addItem(newItem.id, newItem.quantity);
+          await cartService.addItem(newItem.id, newItem.quantity, newItem.customizations);
         } catch (e) {
           console.error('Background sync failed');
           toast.error("Failed to add to backend cart.");
@@ -52,7 +41,10 @@ export const useCartStore = create<CartState>()(
         }
 
         set((state) => {
-          const existingItemIndex = state.items.findIndex(i => i.id === newItem.id);
+          const newItemKey = JSON.stringify(newItem.customizations || {});
+          const existingItemIndex = state.items.findIndex(i => 
+            i.id === newItem.id && JSON.stringify(i.customizations || {}) === newItemKey
+          );
           
           if (existingItemIndex !== -1) {
             const updatedItems = [...state.items];
@@ -107,7 +99,8 @@ export const useCartStore = create<CartState>()(
                 price: i.price,
                 image: i.image || i.product?.images?.[0] || '',
                 quantity: i.quantity,
-                fabric: i.variantId || undefined
+                fabric: i.variantId || undefined,
+                customizations: i.customizations
              }));
              set({ items: mappedItems });
            } else {

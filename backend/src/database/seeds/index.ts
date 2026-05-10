@@ -134,7 +134,7 @@ const seed = async () => {
       comparePrice: 28000,
       stock: 10,
       sku: 'VK-SAREE-001',
-      images: ['https://placehold.co/600x800/f3f4f6/A51648?text=Silk+Saree+1'],
+      images: [{ url: 'https://placehold.co/600x800/f3f4f6/A51648?text=Silk+Saree+1', key: 'seed/saree1.jpg', isPrimary: true }],
       isFeatured: true,
       status: 'published'
     },
@@ -147,7 +147,7 @@ const seed = async () => {
       comparePrice: 22000,
       stock: 5,
       sku: 'VK-SAREE-002',
-      images: ['https://placehold.co/600x800/f3f4f6/A51648?text=Blue+Saree'],
+      images: [{ url: 'https://placehold.co/600x800/f3f4f6/A51648?text=Blue+Saree', key: 'seed/saree2.jpg', isPrimary: true }],
       isTrending: true,
       status: 'published'
     },
@@ -160,7 +160,7 @@ const seed = async () => {
       comparePrice: 5500,
       stock: 20,
       sku: 'VK-BLOUSE-001',
-      images: ['https://placehold.co/600x800/f3f4f6/A51648?text=Designer+Blouse'],
+      images: [{ url: 'https://placehold.co/600x800/f3f4f6/A51648?text=Designer+Blouse', key: 'seed/blouse1.jpg', isPrimary: true }],
       isNewArrival: true,
       status: 'published'
     }

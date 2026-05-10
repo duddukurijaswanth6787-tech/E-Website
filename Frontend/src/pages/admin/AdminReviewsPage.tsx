@@ -46,10 +46,10 @@ const AdminReviewsPage = () => {
     fetchReviews(pagination.page);
   }, [pagination.page]);
 
-  const updateStatus = async (id: string, newStatus: string) => {
+  const updateStatus = async (id: string, data: any) => {
      try {
-        await reviewService.updateReviewStatus(id, newStatus);
-        toast.success(`Review ${newStatus}`);
+        await reviewService.updateReview(id, data);
+        toast.success(`Review updated`);
         fetchReviews(pagination.page);
      } catch (e) {
         toast.error("Error mutating explicit review moderation state.");
@@ -73,8 +73,8 @@ const AdminReviewsPage = () => {
            <div className="flex items-center text-yellow-500 text-xs mb-1">
              {"★".repeat(row.rating)}{"☆".repeat(5-row.rating)}
            </div>
-           <span className="block font-medium text-gray-800 text-sm truncate">{row.title || 'No Subject'}</span>
-           <span className="block text-xs text-gray-500 line-clamp-2 mt-0.5" title={row.comment}>{row.comment}</span>
+            <span className="block font-medium text-gray-800 text-sm truncate">{row.title || 'No Subject'}</span>
+            <span className="block text-xs text-gray-500 line-clamp-2 mt-0.5" title={row.body}>{row.body}</span>
          </div>
        )
     },
@@ -90,8 +90,8 @@ const AdminReviewsPage = () => {
     { 
        header: 'Moderation Trigger', 
        accessor: (row: Review) => {
-         const isApproved = row.status === 'APPROVED';
-         const isRejected = row.status === 'REJECTED';
+          const isApproved = row.status === 'approved';
+          const isRejected = row.status === 'rejected';
          const colorClass = isApproved ? 'bg-green-50 text-green-700 border-green-200' : isRejected ? 'bg-red-50 text-red-700 border-red-200' : 'bg-yellow-50 text-yellow-700 border-yellow-200';
          return (
            <span className={`inline-flex px-2 py-1 rounded text-[0.65rem] font-bold tracking-widest uppercase border ${colorClass}`}>
@@ -104,15 +104,15 @@ const AdminReviewsPage = () => {
        header: 'Actions',
        accessor: (row: Review) => (
          <div className="flex items-center space-x-2">
-           <button onClick={() => updateStatus(row._id, 'APPROVED')} className="p-1.5 text-gray-400 hover:text-green-600 transition-colors" title="Approve & Publish to Shop">
-             <ThumbsUp size={16} />
-           </button>
-           <button onClick={() => updateStatus(row._id, 'REJECTED')} className="p-1.5 text-gray-400 hover:text-red-500 transition-colors" title="Reject / Suppress">
-             <ThumbsDown size={16} />
-           </button>
-           <button onClick={() => updateStatus(row._id, 'DELETED')} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors" title="Hard Delete Data">
-             <Trash2 size={16} />
-           </button>
+            <button onClick={() => updateStatus(row._id, { status: 'approved' })} className="p-1.5 text-gray-400 hover:text-green-600 transition-colors" title="Approve & Publish to Shop">
+              <ThumbsUp size={16} />
+            </button>
+            <button onClick={() => updateStatus(row._id, { status: 'rejected' })} className="p-1.5 text-gray-400 hover:text-red-500 transition-colors" title="Reject / Suppress">
+              <ThumbsDown size={16} />
+            </button>
+            <button onClick={() => updateStatus(row._id, { status: 'deleted' })} className="p-1.5 text-gray-400 hover:text-red-600 transition-colors" title="Hard Delete Data">
+              <Trash2 size={16} />
+            </button>
          </div>
        )
     }

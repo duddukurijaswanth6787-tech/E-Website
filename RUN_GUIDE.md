@@ -77,13 +77,22 @@ cd E-Website
 
 ---
 
-## 4. Access the Application
-- **Frontend**: http://localhost:5173
-- **Backend API**: http://localhost:5000/api/v1
-- **API Documentation (Swagger)**: http://localhost:5000/api-docs
+## 4. Access the Portals
+- **Client Storefront**: `http://localhost:5173`
+- **Admin Command Center**: `http://localhost:5173/admin`
+- **Manager Ops Portal**: `http://localhost:5173/manager/login`
+- **Tailor Production Feed**: `http://localhost:5173/tailor/login`
+
+---
+
+## 5. Development Tips
+- **Production Event Logs**: Check `backend/logs` for detailed operational audits.
+- **Realtime Feed**: Ensure you have multiple browser tabs open to test the Socket.IO notification synchronization.
+- **Measurement Engine**: Test the premium measurement engine by creating a new custom blouse request from the storefront.
 
 ---
 
 ## Project Structure
-- **/Frontend**: React + Vite + Tailwind CSS (Client-side)
-- **/backend**: Node.js + Express + TypeScript + MongoDB (Server-side)
+- **/Frontend**: High-end React SPA with specialized portals for Admin, Managers, and Tailors.
+- **/backend**: Industrial-grade Node.js API with domain-driven notification bridge and real-time event bus.
+- **/docker-compose.yml**: Orchestration for rapid deployment including MongoDB.

@@ -1,24 +1,15 @@
 import { Router } from 'express';
-import { notificationController } from './notification.controller';
-import { authenticateAdmin, requirePermission } from '../../common/middlewares';
-import { PERMISSIONS } from '../../common/constants';
+import { NotificationController } from './notification.controller';
+import { protect } from '../../common/middlewares';
 
 const router = Router();
 
-// ADMIN ROUTES
-router.get('/admin',
-  authenticateAdmin, requirePermission(PERMISSIONS.MANAGE_NOTIFICATIONS),
-  notificationController.getAllNotifications.bind(notificationController),
-);
+// All notification routes require authentication
+router.use(protect);
 
-router.post('/',
-  authenticateAdmin, requirePermission(PERMISSIONS.MANAGE_NOTIFICATIONS),
-  notificationController.createNotification.bind(notificationController),
-);
-
-router.patch('/:id/read',
-  authenticateAdmin, requirePermission(PERMISSIONS.MANAGE_NOTIFICATIONS),
-  notificationController.markAsRead.bind(notificationController),
-);
+router.get('/', NotificationController.getHistory);
+router.get('/unread-count', NotificationController.getUnreadCount);
+router.patch('/mark-all-read', NotificationController.markAllRead);
+router.patch('/:id/read', NotificationController.markRead);
 
 export default router;

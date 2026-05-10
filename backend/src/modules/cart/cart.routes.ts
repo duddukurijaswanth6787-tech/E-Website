@@ -92,7 +92,7 @@ router.post('/items', optionalAuthenticateUser, async (req: Request, res: Respon
     if (existing) {
       existing.quantity += quantity;
     } else {
-      cart.items.push({ product: product._id, variantId, quantity, price, name: product.name, image: product.images[0] || '' });
+      cart.items.push({ product: product._id, variantId, quantity, price, name: product.name, image: product.images[0]?.url || '' });
     }
 
     await recalcCart(cart);

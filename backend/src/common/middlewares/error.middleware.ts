@@ -4,18 +4,37 @@ import { logger } from '../logger';
 import { env } from '../../config/env';
 import mongoose from 'mongoose';
 
+const SENSITIVE_FIELDS = ['password', 'token', 'secret', 'passwordHash', 'refreshToken'];
+
+const maskSensitiveData = (obj: any): any => {
+  if (!obj || typeof obj !== 'object') return obj;
+  const masked = { ...obj };
+  for (const key of Object.keys(masked)) {
+    if (SENSITIVE_FIELDS.some((f) => key.toLowerCase().includes(f))) {
+      masked[key] = '[REDACTED]';
+    }
+  }
+  return masked;
+};
+
 export const globalErrorHandler = (
-  err: Error,
+  err: any,
   req: Request,
   res: Response,
   _next: NextFunction,
 ): void => {
+  const statusCode = err.statusCode || 500;
+  const requestId = (req as any).requestId || 'no-id';
+
   logger.error({
+    requestId,
     message: err.message,
     stack: err.stack,
     path: req.path,
     method: req.method,
-    ip: req.ip,
+    statusCode,
+    body: maskSensitiveData(req.body),
+    user: (req as any).user || (req as any).admin || 'anonymous',
   });
 
   // Mongoose validation error
@@ -35,8 +54,9 @@ export const globalErrorHandler = (
   }
 
   // Mongoose duplicate key
-  if ((err as NodeJS.ErrnoException).code === '11000') {
-    const field = Object.keys((err as unknown as Record<string, unknown>).keyValue as Record<string, unknown>)[0];
+  if ((err as any).code === 11000) {
+    const keyValue = (err as any).keyValue || {};
+    const field = Object.keys(keyValue)[0] || 'field';
     res.status(409).json({ success: false, message: `${field} already exists`, error: null });
     return;
   }

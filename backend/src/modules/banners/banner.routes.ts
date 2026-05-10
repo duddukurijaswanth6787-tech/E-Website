@@ -4,6 +4,10 @@ import { authenticateAdmin, requirePermission } from '../../common/middlewares';
 import { sendSuccess, sendCreated, sendNoContent } from '../../common/responses';
 import { PERMISSIONS } from '../../common/constants';
 import { NotFoundError } from '../../common/errors';
+import { validateZod } from '../../common/middlewares/zodValidate.middleware';
+import { trackEngagementSchema } from '../marketing/marketing.validation';
+import { domainEventBus } from '../../realtime/bus/domainEventBus';
+import { ERP_EVENTS } from '../../realtime/events/erpEvents';
 
 const router = Router();
 
@@ -61,5 +65,33 @@ router.delete('/:id', authenticateAdmin, requirePermission(PERMISSIONS.MANAGE_BA
     } catch (err) { next(err); }
   }
 );
+
+router.post('/:id/impression', validateZod(trackEngagementSchema), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const banner = await Banner.findByIdAndUpdate(req.params.id, { $inc: { impressions: 1 } }, { new: true });
+    if (banner) {
+      domainEventBus.publish({
+        type: ERP_EVENTS.MARKETING_EVENT,
+        payload: { type: 'banner_impression', bannerId: banner._id, section: banner.section },
+        metadata: { timestamp: new Date() }
+      } as never);
+    }
+    sendSuccess(res, null);
+  } catch (err) { next(err); }
+});
+
+router.post('/:id/click', validateZod(trackEngagementSchema), async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const banner = await Banner.findByIdAndUpdate(req.params.id, { $inc: { clicks: 1 } }, { new: true });
+    if (banner) {
+      domainEventBus.publish({
+        type: ERP_EVENTS.MARKETING_EVENT,
+        payload: { type: 'banner_click', bannerId: banner._id, section: banner.section },
+        metadata: { timestamp: new Date() }
+      } as never);
+    }
+    sendSuccess(res, null);
+  } catch (err) { next(err); }
+});
 
 export default router;

@@ -100,7 +100,7 @@ const UserOrders = () => {
                    <div className="flex gap-4 overflow-x-auto pb-4 custom-scrollbar">
                      {order.items.map((item: any, idx: number) => (
                        <div key={idx} className="flex-shrink-0 w-24 h-32 bg-gray-100 rounded-lg overflow-hidden border border-gray-200">
-                          <ImageWithSkeleton src={item.image || item.product?.images?.[0] || 'https://placehold.co/400x600/f3f4f6/A51648?text=Item'} alt={item.name || item.product?.name || 'Product'} className="w-full h-full object-cover" containerClassName="w-full h-full" />
+                          <ImageWithSkeleton src={(typeof item.image === 'string' ? item.image : item.image?.url) || (typeof item.product?.images?.[0] === 'string' ? item.product?.images?.[0] : item.product?.images?.[0]?.url) || 'https://placehold.co/400x600/f3f4f6/A51648?text=Item'} alt={item.name || item.product?.name || 'Product'} className="w-full h-full object-cover" containerClassName="w-full h-full" />
                        </div>
                      ))}
                    </div>

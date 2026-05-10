@@ -715,27 +715,33 @@ const AdminProductFormModal = ({
                   placeholder="0"
                 />
               </div>
-              {(
-                [
-                  ['isFeatured', 'Featured product'],
-                  ['isNewArrival', 'New arrival'],
-                  ['isBestSeller', 'Best seller'],
-                  ['isTrending', 'Trending'],
-                  ['showOnHomepage', 'Show on homepage'],
-                ] as const
-              ).map(([key, lab]) => (
-                <div key={key}>
-                  <label className={labelCls}>{lab}</label>
-                  <select
-                    value={form[key] ? 'yes' : 'no'}
-                    onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value === 'yes' }))}
-                    className={`${inputCls} bg-white`}
-                  >
-                    <option value="no">No</option>
-                    <option value="yes">Yes</option>
-                  </select>
+              <div className="sm:col-span-2 bg-gray-50 p-4 rounded-xl border border-gray-100 space-y-4">
+                <p className="text-[10px] font-black uppercase tracking-widest text-primary-700 mb-2 font-serif italic">Promotional Flags & Visibility</p>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-y-4 gap-x-8">
+                  {[
+                    ['isTrending', 'Trending Now', 'Shows in home page carousel'],
+                    ['isFeatured', 'Featured Item', 'Promoted in featured sections'],
+                    ['isNewArrival', 'New Arrival', 'Adds a NEW badge to card'],
+                    ['isBestSeller', 'Best Seller', 'Adds BESTSELLER badge'],
+                    ['showOnHomepage', 'Home Display', 'Include in home collections'],
+                  ].map(([key, lab, desc]) => (
+                    <label key={key} className="flex items-start space-x-3 cursor-pointer group">
+                      <div className="pt-0.5">
+                        <input 
+                          type="checkbox"
+                          checked={!!form[key as keyof ProductFormState]}
+                          onChange={(e) => setForm(f => ({ ...f, [key]: e.target.checked }))}
+                          className="w-4 h-4 rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+                        />
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-xs font-bold text-gray-900 group-hover:text-primary-700 transition-colors">{lab}</span>
+                        <span className="text-[9px] text-gray-500 uppercase tracking-tighter">{desc}</span>
+                      </div>
+                    </label>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
 
             <div className="mt-8 relative py-4">

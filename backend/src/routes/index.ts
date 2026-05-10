@@ -25,8 +25,19 @@ import supportRoutes from '../modules/support/support.routes';
 import notificationRoutes from '../modules/notifications/notification.routes';
 import auditLogRoutes from '../modules/auditLogs/auditLog.routes';
 import paymentRoutes from '../modules/payments/payment.routes';
+import boutiqueRoutes from '../modules/boutique/boutique.routes';
+import measurementRoutes from '../modules/measurements/measurement.routes';
 
 import customBlouseOptionRoutes from '../modules/customBlouse/customBlouseOption.routes';
+import { cmsRoutes, adminCmsRoutes } from '../modules/cms/cms.routes';
+import ownerAuthRoutes from '../modules/ownerAuth/ownerAuth.routes';
+import ownerAdminRoutes from '../modules/ownerAuth/ownerAdmin.routes';
+import { tailorAuthRoutes } from '../modules/tailorAuth/tailorAuth.routes';
+import { tailorAdminRoutes } from '../modules/tailors/tailor.routes';
+import { adminWorkflowRoutes, tailorDashboardRoutes } from '../modules/workflows/workflow.routes';
+import managerAuthRoutes from '../modules/managerAuth/managerAuth.routes';
+import managerRoutes from '../modules/managers/manager.routes';
+import marketingRoutes from '../modules/marketing/marketing.routes';
 
 const router = Router();
 
@@ -58,5 +69,18 @@ router.use('/support', supportRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/audit-logs', auditLogRoutes);
 router.use('/payments', paymentRoutes);
+router.use('/boutique', boutiqueRoutes);
+router.use('/measurements', measurementRoutes);
+router.use('/cms', cmsRoutes);
+router.use('/admin/cms', adminCmsRoutes);
+router.use('/owner-auth', ownerAuthRoutes);
+router.use('/admin/boutique-owners', ownerAdminRoutes);
+router.use('/tailor-auth', tailorAuthRoutes);
+router.use('/admin/tailors', tailorAdminRoutes);
+router.use('/admin/workflows', adminWorkflowRoutes);
+router.use('/tailor-dashboard/tasks', tailorDashboardRoutes);
+router.use('/manager-auth', managerAuthRoutes);
+router.use('/admin/managers', managerRoutes);
+router.use('/marketing', marketingRoutes);
 
 export default router;

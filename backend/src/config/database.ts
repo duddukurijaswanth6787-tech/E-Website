@@ -27,6 +27,15 @@ export const connectMongoDB = async (): Promise<void> => {
   }
 };
 
+export const getMongoStatus = () => {
+  return {
+    status: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected',
+    host: mongoose.connection.host || 'unknown',
+    database: mongoose.connection.name || 'unknown',
+    replicaSet: (mongoose.connection as any)._replicaSet ? 'active' : 'standalone',
+  };
+};
+
 export const disconnectMongoDB = async (): Promise<void> => {
   if (mongoose.connection.readyState !== 0) {
     mongoose.connection.removeAllListeners('disconnected');

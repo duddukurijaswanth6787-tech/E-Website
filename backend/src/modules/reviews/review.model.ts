@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface IReview extends Document {
+  tenantId: string;
   product: mongoose.Types.ObjectId;
   user: mongoose.Types.ObjectId;
   order?: mongoose.Types.ObjectId;
@@ -17,6 +18,7 @@ export interface IReview extends Document {
 
 const ReviewSchema = new Schema<IReview>(
   {
+    tenantId: { type: String, required: true, index: true },
     product: { type: Schema.Types.ObjectId, ref: 'Product', required: true },
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
     order: { type: Schema.Types.ObjectId, ref: 'Order' },
@@ -30,6 +32,10 @@ const ReviewSchema = new Schema<IReview>(
   },
   { timestamps: true },
 );
+
+ReviewSchema.index({ tenantId: 1, product: 1 });
+ReviewSchema.index({ tenantId: 1, user: 1 });
+ReviewSchema.index({ tenantId: 1, status: 1 });
 
 ReviewSchema.index({ product: 1 });
 ReviewSchema.index({ user: 1 });

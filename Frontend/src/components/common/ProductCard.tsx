@@ -18,6 +18,7 @@ export interface ProductCardProps {
   rating?: number;
   ratingCount?: number;
   rewardPoints?: number;
+  isTrending?: boolean;
 }
 
 export const ProductCard = memo(({ product }: { product: ProductCardProps }) => {
@@ -61,16 +62,23 @@ export const ProductCard = memo(({ product }: { product: ProductCardProps }) => 
           />
         </Link>
 
-        {/* Optional Tag (e.g. Bestseller, New) or Discount */}
-        {product.tag ? (
-          <div className="absolute top-3 left-3 px-2.5 py-1 bg-white/90 backdrop-blur-sm text-[0.65rem] font-bold uppercase tracking-widest text-primary-900 rounded shadow-sm">
-            {product.tag}
-          </div>
-        ) : product.originalPrice && product.originalPrice > product.price ? (
-          <div className="absolute top-3 left-3 px-2.5 py-1 bg-accent/90 backdrop-blur-sm text-[0.65rem] font-bold uppercase tracking-widest text-primary-950 rounded shadow-sm">
-            {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
-          </div>
-        ) : null}
+        {/* Status Badges */}
+        <div className="absolute top-3 left-3 flex flex-col gap-2">
+          {product.isTrending && (
+            <div className="px-2.5 py-1 bg-pink-500/90 backdrop-blur-sm text-[0.6rem] font-black uppercase tracking-widest text-white rounded shadow-sm">
+              Trending
+            </div>
+          )}
+          {product.tag ? (
+            <div className="px-2.5 py-1 bg-white/90 backdrop-blur-sm text-[0.65rem] font-bold uppercase tracking-widest text-primary-900 rounded shadow-sm">
+              {product.tag}
+            </div>
+          ) : product.originalPrice && product.originalPrice > product.price ? (
+            <div className="px-2.5 py-1 bg-accent/90 backdrop-blur-sm text-[0.65rem] font-bold uppercase tracking-widest text-primary-950 rounded shadow-sm">
+              {Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}% OFF
+            </div>
+          ) : null}
+        </div>
 
         {/* Hover Actions (Desktop Only) */}
         <div className="hidden lg:flex absolute top-3 right-3 flex-col space-y-2 opacity-0 transform translate-x-4 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300">

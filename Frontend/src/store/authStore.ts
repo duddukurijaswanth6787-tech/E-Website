@@ -9,6 +9,7 @@ interface User {
   role: string;
   avatar?: string;
   mobile?: string;
+  mustChangePassword?: boolean;
 }
 
 interface AuthState {

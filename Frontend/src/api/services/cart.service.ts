@@ -1,12 +1,13 @@
 import apiClient from '../client';
-import type { CartItem } from '../../store/cartStore';
+import type { CartItem } from '../../types/cart';
 
 export const cartService = {
   // Sync a local cart explicitly into the backend after login 
   syncCart: async (items: CartItem[]) => {
     return apiClient.post('/cart/sync', { items: items.map(item => ({
       product: item.id,
-      quantity: item.quantity
+      quantity: item.quantity,
+      customizations: item.customizations
     })) });
   },
 
@@ -20,8 +21,8 @@ export const cartService = {
   },
 
   // Add individual item - backend uses POST /cart/items
-  addItem: async (productId: string, quantity: number) => {
-    return apiClient.post('/cart/items', { productId, quantity });
+  addItem: async (productId: string, quantity: number, customizations?: any) => {
+    return apiClient.post('/cart/items', { productId, quantity, customizations });
   },
 
   // Update quantity - backend uses PATCH /cart/items/:itemId

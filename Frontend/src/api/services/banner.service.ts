@@ -4,11 +4,16 @@ export interface Banner {
   _id: string;
   title: string;
   subtitle?: string;
-  imageUrl: string;
+  imageUrl?: string;
+  image?: string;
   link?: string;
-  placement: string;
+  placement?: string;
+  section?: string;
   isActive: boolean;
   order: number;
+  impressions?: number;
+  clicks?: number;
+  createdAt?: string;
 }
 
 export const bannerService = {

@@ -8,7 +8,7 @@ import toast from 'react-hot-toast';
 import { 
   Mail, Phone, 
   Package, Clock, CheckCircle, Truck, PackageCheck,
-  MapPin, Heart, Scissors, AlertCircle, Sparkles
+  Heart, AlertCircle, Sparkles
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Skeleton } from '../../components/common/Skeleton';
@@ -30,7 +30,7 @@ const UserProfile = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [orders, setOrders] = useState<any[]>([]);
-  const [stats, setStats] = useState<ProfileStats>({
+  const [, setStats] = useState<ProfileStats>({
     totalOrders: 0,
     activeOrders: 0,
     deliveredOrders: 0,
@@ -360,9 +360,9 @@ const UserProfile = () => {
                       <div className="flex items-center space-x-4 md:w-5/12 shrink-0">
                          <div className="w-16 h-20 rounded-xl bg-[#FFF8F1] border border-[#FBEAF0] flex-shrink-0 relative overflow-hidden shadow-[inset_0_2px_4px_rgba(0,0,0,0.02)]">
                             {order.items && order.items[0]?.product?.images?.[0] ? (
-                              <img src={order.items[0].product.images[0]} alt="Product" className="w-full h-full object-cover" />
+                              <img src={typeof order.items[0].product.images[0] === 'string' ? order.items[0].product.images[0] : order.items[0].product.images[0]?.url} alt="Product" className="w-full h-full object-cover" />
                             ) : order.items && order.items[0]?.image ? (
-                              <img src={order.items[0].image} alt="Product" className="w-full h-full object-cover" />
+                              <img src={typeof order.items[0].image === 'string' ? order.items[0].image : order.items[0].image?.url} alt="Product" className="w-full h-full object-cover" />
                             ) : (
                               <div className="w-full h-full flex items-center justify-center text-[#D4AF37]/40"><Package size={20} strokeWidth={1.5} /></div>
                             )}

@@ -28,6 +28,11 @@ export const authService = {
     return apiClient.post<any, any>('/admin-auth/login', credentials);
   },
 
+  // Tailor login flow
+  tailorLogin: async (credentials: object) => {
+    return apiClient.post<any, any>('/tailor-auth/login', credentials);
+  },
+
   // Developer Bypass flow mimicking OTP creation
   developerMockLogin: async (email: string) => {
     // This connects to the mock backend admin or test user

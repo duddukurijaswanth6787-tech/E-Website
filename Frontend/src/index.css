@@ -153,3 +153,12 @@
   background-size: 200% 100%;
   animation: shimmer 2.5s infinite linear;
 }
+
+@keyframes wiggle {
+  0%, 100% { transform: rotate(-5deg); }
+  50% { transform: rotate(5deg); }
+}
+
+.animate-wiggle {
+  animation: wiggle 0.5s ease-in-out infinite;
+}

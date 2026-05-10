@@ -19,5 +19,18 @@ export const cmsService = {
 
   updateBlock: async (id: string, content: string | Record<string, any>) => {
     return apiClient.put(`/cms/${id}`, { content });
+  },
+
+  // Hero Section
+  getHeroSection: async () => {
+    return apiClient.get<any, { success: boolean, data: any }>('/cms/home/hero');
+  },
+
+  getAdminHeroSection: async () => {
+    return apiClient.get<any, { success: boolean, data: any }>('/admin/cms/home/hero');
+  },
+
+  updateHeroSection: async (data: any) => {
+    return apiClient.put<any, { success: boolean, data: any }>('/admin/cms/home/hero', data);
   }
 };

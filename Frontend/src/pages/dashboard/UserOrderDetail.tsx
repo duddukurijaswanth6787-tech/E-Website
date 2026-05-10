@@ -151,7 +151,7 @@ const UserOrderDetail = () => {
           {order.items.map((item: any, idx: number) => (
             <div key={idx} className="flex gap-4 p-4 bg-gray-50 rounded-lg border border-gray-100">
               <div className="w-20 h-28 bg-gray-200 rounded overflow-hidden flex-shrink-0">
-                <img src={item.image || item.product?.images?.[0] || 'https://placehold.co/400x600/f3f4f6/A51648?text=Item'} alt={item.name || item.product?.name || 'Product'} className="w-full h-full object-cover" />
+                <img src={(typeof item.image === 'string' ? item.image : item.image?.url) || (typeof item.product?.images?.[0] === 'string' ? item.product?.images?.[0] : item.product?.images?.[0]?.url) || 'https://placehold.co/400x600/f3f4f6/A51648?text=Item'} alt={item.name || item.product?.name || 'Product'} className="w-full h-full object-cover" />
               </div>
               <div className="flex-1">
                 <h4 className="font-medium text-gray-900">{item.name || item.product?.name || 'Vasanthi Product'}</h4>

@@ -20,7 +20,7 @@ const AdminCouponsPage = () => {
   const fetchCoupons = async (page = 1) => {
     setLoading(true);
     try {
-       const res = await couponService.getAdminCoupons({ page, limit: pagination.limit });
+       const res = await couponService.getCoupons({ page, limit: pagination.limit });
        if (res) {
           const fetchedData = (res as any).data?.coupons || (res as any).data?.data || (res as any).data || [];
           const arr = Array.isArray(fetchedData) ? fetchedData : Object.values(fetchedData);
@@ -62,16 +62,20 @@ const AdminCouponsPage = () => {
 
   const openEdit = (c: Coupon) => {
     setModalMode('edit');
-    setActiveCoupon(c);
+    const typeMap: Record<string, 'PERCENTAGE' | 'FIXED'> = {
+      'percentage': 'PERCENTAGE',
+      'flat': 'FIXED'
+    };
+    
     setForm({
       code: c.code,
-      discountType: c.discountType,
-      discountValue: c.discountValue,
-      minOrderValue: c.minOrderValue ?? '',
-      maxDiscount: c.maxDiscount ?? '',
+      discountType: typeMap[c.type] || 'PERCENTAGE',
+      discountValue: c.value,
+      minOrderValue: c.minOrderAmount ?? '',
+      maxDiscount: c.maxDiscountAmount ?? '',
       validFrom: new Date(c.validFrom).toISOString().split('T')[0],
-      validUntil: new Date(c.validUntil).toISOString().split('T')[0],
-      usageLimit: c.usageLimit ?? '',
+      validUntil: new Date(c.validTo).toISOString().split('T')[0],
+      usageLimit: c.maxUses ?? '',
       isActive: c.isActive,
     });
     setModalOpen(true);
@@ -128,23 +132,22 @@ const AdminCouponsPage = () => {
     { 
        header: 'Payload Value', 
        accessor: (row: Coupon) => (
-         <span className="block font-medium text-gray-900">
-           {row.discountType === 'PERCENTAGE' ? `${row.discountValue}% OFF` : `₹${row.discountValue?.toLocaleString('en-IN')}`}
-         </span>
+          <span className="block font-medium text-gray-900">
+            {row.type === 'percentage' ? `${row.value}% OFF` : `₹${row.value?.toLocaleString('en-IN')}`}
+          </span>
        )
     },
     { 
        header: 'Usage Limits', 
        accessor: (row: Coupon) => (
-         <div>
-           <span className="block text-sm text-gray-800 tracking-wide">{row.usedCount || 0} / {row.usageLimit || '∞'} Uses</span>
-         </div>
+          <div>
+            <span className="block text-sm text-gray-800 tracking-wide">{row.usedCount || 0} / {row.maxUses || '∞'} Uses</span>
+          </div>
        )
     },
     { 
-       header: 'Status', 
-       accessor: (row: Coupon) => {
-         const isActive = row.isActive && new Date(row.validUntil) > new Date();
+       header: 'Status',        accessor: (row: Coupon) => {
+          const isActive = row.isActive && new Date(row.validTo) > new Date();
          return (
            <span className={`inline-flex px-2 py-1 rounded text-[0.65rem] font-bold tracking-widest uppercase ${isActive ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-red-50 text-red-700 border border-red-200'}`}>
               {isActive ? 'ACTIVE' : 'EXPIRED / HIDDEN'}

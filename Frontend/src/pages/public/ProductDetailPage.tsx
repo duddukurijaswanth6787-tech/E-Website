@@ -92,14 +92,14 @@ const ProductDetailPage = () => {
               slug: rp.slug,
               price: rp.price,
               originalPrice: rp.comparePrice ?? rp.originalPrice,
-              image: rp.images?.[0] || '',
+              image: typeof rp.images?.[0] === 'string' ? rp.images?.[0] : rp.images?.[0]?.url || '',
               category: rp.category?.name || 'Vasanthi',
             })));
           } else {
              // Fallback to frontpage trending if none mapped structurally
              const trend = await productService.getProducts({ limit: 4 });
              const list = extractPaginatedList(trend);
-             setRelatedProducts(list.map((p: any) => ({ id: p._id, name: p.name, slug: p.slug, price: p.price, image: p.images?.[0] || '', category: p.category?.name || 'Vasanthi'})));
+             setRelatedProducts(list.map((p: any) => ({ id: p._id, name: p.name, slug: p.slug, price: p.price, image: typeof p.images?.[0] === 'string' ? p.images?.[0] : p.images?.[0]?.url || '', category: p.category?.name || 'Vasanthi'})));
           }
         } catch (e) {
           console.warn("Related products unfetchable");
@@ -133,7 +133,9 @@ const ProductDetailPage = () => {
   }
 
   // Fallback defaults for missing backend values
-  const productImages = product.images?.length > 0 ? product.images : ['https://placehold.co/600x800/f3f4f6/A51648?text=No+Image'];
+  const productImages = product.images?.length > 0 
+    ? product.images.map((img: any) => typeof img === 'string' ? img : img?.url || '')
+    : ['https://placehold.co/600x800/f3f4f6/A51648?text=No+Image'];
   const categoryName = product.category?.name || 'Catalog';
   const categorySlug = product.category?.slug || 'all';
   const reviewsCount = 0; // To be dynamic later

@@ -14,7 +14,8 @@ const UserLayout = () => {
     { path: '/my/profile', label: 'Profile', icon: User },
     { path: '/my/orders', label: 'Orders', icon: Package },
     { path: '/my/wishlist', label: 'Wishlist', icon: Heart },
-    { path: '/my/custom-requests', label: 'Custom Requests', icon: Scissors },
+    { path: '/my/measurements', label: 'Fitting Room', icon: Scissors },
+    { path: '/my/custom-requests', label: 'Custom Requests', icon: User },
     { path: '/my/addresses', label: 'Addresses', icon: MapPin },
     { path: '/my/settings', label: 'Security & Auth', icon: Shield },
   ], []);

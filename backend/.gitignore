@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Production
+dist/
+build/
+
+# Environment
+.env
+.env.*
+!.env.example
+
+# Logs
+logs/
+*.log
+
+# Misc
+uploads/
+temp/
+tmp/
+coverage/
+
+# Temporary files
+ts_errors.txt
+test_db.ts
+tmp_check_user.js

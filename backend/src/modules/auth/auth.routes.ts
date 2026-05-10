@@ -6,7 +6,8 @@ import {
   forgotPasswordValidation, resetPasswordValidation,
   resendOTPValidation, refreshTokenValidation,
 } from './auth.validation';
-import { handleValidationErrors, authenticateUser } from '../../common/middlewares';
+import { handleValidationErrors } from '../../common/middlewares/validate.middleware';
+import { authenticateUser } from '../../common/middlewares/auth.middleware';
 import { env } from '../../config/env';
 
 const router = Router();

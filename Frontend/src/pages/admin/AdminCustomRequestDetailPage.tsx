@@ -1,11 +1,15 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { customRequestService } from '../../api/services/custom-request.service';
+import { adminTailorService } from '../../api/services/adminTailor.service';
+import { adminWorkflowService } from '../../api/services/adminWorkflow.service';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { 
   ChevronLeft, Save, User, MapPin, 
   Clock, Scissors, DollarSign, FileText,
-  Image as ImageIcon, Activity
+  Image as ImageIcon, Activity, Ruler
 } from 'lucide-react';
+import { MEASUREMENT_SCHEMA } from '../../utils/measurementSchema';
 import toast from 'react-hot-toast';
 
 const STATUS_OPTIONS = [
@@ -25,6 +29,10 @@ const AdminCustomRequestDetailPage = () => {
   const [request, setRequest] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState<string | null>(null);
+  const queryClient = useQueryClient();
+
+  // Assignment states
+  const [selectedTailorId, setSelectedTailorId] = useState('');
 
   // Edit fields
   const [status, setStatus] = useState('');
@@ -41,6 +49,9 @@ const AdminCustomRequestDetailPage = () => {
         setStatus(data.status || 'submitted');
         setPrice(data.assignedPrice || '');
         setNotes(data.adminNotes || '');
+        if (data.workflowTaskId) {
+            // Already assigned
+        }
       } catch (e: any) {
         toast.error("Could not load request details");
         navigate('/admin/custom-requests');
@@ -50,6 +61,33 @@ const AdminCustomRequestDetailPage = () => {
     };
     fetchDetail();
   }, [id, navigate]);
+
+  const { data: tailorsRes } = useQuery({
+    queryKey: ['adminTailors'],
+    queryFn: () => adminTailorService.getAllTailors(),
+  });
+
+  const assignWorkflowMutation = useMutation({
+    mutationFn: (tailorId: string) => adminWorkflowService.createWorkflow({
+      customBlouseId: id,
+      tailorId,
+      taskDescription: `Custom Blouse - ${request?.stylePreferences?.blouseStyle || 'Bespoke'}`,
+      deadline: request?.deliveryDate || new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
+    }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminTailors'] });
+      toast.success('Tailor assigned and workflow created');
+      setTimeout(() => window.location.reload(), 1000); // Reload to fetch fresh request data if backend links it
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Failed to assign workflow');
+    }
+  });
+
+  const handleAssignTailor = () => {
+    if (!selectedTailorId) return toast.error('Please select a tailor');
+    assignWorkflowMutation.mutate(selectedTailorId);
+  };
 
   const handleSaveStatus = async () => {
     if (!id) return;
@@ -187,16 +225,60 @@ const AdminCustomRequestDetailPage = () => {
 
                {/* Measurements */}
                <div className="pt-6 border-t border-gray-50">
-                  <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-4 flex items-center">
-                     <ImageIcon size={14} className="mr-2 text-primary-600" /> Measurement Data (cm/in)
+                  <h3 className="text-sm font-bold text-gray-900 uppercase tracking-widest mb-6 flex items-center">
+                     <Ruler size={16} className="mr-2 text-primary-600" /> Precise Fitting Data
                   </h3>
-                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-y-6 gap-x-4">
-                     {Object.entries(request.measurements || {}).map(([key, value]: [string, any]) => (
-                       <div key={key} className="bg-gray-50/50 p-3 rounded-lg border border-gray-100">
-                          <span className="block text-[0.6rem] font-bold text-gray-400 uppercase tracking-widest mb-1 truncate" title={key}>{key}</span>
-                          <span className="text-primary-950 font-bold">{String(value)}</span>
-                       </div>
-                     ))}
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                     {MEASUREMENT_SCHEMA.map(section => {
+                       const fieldsWithData = section.fields.filter(f => request.measurements?.[f.name]);
+                       if (fieldsWithData.length === 0) return null;
+
+                       return (
+                         <div key={section.id} className="space-y-3">
+                           <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
+                             <div className="w-5 h-5 rounded bg-stone-50 flex items-center justify-center text-stone-400">
+                               <section.icon size={12} />
+                             </div>
+                             <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-widest">{section.title}</h4>
+                           </div>
+                           <div className="grid grid-cols-1 gap-2">
+                              {fieldsWithData.map(field => (
+                                <div key={field.name} className="flex justify-between items-center bg-gray-50/50 p-2.5 rounded-lg border border-gray-100/50 hover:bg-white hover:shadow-sm transition-all group">
+                                   <span className="text-[11px] font-medium text-gray-500">{field.label}</span>
+                                   <span className="text-sm font-bold text-primary-950">{request.measurements[field.name]} {field.unit}</span>
+                                </div>
+                              ))}
+                           </div>
+                         </div>
+                       );
+                     })}
+
+                     {/* Extra Fields */}
+                     {(() => {
+                       const schemaFields = MEASUREMENT_SCHEMA.flatMap(s => s.fields.map(f => f.name));
+                       const extraFields = Object.entries(request.measurements || {}).filter(([key]) => !schemaFields.includes(key));
+                       if (extraFields.length === 0) return null;
+
+                       return (
+                         <div className="space-y-3">
+                           <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
+                             <div className="w-5 h-5 rounded bg-stone-50 flex items-center justify-center text-stone-400">
+                               <FileText size={12} />
+                             </div>
+                             <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Other Details</h4>
+                           </div>
+                           <div className="grid grid-cols-1 gap-2">
+                              {extraFields.map(([key, value]) => (
+                                <div key={key} className="flex justify-between items-center bg-gray-50/50 p-2.5 rounded-lg border border-gray-100/50">
+                                   <span className="text-[11px] font-medium text-gray-500 capitalize">{key.replace(/_/g, ' ')}</span>
+                                   <span className="text-sm font-bold text-primary-950">{String(value)}</span>
+                                </div>
+                              ))}
+                           </div>
+                         </div>
+                       );
+                     })()}
                   </div>
                </div>
 
@@ -336,13 +418,42 @@ const AdminCustomRequestDetailPage = () => {
                     </button>
                  </div>
 
-                 {/* Tailor Assignment Placeholder */}
+                 {/* Tailor Assignment UI */}
                  <div className="pt-6 border-t border-gray-100">
-                    <label className="block text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-1">Execution Unit</label>
-                    <div className="flex items-center p-3 border border-dashed border-gray-200 rounded-xl bg-gray-50/50">
-                       <span className="text-[0.7rem] text-gray-400 font-medium">Assigned Tailor: </span>
-                       <span className="ml-2 text-[0.7rem] font-bold text-primary-800 uppercase tracking-widest">Not Assigned</span>
-                    </div>
+                    <label className="block text-[0.65rem] font-bold text-gray-400 uppercase tracking-widest mb-2">Production Execution</label>
+                    {request.workflowTaskId ? (
+                       <div className="flex items-center justify-between p-4 border border-emerald-200 bg-emerald-50 rounded-xl">
+                          <div>
+                            <span className="block text-[0.65rem] font-bold text-emerald-600 uppercase tracking-widest mb-1">Assigned Workflow</span>
+                            <span className="text-sm font-bold text-emerald-900">Active in Production</span>
+                          </div>
+                          <button onClick={() => navigate('/admin/workflows')} className="text-xs font-bold bg-emerald-600 text-white px-3 py-1.5 rounded hover:bg-emerald-700">
+                            View Board
+                          </button>
+                       </div>
+                    ) : (
+                       <div className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                          <select 
+                            value={selectedTailorId}
+                            onChange={(e) => setSelectedTailorId(e.target.value)}
+                            className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-medium mb-3 outline-none focus:ring-2 focus:ring-primary-500"
+                          >
+                            <option value="">-- Select Tailor --</option>
+                            {tailorsRes?.data?.tailors?.map(t => (
+                              <option key={t._id} value={t._id} disabled={!t.isActive || !t.isAvailable}>
+                                {t.name} ({t.currentAssignedCount}/{t.dailyCapacity}) {!t.isAvailable ? '- Busy' : ''}
+                              </option>
+                            ))}
+                          </select>
+                          <button 
+                            onClick={handleAssignTailor}
+                            disabled={!selectedTailorId || assignWorkflowMutation.isPending}
+                            className="w-full bg-primary-900 text-white text-xs font-bold uppercase tracking-widest py-2.5 rounded-lg hover:bg-primary-950 transition-all disabled:opacity-50"
+                          >
+                            {assignWorkflowMutation.isPending ? 'Assigning...' : 'Assign to Production'}
+                          </button>
+                       </div>
+                    )}
                  </div>
               </div>
            </div>

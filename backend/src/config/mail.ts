@@ -33,6 +33,14 @@ export const verifyMailConnection = async (): Promise<void> => {
     await t.verify();
     logger.info('✅ Mail transporter ready');
   } catch (error: any) {
-    logger.warn(`⚠️  Mail connection failed: ${error.message.split('\\n')[0]} - Email sending disabled`);
+    logger.warn(`⚠️  Mail connection failed: ${error.message.split('\n')[0]} - Email sending disabled`);
   }
+};
+
+export const getMailStatus = () => {
+  const isReady = env.mail.enabled && !!env.mail.user && !!env.mail.pass;
+  return {
+    status: isReady ? 'Ready' : 'Disabled',
+    host: env.mail.host || 'none',
+  };
 };

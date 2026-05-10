@@ -7,13 +7,16 @@ backend/node_modules/
 dist/
 Frontend/dist/
 backend/dist/
+Frontend/build/
 
 # Environment variables
 .env
 .env.*
 !.env.example
 Frontend/.env
+Frontend/.env.*
 backend/.env
+backend/.env.*
 
 # Logs
 logs/
@@ -26,6 +29,7 @@ yarn-error.log*
 # IDEs and Editors
 .vscode/
 .idea/
+.kilo/
 *.suo
 *.ntvs*
 *.njsproj
@@ -40,6 +44,9 @@ coverage/
 .vercel
 .next/
 backend/uploads/
-Frontend/build/
 all_text.txt
 *.txt
+
+# Build files
+*.tsbuildinfo
+backend/ts_errors.txt

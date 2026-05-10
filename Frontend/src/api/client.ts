@@ -48,7 +48,10 @@ apiClient.interceptors.response.use(
         if (!refreshToken) throw new Error('No refresh token');
 
         const role = useAuthStore.getState().user?.role;
-        const refreshPath = role && ['admin', 'super_admin'].includes(role) ? '/admin-auth/refresh' : '/auth/refresh';
+        let refreshPath = '/auth/refresh';
+        if (role && ['admin', 'super_admin'].includes(role)) refreshPath = '/admin-auth/refresh';
+        else if (role === 'tailor') refreshPath = '/tailor-auth/refresh';
+        else if (role === 'manager') refreshPath = '/manager-auth/refresh';
 
         const resp = await axios.post(`${apiClient.defaults.baseURL}${refreshPath}`, {
           refreshToken,

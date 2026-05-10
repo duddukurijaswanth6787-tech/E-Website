@@ -1,29 +1,52 @@
 import { Request, Response, NextFunction } from 'express';
 import { productService } from './product.service';
 import { sendSuccess, sendCreated, sendNoContent, sendPaginated } from '../../common/responses';
-import { getFileUrl } from '../../common/middlewares/upload.middleware';
+export interface MulterS3File {
+  fieldname: string;
+  originalname: string;
+  encoding: string;
+  mimetype: string;
+  size: number;
+  bucket: string;
+  key: string;
+  acl: string;
+  contentType: string;
+  metadata: any;
+  location: string;
+  etag: string;
+}
 
 export class ProductController {
   async create(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const data = { ...req.body };
-      let finalImages: string[] = [];
+      let finalImages: { url: string; key: string; isPrimary?: boolean }[] = [];
 
       // 1. Process existing/remote URLs first
       if (data.images) {
         try {
           const parsed = typeof data.images === 'string' ? JSON.parse(data.images) : data.images;
-          if (Array.isArray(parsed)) finalImages = parsed.filter(i => typeof i === 'string' && i.startsWith('http'));
+          if (Array.isArray(parsed)) {
+            finalImages = parsed.map(i => {
+              if (typeof i === 'string') return { url: i, key: i.split('.amazonaws.com/')[1] || i };
+              return { url: i.url, key: i.key, isPrimary: i.isPrimary };
+            });
+          }
         } catch {
            // Fallback if not JSON
-           if (typeof data.images === 'string') finalImages = [data.images];
+           if (typeof data.images === 'string') {
+             finalImages = [{ url: data.images, key: data.images.split('.amazonaws.com/')[1] || data.images }];
+           }
         }
       }
 
       // 2. Process newly uploaded binary files
       if (req.files && Array.isArray(req.files)) {
-        const uploadedUrls = req.files.map(file => getFileUrl(req, file.path));
-        finalImages = [...finalImages, ...uploadedUrls];
+        const uploadedImages = (req.files as unknown as MulterS3File[]).map(file => ({
+          url: file.location,
+          key: file.key
+        }));
+        finalImages = [...finalImages, ...uploadedImages];
       }
 
       data.images = finalImages;
@@ -37,6 +60,12 @@ export class ProductController {
       data.attributes = parseField(data.attributes);
       data.occasions = parseField(data.occasions);
       data.tags = parseField(data.tags);
+      
+      delete data.ratings;
+      delete data.createdAt;
+      delete data.updatedAt;
+      delete data._id;
+      delete data.id;
 
       const product = await productService.create(data, req.admin!.adminId);
       sendCreated(res, product, 'Product created successfully');
@@ -67,22 +96,32 @@ export class ProductController {
   async update(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const data = { ...req.body };
-      let finalImages: string[] = [];
+      let finalImages: { url: string; key: string; isPrimary?: boolean }[] = [];
 
       // 1. Process currently kept images (URLs)
       if (data.images) {
         try {
           const parsed = typeof data.images === 'string' ? JSON.parse(data.images) : data.images;
-          if (Array.isArray(parsed)) finalImages = parsed.filter(i => typeof i === 'string' && i.startsWith('http'));
+          if (Array.isArray(parsed)) {
+            finalImages = parsed.map(i => {
+              if (typeof i === 'string') return { url: i, key: i.split('.amazonaws.com/')[1] || i };
+              return { url: i.url, key: i.key, isPrimary: i.isPrimary };
+            });
+          }
         } catch {
-           if (typeof data.images === 'string') finalImages = [data.images];
+           if (typeof data.images === 'string') {
+             finalImages = [{ url: data.images, key: data.images.split('.amazonaws.com/')[1] || data.images }];
+           }
         }
       }
 
       // 2. Append new uploads
       if (req.files && Array.isArray(req.files)) {
-        const uploadedUrls = req.files.map(file => getFileUrl(req, file.path));
-        finalImages = [...finalImages, ...uploadedUrls];
+        const uploadedImages = (req.files as unknown as MulterS3File[]).map(file => ({
+          url: file.location,
+          key: file.key
+        }));
+        finalImages = [...finalImages, ...uploadedImages];
       }
 
       data.images = finalImages;
@@ -95,6 +134,12 @@ export class ProductController {
       data.attributes = parseField(data.attributes);
       data.occasions = parseField(data.occasions);
       data.tags = parseField(data.tags);
+      
+      delete data.ratings;
+      delete data.createdAt;
+      delete data.updatedAt;
+      delete data._id;
+      delete data.id;
 
       const product = await productService.update(req.params.id as string, data, req.admin!.adminId);
       sendSuccess(res, product, 'Product updated successfully');

@@ -12,6 +12,8 @@ export interface IBanner extends Document {
   isActive: boolean;
   startDate?: Date;
   endDate?: Date;
+  clicks: number;
+  impressions: number;
   createdBy?: mongoose.Types.ObjectId;
   updatedBy?: mongoose.Types.ObjectId;
   createdAt: Date;
@@ -35,6 +37,8 @@ const BannerSchema = new Schema<IBanner>(
     isActive: { type: Boolean, default: true },
     startDate: { type: Date },
     endDate: { type: Date },
+    clicks: { type: Number, default: 0 },
+    impressions: { type: Number, default: 0 },
     createdBy: { type: Schema.Types.ObjectId, ref: 'Admin' },
     updatedBy: { type: Schema.Types.ObjectId, ref: 'Admin' },
   },
@@ -42,5 +46,9 @@ const BannerSchema = new Schema<IBanner>(
 );
 
 BannerSchema.index({ section: 1, isActive: 1, order: 1 });
+
+BannerSchema.index({ impressions: -1 });
+BannerSchema.index({ clicks: -1 });
+BannerSchema.index({ section: 1, isActive: 1 });
 
 export const Banner = mongoose.model<IBanner>('Banner', BannerSchema);

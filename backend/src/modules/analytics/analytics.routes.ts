@@ -13,21 +13,67 @@ const router = Router();
 router.use(authenticateAdmin, requirePermission(PERMISSIONS.VIEW_ANALYTICS));
 
 // Dashboard summary
+// Dashboard summary (v2)
 router.get('/dashboard', async (_req: Request, res: Response, next: NextFunction) => {
   try {
+    const now = new Date();
+    const todayStart = new Date(now.setHours(0, 0, 0, 0));
+    const todayEnd = new Date(now.setHours(23, 59, 59, 999));
+
     const [
       totalOrders, totalRevenue, totalUsers, totalProducts,
       pendingBlouseRequests, lowStockProducts,
       recentOrders, ordersByStatus,
+      // New Workflow & Production Metrics
+      workflowStats,
+      tailorStats,
+      todayDeliveries
     ] = await Promise.all([
-      Order.countDocuments(),
-      Order.aggregate([{ $match: { paymentStatus: 'paid' } }, { $group: { _id: null, total: { $sum: '$total' } } }]),
-      User.countDocuments({ deletedAt: null }),
+      Order.countDocuments({ status: { $in: ['pending', 'confirmed', 'packed', 'shipped'] }, deletedAt: null }),
+      Order.aggregate([{ $match: { status: { $ne: 'cancelled' }, paymentStatus: { $ne: 'failed' }, deletedAt: null } }, { $group: { _id: null, total: { $sum: '$total' } } }]),
+      User.countDocuments({ role: 'customer', deletedAt: null }),
       Product.countDocuments({ status: 'published', deletedAt: null }),
-      CustomBlouse.countDocuments({ status: { $in: ['submitted', 'under_review', 'price_assigned'] } }),
+      CustomBlouse.countDocuments({ status: { $in: ['submitted', 'under_review', 'price_assigned'] }, deletedAt: null }),
       Product.countDocuments({ stock: { $lte: 5 }, status: 'published', deletedAt: null }),
-      Order.find().populate('user', 'name email').sort({ createdAt: -1 }).limit(10).lean(),
-      Order.aggregate([{ $group: { _id: '$status', count: { $sum: 1 } } }]),
+      Order.find({ deletedAt: null }).populate('user', 'name email').sort({ createdAt: -1 }).limit(10).lean(),
+      Order.aggregate([{ $match: { deletedAt: null } }, { $group: { _id: '$status', count: { $sum: 1 } } }]),
+      
+      // Workflow aggregation
+      import('../workflows/workflow.model').then(m => m.WorkflowTask.aggregate([
+        { $match: { status: { $ne: 'Delivered' } } },
+        {
+          $group: {
+            _id: null,
+            pending: { $sum: { $cond: [{ $in: ['$status', ['Assigned', 'Fabric Received', 'Cutting']] }, 1, 0] } },
+            active: { $sum: { $cond: [{ $in: ['$status', ['Stitching', 'Embroidery', 'Trial Ready']] }, 1, 0] } },
+            delayed: { $sum: { $cond: [{ $lt: ['$deadline', new Date()] }, 1, 0] } },
+            urgent: { $sum: { $cond: [{ $eq: ['$priority', 'Urgent'] }, 1, 0] } },
+            qcPending: { $sum: { $cond: [{ $eq: ['$status', 'QC'] }, 1, 0] } },
+            alteration: { $sum: { $cond: [{ $eq: ['$status', 'Alteration'] }, 1, 0] } },
+            completedToday: { $sum: { $cond: [{ $and: [{ $eq: ['$status', 'Completed'] }, { $gte: ['$updatedAt', todayStart] }] }, 1, 0] } }
+          }
+        }
+      ])),
+
+      // Tailor stats
+      import('../tailors/tailor.model').then(m => m.Tailor.aggregate([
+        {
+          $group: {
+            _id: null,
+            total: { $sum: 1 },
+            active: { $sum: { $cond: ['$isActive', 1, 0] } },
+            available: { $sum: { $cond: [{ $and: ['$isActive', '$isAvailable'] }, 1, 0] } },
+            atCapacity: { $sum: { $cond: [{ $gte: ['$currentAssignedCount', '$dailyCapacity'] }, 1, 0] } },
+            totalWorkload: { $sum: '$currentAssignedCount' },
+            totalCapacity: { $sum: '$dailyCapacity' }
+          }
+        }
+      ])),
+
+      // Today's Deliveries
+      import('../workflows/workflow.model').then(m => m.WorkflowTask.find({
+        deadline: { $gte: todayStart, $lte: todayEnd }
+      }).populate('orderId').lean())
     ]);
 
     sendSuccess(res, {
@@ -42,6 +88,11 @@ router.get('/dashboard', async (_req: Request, res: Response, next: NextFunction
         acc[item._id] = item.count;
         return acc;
       }, {}),
+      production: {
+        workflows: workflowStats[0] || { pending: 0, active: 0, delayed: 0, urgent: 0, qcPending: 0, alteration: 0, completedToday: 0 },
+        tailors: tailorStats[0] || { total: 0, active: 0, available: 0, atCapacity: 0, totalWorkload: 0, totalCapacity: 0 },
+        todayDeliveries: todayDeliveries || []
+      }
     });
   } catch (err) { next(err); }
 });
@@ -57,7 +108,7 @@ router.get('/sales', async (req: Request, res: Response, next: NextFunction) => 
     const groupFormat = groupBy === 'month' ? '%Y-%m' : groupBy === 'year' ? '%Y' : '%Y-%m-%d';
 
     const sales = await Order.aggregate([
-      { $match: { paymentStatus: 'paid', ...(Object.keys(dateFilter).length ? { createdAt: dateFilter } : {}) } },
+      { $match: { status: { $ne: 'cancelled' }, paymentStatus: { $ne: 'failed' }, ...(Object.keys(dateFilter).length ? { createdAt: dateFilter } : {}) } },
       {
         $group: {
           _id: { $dateToString: { format: groupFormat, date: '$createdAt' } },

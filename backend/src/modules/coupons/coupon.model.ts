@@ -9,6 +9,7 @@ export interface ICoupon extends Document {
   maxDiscountAmount?: number;
   maxUses?: number;
   usedCount: number;
+  revenueGenerated: number;
   perUserLimit: number;
   validFrom: Date;
   validTo: Date;
@@ -32,6 +33,7 @@ const CouponSchema = new Schema<ICoupon>(
     maxDiscountAmount: { type: Number },
     maxUses: { type: Number },
     usedCount: { type: Number, default: 0 },
+    revenueGenerated: { type: Number, default: 0 },
     perUserLimit: { type: Number, default: 1 },
     validFrom: { type: Date, required: true },
     validTo: { type: Date, required: true },
@@ -45,6 +47,8 @@ const CouponSchema = new Schema<ICoupon>(
   { timestamps: true },
 );
 
+CouponSchema.index({ code: 1 }, { unique: true });
+CouponSchema.index({ revenueGenerated: -1 });
 CouponSchema.index({ isActive: 1, validFrom: 1, validTo: 1 });
 
 export const Coupon = mongoose.model<ICoupon>('Coupon', CouponSchema);

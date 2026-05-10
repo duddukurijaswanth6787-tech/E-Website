@@ -9,8 +9,9 @@ if (!fs.existsSync(logDir)) {
   fs.mkdirSync(logDir, { recursive: true });
 }
 
-const { combine, timestamp, printf, colorize, errors, json } = winston.format;
+const { combine, timestamp, printf, colorize, errors } = winston.format;
 
+// Custom format for terminal output
 const consoleFormat = combine(
   colorize({ all: true }),
   timestamp({ format: 'YYYY-MM-DD HH:mm:ss' }),
@@ -20,7 +21,12 @@ const consoleFormat = combine(
   }),
 );
 
-const fileFormat = combine(timestamp(), errors({ stack: true }), json());
+// Format for file output (JSON)
+const fileFormat = combine(
+  timestamp(),
+  errors({ stack: true }),
+  winston.format.json(),
+);
 
 const dailyRotateTransport = (filename: string, level?: string) =>
   new DailyRotateFile({
@@ -34,17 +40,19 @@ const dailyRotateTransport = (filename: string, level?: string) =>
   });
 
 export const logger = winston.createLogger({
-  level: env.log.level,
+  level: env.log.level || 'info',
   transports: [
-    dailyRotateTransport('combined'),
+    dailyRotateTransport('access', 'info'),
     dailyRotateTransport('error', 'error'),
-    ...(env.isProduction ? [] : [new winston.transports.Console({ format: consoleFormat })]),
   ],
   exceptionHandlers: [dailyRotateTransport('exceptions')],
   rejectionHandlers: [dailyRotateTransport('rejections')],
   exitOnError: false,
 });
 
-if (!env.isProduction) {
-  logger.add(new winston.transports.Console({ format: consoleFormat }));
+// Add console logging in development
+if (env.nodeEnv !== 'production') {
+  logger.add(new winston.transports.Console({
+    format: consoleFormat,
+  }));
 }

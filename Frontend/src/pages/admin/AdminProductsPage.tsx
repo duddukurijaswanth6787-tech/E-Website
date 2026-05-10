@@ -48,7 +48,9 @@ function productToForm(p: Product, categories: Category[]): ProductFormState {
     }
   }
 
-  const imgs = Array.isArray(p.images) ? p.images : [];
+  const imgs = Array.isArray(p.images) 
+    ? p.images.map((img: any) => typeof img === 'string' ? img : img?.url || '') 
+    : [];
   const mainImageUrl = imgs[0] ?? '';
   const galleryImagesCsv = imgs.slice(1).join(', ');
 
@@ -202,7 +204,7 @@ function buildPayload(form: ProductFormState): Record<string, unknown> | FormDat
     fd.append('attributes', JSON.stringify(attributes));
     fd.append('occasions', JSON.stringify(occasions));
     fd.append('tags', JSON.stringify(tags));
-    fd.append('images', JSON.stringify(images));
+    fd.append('existingImages', JSON.stringify(images));
     
     form.uploadedFiles.forEach(file => {
       fd.append('images', file); // Multer maps this to req.files
@@ -347,7 +349,7 @@ const AdminProductsPage = () => {
         <div className="flex items-center space-x-3">
           <div className="w-10 h-10 rounded overflow-hidden bg-gray-100 flex-shrink-0">
             <ImageWithSkeleton
-              src={row.images?.[0] || 'https://placehold.co/100?text=IMG'}
+              src={(typeof row.images?.[0] === 'string' ? row.images?.[0] : (row.images?.[0] as any)?.url) || 'https://placehold.co/100?text=IMG'}
               alt={row.name}
               className="w-full h-full object-cover"
               containerClassName="w-full h-full"
@@ -364,6 +366,18 @@ const AdminProductsPage = () => {
       header: 'Price',
       accessor: (row: Product) => (
         <span className="font-medium text-gray-900">₹{row.price?.toLocaleString('en-IN') || 0}</span>
+      ),
+    },
+    {
+      header: 'Badges',
+      accessor: (row: Product) => (
+        <div className="flex flex-wrap gap-1 max-w-[150px]">
+          {row.isFeatured && <span className="px-1.5 py-0.5 bg-indigo-50 text-indigo-700 text-[9px] font-black uppercase rounded border border-indigo-100">Featured</span>}
+          {row.isTrending && <span className="px-1.5 py-0.5 bg-pink-50 text-pink-700 text-[9px] font-black uppercase rounded border border-pink-100">Trending</span>}
+          {row.isNewArrival && <span className="px-1.5 py-0.5 bg-blue-50 text-blue-700 text-[9px] font-black uppercase rounded border border-blue-100">New</span>}
+          {row.isBestSeller && <span className="px-1.5 py-0.5 bg-amber-50 text-amber-700 text-[9px] font-black uppercase rounded border border-amber-100">Bestseller</span>}
+          {!row.isFeatured && !row.isTrending && !row.isNewArrival && !row.isBestSeller && <span className="text-[10px] text-gray-400 italic">None</span>}
+        </div>
       ),
     },
     {

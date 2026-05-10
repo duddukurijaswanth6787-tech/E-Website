@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
-import { ChevronLeft, ChevronRight, Search, Filter } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Search, Filter, AlertCircle } from 'lucide-react';
+import { Loader } from '../common/Loader';
+import { EmptyState } from '../common/EmptyState';
 
 interface Column<T> {
   header: string;
@@ -88,14 +90,18 @@ export function DataTable<T>({
             <tbody className="divide-y divide-gray-100 bg-white">
               {loading ? (
                  <tr>
-                   <td colSpan={columns.length} className="px-6 py-12 text-center">
-                      <div className="w-6 h-6 border-2 border-primary-200 border-t-primary-800 rounded-full animate-spin mx-auto"></div>
+                   <td colSpan={columns.length} className="px-6 py-12">
+                      <Loader message="Fetching table data..." />
                    </td>
                  </tr>
               ) : filteredData.length === 0 ? (
                  <tr>
-                   <td colSpan={columns.length} className="px-6 py-12 text-center text-gray-500">
-                      {emptyMessage}
+                   <td colSpan={columns.length} className="px-6 py-12">
+                      <EmptyState 
+                        icon={AlertCircle} 
+                        title="No Records Found" 
+                        description={emptyMessage} 
+                      />
                    </td>
                  </tr>
               ) : (
@@ -129,12 +135,16 @@ export function DataTable<T>({
         {/* Mobile Cards - Shown only on small mobile */}
         <div className="min-[431px]:hidden divide-y divide-gray-100 px-4 py-2">
            {loading ? (
-              <div className="py-12 text-center">
-                 <div className="w-6 h-6 border-2 border-primary-200 border-t-primary-800 rounded-full animate-spin mx-auto"></div>
+              <div className="py-12">
+                 <Loader message="Loading..." />
               </div>
            ) : filteredData.length === 0 ? (
-              <div className="py-12 text-center text-gray-500 text-sm">
-                 {emptyMessage}
+              <div className="py-12">
+                 <EmptyState 
+                   icon={AlertCircle} 
+                   title="No Records" 
+                   description={emptyMessage} 
+                 />
               </div>
            ) : (
               filteredData.map((row, rowIdx) => (

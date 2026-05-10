@@ -76,7 +76,7 @@ export const customBlouseController = {
   uploadReferenceImages: async (req: Request, res: Response, next: NextFunction) => {
     try {
       const id = req.params.id as string;
-      const files = req.files as Express.Multer.File[];
+      const files = (req as any).files as any[];
       const urls = files.map((f) => `${req.protocol}://${req.get('host')}/uploads/custom-blouse/${f.filename}`);
       const updated = await customBlouseService.addReferenceImages(id, urls);
       sendSuccess(res, updated, 'Reference images added');

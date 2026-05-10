@@ -1,9 +1,53 @@
 import { motion } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ChevronDown } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { cmsService } from '../../api/services/cms.service';
 
 /** Full-bleed luxury hero — premium typography + cinematic image */
 const Hero = () => {
+  const [heroData, setHeroData] = useState<any>(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  useEffect(() => {
+    const fetchHeroData = async () => {
+      try {
+        const res = await cmsService.getHeroSection();
+        if (res.data && res.data.isPublished) {
+          setHeroData(res.data);
+        }
+      } catch (error) {
+        console.error('Failed to fetch Hero data:', error);
+      }
+    };
+    fetchHeroData();
+  }, []);
+
+  const defaultHero = {
+    badgeText: 'Luxury Indian Ethnic Wear',
+    titleLine1: 'Elegance in Every',
+    titleLine2: 'Thread',
+    subtitle: 'Discover our curated collection of handwoven sarees, bespoke designer blouses, and bridal masterpieces.',
+    backgroundImage: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=2400&auto=format&fit=crop',
+    mobileBackgroundImage: '',
+    primaryButtonText: 'Shop Collection',
+    primaryButtonLink: '/shop',
+    secondaryButtonText: 'Custom Blouse',
+    secondaryButtonLink: '/custom-blouse',
+    overlayOpacity: 0.5
+  };
+
+  const data = heroData || defaultHero;
+
+  // Determine which background to use based on screen size
+  const currentBgImage = (isMobile && data.mobileBackgroundImage) ? data.mobileBackgroundImage : (data.backgroundImage || defaultHero.backgroundImage);
+
   return (
     <section className="relative w-full min-h-[100svh] min-h-[640px] overflow-hidden bg-neutral-black flex flex-col justify-center">
       <motion.div
@@ -13,13 +57,12 @@ const Hero = () => {
         transition={{ duration: 14, ease: 'easeOut' }}
       >
         <div
-          className="absolute inset-0 bg-cover bg-[center_20%] bg-no-repeat"
+          className="absolute inset-0 bg-cover bg-[center_20%] bg-no-repeat transition-all duration-[2s] ease-in-out"
           style={{
-            backgroundImage:
-              "url('https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=2400&auto=format&fit=crop')",
+            backgroundImage: `url('${currentBgImage}')`,
           }}
         />
-        <div className="absolute inset-0 bg-gradient-to-r from-black/75 via-black/45 to-black/25" />
+        <div className="absolute inset-0 bg-black transition-opacity duration-1000" style={{ opacity: data.overlayOpacity }} />
         <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30" />
       </motion.div>
 
@@ -31,7 +74,7 @@ const Hero = () => {
             transition={{ duration: 0.7, delay: 0.1 }}
             className="text-accent-bright/95 font-sans text-[0.65rem] sm:text-xs font-semibold tracking-[0.25em] sm:tracking-[0.35em] uppercase mb-4 sm:mb-5"
           >
-            Luxury Indian Ethnic Wear
+            {data.badgeText}
           </motion.p>
 
           <motion.div
@@ -41,9 +84,9 @@ const Hero = () => {
             className="mb-5 sm:mb-6"
           >
             <h1 className="font-display text-white font-medium leading-[1.05]">
-              <span className="block text-[clamp(2.5rem,8vw,3.75rem)] tracking-tight">Elegance in Every</span>
+              <span className="block text-[clamp(2.5rem,8vw,3.75rem)] tracking-tight">{data.titleLine1}</span>
               <span className="block text-[clamp(3rem,9.5vw,4.5rem)] mt-0 sm:mt-1 italic font-medium text-accent-light drop-shadow-sm">
-                Thread
+                {data.titleLine2}
               </span>
             </h1>
           </motion.div>
@@ -54,7 +97,7 @@ const Hero = () => {
             transition={{ duration: 0.75, delay: 0.35 }}
             className="font-sans text-white/85 text-sm sm:text-lg font-normal leading-relaxed max-w-md mb-8 sm:mb-10"
           >
-            Discover our curated collection of handwoven sarees, bespoke designer blouses, and bridal masterpieces.
+            {data.subtitle}
           </motion.p>
 
           <motion.div
@@ -63,18 +106,22 @@ const Hero = () => {
             transition={{ duration: 0.75, delay: 0.5 }}
             className="flex flex-col sm:flex-row gap-3 sm:gap-5"
           >
-            <Link
-              to="/shop"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 sm:px-9 rounded-full text-[0.8rem] sm:text-sm font-semibold tracking-[0.1em] sm:tracking-[0.15em] uppercase text-white bg-primary-800 hover:bg-primary-700 border border-primary-700/40 shadow-lift shadow-black/15 transition-all duration-400 ease-smooth"
-            >
-              Shop Collection
-            </Link>
-            <Link
-              to="/custom-blouse"
-              className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 sm:px-9 rounded-full text-[0.8rem] sm:text-sm font-semibold tracking-[0.1em] sm:tracking-[0.15em] uppercase text-white border border-white/60 sm:border-2 sm:border-white/85 hover:bg-white/12 hover:border-white backdrop-blur-[2px] transition-all duration-400 ease-smooth"
-            >
-              Custom Blouse
-            </Link>
+            {data.primaryButtonText && (
+              <Link
+                to={data.primaryButtonLink || '#'}
+                className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 sm:px-9 rounded-full text-[0.8rem] sm:text-sm font-semibold tracking-[0.1em] sm:tracking-[0.15em] uppercase text-white bg-primary-800 hover:bg-primary-700 border border-primary-700/40 shadow-lift shadow-black/15 transition-all duration-400 ease-smooth"
+              >
+                {data.primaryButtonText}
+              </Link>
+            )}
+            {data.secondaryButtonText && (
+              <Link
+                to={data.secondaryButtonLink || '#'}
+                className="w-full sm:w-auto inline-flex items-center justify-center px-8 py-3.5 sm:px-9 rounded-full text-[0.8rem] sm:text-sm font-semibold tracking-[0.1em] sm:tracking-[0.15em] uppercase text-white border border-white/60 sm:border-2 sm:border-white/85 hover:bg-white/12 hover:border-white backdrop-blur-[2px] transition-all duration-400 ease-smooth"
+              >
+                {data.secondaryButtonText}
+              </Link>
+            )}
           </motion.div>
         </div>
       </div>

@@ -122,7 +122,7 @@ export class AdminAuthService {
     logger.warn(`Force logout executed for admin: ${admin.email}`);
   }
 
-  async getMe(adminId: string) {
+  async getMe(adminId: string): Promise<Record<string, any>> {
     const admin = await Admin.findById(adminId);
     if (!admin) throw new NotFoundError('Admin');
     const permissions = ROLE_PERMISSIONS[admin.role] || admin.permissions || [];

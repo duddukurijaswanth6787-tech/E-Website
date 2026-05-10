@@ -3,20 +3,21 @@ import apiClient from '../client';
 export interface Coupon {
   _id: string;
   code: string;
-  discountType: 'PERCENTAGE' | 'FIXED';
-  discountValue: number;
-  minOrderValue?: number;
-  maxDiscount?: number;
+  type: 'percentage' | 'flat';
+  value: number;
+  minOrderAmount: number;
+  maxDiscountAmount?: number;
   validFrom: string;
-  validUntil: string;
-  usageLimit?: number;
+  validTo: string;
+  maxUses?: number;
   usedCount: number;
+  revenueGenerated: number;
   isActive: boolean;
 }
 
 export const couponService = {
-  getAdminCoupons: async (params?: Record<string, any>) => {
-    return apiClient.get<any, { success: boolean, data: Coupon[] | any }>('/coupons/admin', { params });
+  getCoupons: async (params?: Record<string, any>) => {
+    return apiClient.get<any, { success: boolean, data: Coupon[] }>('/coupons', { params });
   },
 
   createCoupon: async (data: Record<string, any>) => {

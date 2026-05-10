@@ -21,8 +21,6 @@ const LoginPage = () => {
     setLoading(true);
     
     try {
-      // If a seeded admin tries to login from the customer form,
-      // route it to the admin auth endpoint.
       if (email.toLowerCase() === 'admin@vasanthicreations.com') {
         const res = await authService.adminLogin({ email, password });
         const { admin, accessToken, refreshToken } = (res as any).data;
@@ -32,7 +30,6 @@ const LoginPage = () => {
         return;
       }
 
-      // STANDARD BACKEND LOGIN
       const res = await authService.login({ email, password });
       
       if (res.data?.requiresOtp) {

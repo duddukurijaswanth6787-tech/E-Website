@@ -1,45 +1,37 @@
 import multer from 'multer';
+import multerS3 from 'multer-s3';
 import path from 'path';
-import fs from 'fs';
-import crypto from 'crypto';
+import { v4 as uuidv4 } from 'uuid';
 import { Request } from 'express';
 import { env } from '../../config/env';
 import { BadRequestError } from '../errors';
+import { s3Client } from '../../config/aws';
 
 const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const ALLOWED_DOC_TYPES = ['application/pdf'];
 const MAX_FILE_SIZE = env.upload.maxFileSizeMb * 1024 * 1024;
 
-const ensureUploadDir = (folder: string): string => {
-  const dir = path.resolve(env.upload.uploadDir, folder);
-  if (!fs.existsSync(dir)) {
-    fs.mkdirSync(dir, { recursive: true });
-  }
-  return dir;
-};
-
-const localStorage = (folder: string) =>
-  multer.diskStorage({
-    destination: (_req, _file, cb) => {
-      const dir = ensureUploadDir(folder);
-      cb(null, dir);
-    },
-    filename: (_req, file, cb) => {
+const s3Storage = (folder: string) =>
+  multerS3({
+    s3: s3Client,
+    bucket: env.aws.s3BucketName,
+    contentType: multerS3.AUTO_CONTENT_TYPE,
+    key: (req, file, cb) => {
       const ext = path.extname(file.originalname).toLowerCase();
-      const uniqueName = `${Date.now()}-${crypto.randomBytes(6).toString('hex')}${ext}`;
+      const uniqueName = `${folder}/${uuidv4()}${ext}`;
       cb(null, uniqueName);
     },
   });
 
-const imageFilter = (_req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const imageFilter = (_req: Request, file: any, cb: multer.FileFilterCallback) => {
   if (ALLOWED_IMAGE_TYPES.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new BadRequestError(`Invalid file type. Only JPEG, PNG, WebP, and GIF are allowed.`));
+    cb(new BadRequestError(`Invalid file type. Only JPEG, PNG, and WebP are allowed.`));
   }
 };
 
-const documentFilter = (_req: Request, file: Express.Multer.File, cb: multer.FileFilterCallback) => {
+const documentFilter = (_req: Request, file: any, cb: multer.FileFilterCallback) => {
   if ([...ALLOWED_IMAGE_TYPES, ...ALLOWED_DOC_TYPES].includes(file.mimetype)) {
     cb(null, true);
   } else {
@@ -49,7 +41,7 @@ const documentFilter = (_req: Request, file: Express.Multer.File, cb: multer.Fil
 
 export const uploadImages = (folder: string, maxCount = 10) =>
   multer({
-    storage: localStorage(folder),
+    storage: s3Storage(folder),
     fileFilter: imageFilter,
     limits: { fileSize: MAX_FILE_SIZE, files: maxCount },
   });
@@ -62,31 +54,21 @@ export const uploadMultipleImages = (folder: string, fieldName = 'images', maxCo
 
 export const uploadDocument = (folder: string, fieldName = 'file') =>
   multer({
-    storage: localStorage(folder),
+    storage: s3Storage(folder),
     fileFilter: documentFilter,
     limits: { fileSize: MAX_FILE_SIZE },
   }).single(fieldName);
 
 export const uploadCustomBlouseFiles = (folder: string) =>
   multer({
-    storage: localStorage(folder),
+    storage: s3Storage(folder),
     fileFilter: imageFilter,
     limits: { fileSize: MAX_FILE_SIZE, files: 5 },
   }).array('references', 5);
 
+// Keeping this stub for backwards compatibility during migration
+// It will now just return the URL if passed, or fallback
 export const getFileUrl = (req: Request, filePath: string): string => {
-  const proto = req.protocol;
-  const host = req.get('host');
-  
-  // Use absolute path for comparison to ensure clean replacement
-  const absoluteUploadDir = path.resolve(env.upload.uploadDir);
-  const absoluteFilePath = path.resolve(filePath);
-  
-  // Get relative path from upload root
-  const relativePath = path.relative(absoluteUploadDir, absoluteFilePath);
-  
-  // Clean up forward slashes for URL
-  const urlPath = relativePath.replace(/\\/g, '/');
-  
-  return `${proto}://${host}/uploads/${urlPath}`;
+  if (filePath && filePath.startsWith('http')) return filePath;
+  return filePath;
 };
