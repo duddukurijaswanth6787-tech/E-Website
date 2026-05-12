@@ -120,10 +120,12 @@ export const SafeImage: React.FC<SafeImageProps> = React.memo(({
           onError={() => {
             setErrorCount(prev => {
               const nextCount = prev + 1;
-              // Strict Phase 4 compliance: Log exactly once ONLY inside local developer scopes
+              
+              // Only log the first failure and only in development to reduce noise
               if (nextCount === 1 && import.meta.env.DEV) {
-                console.warn(`[SafeImage] Catching broken asset at runtime: ${src}. Redirecting smoothly to master memory fallback.`);
+                console.warn(`[SafeImage] Asset load failed: ${src}. Applying fallback.`);
               }
+              
               return nextCount;
             });
           }}

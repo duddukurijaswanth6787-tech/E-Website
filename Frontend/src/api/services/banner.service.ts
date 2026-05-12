@@ -1,4 +1,4 @@
-import apiClient from '../client';
+import apiClient, { publicClient } from '../client';
 
 export interface Banner {
   _id: string;
@@ -18,7 +18,7 @@ export interface Banner {
 
 export const bannerService = {
   getBanners: async (placement?: string) => {
-    return apiClient.get<any, { success: boolean, data: Banner[] }>('/banners', { params: { placement } });
+    return publicClient.get<any, { success: boolean, data: Banner[] }>('/banners', { params: { placement } });
   },
 
   createBanner: async (data: FormData | Record<string, any>) => {

@@ -1,4 +1,4 @@
-import api from '../client';
+import api, { publicClient } from '../client';
 
 export interface PromoBlock {
   _id: string;
@@ -90,18 +90,18 @@ export interface OnboardingWizard {
 
 export const marketingService = {
   // M-3 Promo Blocks
-  getPromoBlocks: (params?: any) => api.get<PromoBlock[]>('/marketing/promo-blocks', { params }),
+  getPromoBlocks: (params?: any) => publicClient.get<PromoBlock[]>('/marketing/promo-blocks', { params }),
   createPromoBlock: (data: Partial<PromoBlock>) => api.post<PromoBlock>('/marketing/promo-blocks', data),
   updatePromoBlock: (id: string, data: Partial<PromoBlock>) => api.put<PromoBlock>(`/marketing/promo-blocks/${id}`, data),
   deletePromoBlock: (id: string) => api.delete(`/marketing/promo-blocks/${id}`),
 
   // M-5 Sticky Offers
-  getStickyOffers: () => api.get<StickyOffer[]>('/marketing/sticky-offers'),
+  getStickyOffers: () => publicClient.get<StickyOffer[]>('/marketing/sticky-offers'),
   createStickyOffer: (data: Partial<StickyOffer>) => api.post<StickyOffer>('/marketing/sticky-offers', data),
   updateStickyOffer: (id: string, data: Partial<StickyOffer>) => api.put<StickyOffer>(`/marketing/sticky-offers/${id}`, data),
 
   // M-8 Festival Campaigns
-  getFestivalCampaigns: () => api.get<FestivalCampaign[]>('/marketing/festivals'),
+  getFestivalCampaigns: () => publicClient.get<FestivalCampaign[]>('/marketing/festivals'),
   createFestivalCampaign: (data: Partial<FestivalCampaign>) => api.post<FestivalCampaign>('/marketing/festivals', data),
 
   // Dashboard Stats
@@ -131,14 +131,14 @@ export const marketingService = {
   getAIInsights: () => api.get<any>('/marketing/ai/insights'),
 
   // Product Analytics
-  getTopProducts: () => api.get<any[]>('/analytics/top-products'),
+  getTopProducts: () => publicClient.get<any[]>('/analytics/top-products'),
 
   // Automation
   getAutomationRules: () => api.get<any[]>('/marketing/automation-rules'),
   createAutomationRule: (data: any) => api.post('/marketing/automation-rules', data),
 
   // M-17 Welcome Banners
-  getWelcomeBanners: () => api.get<WelcomeBanner[]>('/marketing/welcome-banners'),
+  getWelcomeBanners: () => publicClient.get<WelcomeBanner[]>('/marketing/welcome-banners'),
   createWelcomeBanner: (data: Partial<WelcomeBanner>) => api.post<WelcomeBanner>('/marketing/welcome-banners', data),
   updateWelcomeBanner: (id: string, data: Partial<WelcomeBanner>) => api.put<WelcomeBanner>(`/marketing/welcome-banners/${id}`, data),
   deleteWelcomeBanner: (id: string) => api.delete(`/marketing/welcome-banners/${id}`),
@@ -146,7 +146,7 @@ export const marketingService = {
   // M-18 Onboarding Wizard
   getOnboardingWizard: () => api.get<OnboardingWizard>('/marketing/onboarding-wizard'),
   saveOnboardingWizard: (data: { isActive: boolean; steps: OnboardingWizardStep[] }) => api.put<OnboardingWizard>('/marketing/onboarding-wizard', data),
-  getActiveOnboardingWizard: () => api.get<OnboardingWizard>('/marketing/onboarding-wizard/active'),
+  getActiveOnboardingWizard: () => publicClient.get<OnboardingWizard>('/marketing/onboarding-wizard/active'),
 };
 
 

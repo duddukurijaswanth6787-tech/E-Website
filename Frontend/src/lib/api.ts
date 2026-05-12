@@ -2,6 +2,7 @@ import axios from 'axios';
 import { useAuthStore } from '../store/authStore';
 import toast from 'react-hot-toast';
 import { config } from '../config/env.config';
+import { logger } from '../utils/logger';
 
 /**
  * Centralized Enterprise Axios Client
@@ -44,25 +45,33 @@ api.interceptors.request.use(
 
 // Response Interceptor: Graceful Error Normalization & Token Refresh
 api.interceptors.response.use(
-  (response) => response.data,
+  (response) => {
+    logger.api(response.config.method || 'get', response.config.url || '', response.status);
+    return response.data;
+  },
   async (error) => {
     const originalRequest = error.config;
+    const status = error.response?.status;
+    const url = originalRequest?.url || '';
+
+    logger.api(originalRequest?.method || 'error', url, status, error.response?.data);
 
     // Handle Network Errors (AxiosError: Network Error)
     if (!error.response) {
-      if (import.meta.env.DEV) {
-        console.warn('API unavailable (Network Error):', error.message);
-      }
+      logger.error(`API unreachable (Network Error): ${url}`, error);
       return Promise.reject({ success: false, message: 'Server unreachable. Please check your connection.' });
     }
 
     // Handle 401 Unauthorized (Token Expired)
-    const isAuthRequest = originalRequest.url?.includes('/login') || originalRequest.url?.includes('/verify') || originalRequest.url?.includes('/refresh');
-    if (error.response.status === 401 && !originalRequest._retry && !isAuthRequest) {
+    const isAuthRequest = url.includes('/login') || url.includes('/verify') || url.includes('/refresh');
+    if (status === 401 && !originalRequest._retry && !isAuthRequest) {
       originalRequest._retry = true;
       try {
         const refreshToken = useAuthStore.getState().refreshToken;
-        if (!refreshToken) throw new Error('No refresh token');
+        if (!refreshToken) {
+          logger.warn('No refresh token available for 401 retry');
+          throw new Error('No refresh token');
+        }
 
         const role = useAuthStore.getState().user?.role;
         let refreshPath = '/auth/refresh';
@@ -92,16 +101,21 @@ api.interceptors.response.use(
     // Graceful Error Normalization
     const message = error.response?.data?.message || error.message || 'Something went wrong';
     
+    // Phase 5: Production Visibility - Log exactly why it failed
+    if (status >= 400) {
+      logger.warn(`API Exception [${status}] on ${url}: ${message}`);
+    }
+
     // Noise reduction: Don't toast for known silent errors or GET failures we handle locally
-    const isPublicGet = originalRequest.method === 'get' && !originalRequest.url.includes('/admin');
-    if (!isPublicGet && error.response.status !== 404) {
+    const isPublicGet = originalRequest.method === 'get' && !url.includes('/admin');
+    if (!isPublicGet && status !== 404) {
       toast.error(message);
     }
 
     return Promise.reject({ 
       success: false, 
       message, 
-      status: error.response?.status,
+      status,
       data: error.response?.data 
     });
   }
@@ -117,13 +131,42 @@ export const publicApi = axios.create({
   withCredentials: true,
 });
 
-publicApi.interceptors.response.use(
-  (response) => response.data,
-  (error) => {
-    if (import.meta.env.DEV) {
-      console.warn('Public API fallback triggered:', error.message);
+// Request Interceptor for Public API: Only Inject Guest Cart ID
+publicApi.interceptors.request.use(
+  (config) => {
+    let guestId = localStorage.getItem('vasanthi_guest_cart_id');
+    if (!guestId) {
+      guestId = crypto.randomUUID();
+      localStorage.setItem('vasanthi_guest_cart_id', guestId);
     }
-    return Promise.reject({ success: false, message: error.message });
+    if (config.headers) {
+      config.headers['x-guest-cart-id'] = guestId;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+publicApi.interceptors.response.use(
+  (response) => {
+    logger.api(response.config.method || 'get', response.config.url || '', response.status);
+    return response.data;
+  },
+  (error) => {
+    const status = error.response?.status;
+    const url = error.config?.url || '';
+    const message = error.response?.data?.message || error.message || 'Something went wrong';
+
+    logger.api(error.config?.method || 'error', url, status, error.response?.data);
+
+    if (import.meta.env.DEV) {
+      logger.warn(`[Public API] Request failed for ${url}:`, message);
+    }
+    return Promise.reject({ 
+      success: false, 
+      message,
+      status 
+    });
   }
 );
 

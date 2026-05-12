@@ -1,4 +1,4 @@
-import apiClient from '../client';
+import apiClient, { publicClient } from '../client';
 
 export interface CMSBlock {
   _id: string;
@@ -10,7 +10,7 @@ export interface CMSBlock {
 
 export const cmsService = {
   getBlocksByPage: async (page: string) => {
-    return apiClient.get<any, { success: boolean, data: CMSBlock[] | any }>(`/cms/${page}`);
+    return publicClient.get<any, { success: boolean, data: CMSBlock[] | any }>(`/cms/${page}`);
   },
 
   getAdminBlocks: async () => {
@@ -23,7 +23,7 @@ export const cmsService = {
 
   // Hero Section
   getHeroSection: async () => {
-    return apiClient.get<any, { success: boolean, data: any }>('/cms/home/hero');
+    return publicClient.get<any, { success: boolean, data: any }>('/cms/home/hero');
   },
 
   getAdminHeroSection: async () => {

@@ -53,33 +53,33 @@ const Hero = () => {
         const res = await cmsService.getHeroSection();
         if (abortController.signal.aborted) return;
 
-        if (res.data && res.data.isPublished) {
+        if (res?.success && res.data && res.data.isPublished) {
           const fetched = res.data;
           setHeroData(fetched);
-          const loadedSlides = (fetched.slides && fetched.slides.length > 0) ? fetched.slides : [{
-            titleLine1: fetched.titleLine1 || defaultSlide.titleLine1,
-            titleLine2: fetched.titleLine2 || defaultSlide.titleLine2,
-            subtitle: fetched.subtitle || defaultSlide.subtitle,
-            badgeText: fetched.badgeText || defaultSlide.badgeText,
-            backgroundImage: fetched.backgroundImage || '',
-            mobileBackgroundImage: fetched.mobileBackgroundImage || '',
-            primaryButtonText: fetched.primaryButtonText || defaultSlide.primaryButtonText,
-            primaryButtonLink: fetched.primaryButtonLink || defaultSlide.primaryButtonLink,
-            secondaryButtonText: fetched.secondaryButtonText || '',
-            secondaryButtonLink: fetched.secondaryButtonLink || '',
-          }];
-          setSlides(loadedSlides);
+          
+          // Ensure slides array exists and has content
+          const validSlides = Array.isArray(fetched.slides) ? fetched.slides : [];
+          
+          if (validSlides.length > 0) {
+            setSlides(validSlides);
+          } else {
+            // Partial fetch success (published but empty slides): use defaults
+            setSlides([defaultSlide]);
+          }
         } else {
-          // If drafted or offline, present the premium baseline layout fallback
+          // If drafted, offline, or unsuccessful: present the premium baseline layout fallback
           setSlides([defaultSlide]);
           setHeroData({ overlayOpacity: 0.5, autoplayInterval: 5 });
         }
       } catch (error: any) {
         if (error.name === 'AbortError') return;
+        
+        // Critical fallback: always ensure UI renders even if network fails
         setSlides([defaultSlide]);
         setHeroData({ overlayOpacity: 0.5, autoplayInterval: 5 });
+        
         if (import.meta.env.DEV) {
-          console.warn('[Hero] CMS configuration pending API linkage:', error.message);
+          console.warn('[Hero] Marketing engine utilizing fallback assets:', error.message);
         }
       }
     };
