@@ -9,7 +9,7 @@ import React, {
 import { useQueryClient } from '@tanstack/react-query';
 import type { Socket } from 'socket.io-client';
 import { useAuthStore } from '../store/authStore';
-import { createErpSocket, deriveSocketBaseUrl } from './createSocket';
+import { createErpSocket } from './createSocket';
 import {
   ERP_CLIENT_INTENTS,
   ERP_EVENTS,
