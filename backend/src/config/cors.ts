@@ -40,7 +40,8 @@ export const corsOptions: CorsOptions = {
     'Authorization', 
     'X-Requested-With', 
     'Accept', 
-    'X-Request-ID'
+    'X-Request-ID',
+    'x-guest-cart-id'
   ],
   exposedHeaders: ['set-cookie'],
   maxAge: 86400, // 24 hours preflight cache
