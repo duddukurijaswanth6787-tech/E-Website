@@ -1,0 +1,26 @@
+/* Boutique ERP - Luxury Typography System */
+
+/* 
+  Centralized Font Imports 
+  Fix: Removed invalid 'opsz' and simplified weights for performance 
+*/
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap');
+
+:root {
+  /* Enterprise Typography Fallback Stacks */
+  --font-luxury: "Cormorant Garamond", Georgia, "Times New Roman", serif;
+  --font-sans: "DM Sans", Inter, system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+}
+
+/* Base Headings */
+h1, h2, h3, h4, .font-serif {
+  font-family: var(--font-luxury);
+}
+
+/* Base Body */
+body, .font-sans {
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}

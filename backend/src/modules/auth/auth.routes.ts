@@ -2,11 +2,11 @@ import { Router } from 'express';
 import rateLimit from 'express-rate-limit';
 import { authController } from './auth.controller';
 import {
-  registerValidation, verifyEmailValidation, loginValidation,
-  forgotPasswordValidation, resetPasswordValidation,
-  resendOTPValidation, refreshTokenValidation,
+  registerSchema, verifyEmailSchema, loginSchema,
+  forgotPasswordSchema, resetPasswordSchema,
+  resendOTPSchema, refreshTokenSchema,
 } from './auth.validation';
-import { handleValidationErrors } from '../../common/middlewares/validate.middleware';
+import { validateZod } from '../../common/middlewares/zodValidate.middleware';
 import { authenticateUser } from '../../common/middlewares/auth.middleware';
 import { env } from '../../config/env';
 
@@ -25,28 +25,28 @@ const authRateLimiter = rateLimit({
  * @desc Register a new customer account
  * @access Public
  */
-router.post('/register', authRateLimiter, registerValidation, handleValidationErrors, authController.register.bind(authController));
+router.post('/register', authRateLimiter, validateZod(registerSchema), authController.register.bind(authController));
 
 /**
  * @route POST /api/v1/auth/verify-email
  * @desc Verify email with OTP
  * @access Public
  */
-router.post('/verify-email', authRateLimiter, verifyEmailValidation, handleValidationErrors, authController.verifyEmail.bind(authController));
+router.post('/verify-email', authRateLimiter, validateZod(verifyEmailSchema), authController.verifyEmail.bind(authController));
 
 /**
  * @route POST /api/v1/auth/resend-otp
  * @desc Resend email OTP
  * @access Public
  */
-router.post('/resend-otp', authRateLimiter, resendOTPValidation, handleValidationErrors, authController.resendOTP.bind(authController));
+router.post('/resend-otp', authRateLimiter, validateZod(resendOTPSchema), authController.resendOTP.bind(authController));
 
 /**
  * @route POST /api/v1/auth/login
  * @desc Login with email and password
  * @access Public
  */
-router.post('/login', authRateLimiter, loginValidation, handleValidationErrors, authController.login.bind(authController));
+router.post('/login', authRateLimiter, validateZod(loginSchema), authController.login.bind(authController));
 
 /**
  * @route POST /api/v1/auth/verify-login
@@ -60,7 +60,7 @@ router.post('/verify-login', authRateLimiter, authController.verifyLogin.bind(au
  * @desc Refresh access token using refresh token
  * @access Public
  */
-router.post('/refresh', refreshTokenValidation, handleValidationErrors, authController.refreshToken.bind(authController));
+router.post('/refresh', validateZod(refreshTokenSchema), authController.refreshToken.bind(authController));
 
 /**
  * @route POST /api/v1/auth/logout
@@ -74,13 +74,13 @@ router.post('/logout', authenticateUser, authController.logout.bind(authControll
  * @desc Send password reset OTP to email
  * @access Public
  */
-router.post('/forgot-password', authRateLimiter, forgotPasswordValidation, handleValidationErrors, authController.forgotPassword.bind(authController));
+router.post('/forgot-password', authRateLimiter, validateZod(forgotPasswordSchema), authController.forgotPassword.bind(authController));
 
 /**
  * @route POST /api/v1/auth/reset-password
  * @desc Reset password with OTP
  * @access Public
  */
-router.post('/reset-password', authRateLimiter, resetPasswordValidation, handleValidationErrors, authController.resetPassword.bind(authController));
+router.post('/reset-password', authRateLimiter, validateZod(resetPasswordSchema), authController.resetPassword.bind(authController));
 
 export default router;

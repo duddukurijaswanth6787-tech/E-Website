@@ -63,7 +63,7 @@ const AdminOrdersPage = () => {
        accessor: (row: any) => (
          <div onClick={() => setSelectedOrderId(row._id)} className="cursor-pointer">
            <span className="block font-medium tracking-wide text-primary-950 uppercase text-xs">#{row.orderNumber || row._id?.substring(0,10)}</span>
-           <span className="block text-xs text-gray-500 mt-1">{new Date(row.createdAt).toLocaleString()}</span>
+           <span className="block text-xs text-[var(--admin-text-secondary)] mt-1">{new Date(row.createdAt).toLocaleString()}</span>
          </div>
        )
     },
@@ -72,7 +72,7 @@ const AdminOrdersPage = () => {
        accessor: (row: any) => (
          <div>
            <span className="block font-medium text-gray-900">{row.address?.name || row.user?.name || 'Guest Customer'}</span>
-           <span className="block text-xs text-gray-500 mt-0.5">{row.user?.email || row.address?.mobile || 'No Contact Data'}</span>
+           <span className="block text-xs text-[var(--admin-text-secondary)] mt-0.5">{row.user?.email || row.address?.mobile || 'No Contact Data'}</span>
          </div>
        )
     },
@@ -81,7 +81,7 @@ const AdminOrdersPage = () => {
        accessor: (row: any) => (
          <div>
            <span className="block font-medium text-gray-900">₹{(row.total || row.totalAmount || 0).toLocaleString('en-IN')}</span>
-           <span className="block text-xs text-gray-500 tracking-wider uppercase mt-0.5">{row.paymentMethod || 'COD'}</span>
+           <span className="block text-xs text-[var(--admin-text-secondary)] tracking-wider uppercase mt-0.5">{row.paymentMethod || 'COD'}</span>
          </div>
        )
     },
@@ -131,7 +131,7 @@ const AdminOrdersPage = () => {
           <h1 className="text-2xl font-serif text-gray-900 mb-1 flex items-center">
             <ShoppingBag className="w-6 h-6 mr-3 text-primary-700" /> Administrative Orders Hub
           </h1>
-          <p className="text-sm text-gray-500">Monitor fulfillment workflows, payment captures, and logistic dispatches.</p>
+          <p className="text-sm text-[var(--admin-text-secondary)]">Monitor fulfillment workflows, payment captures, and logistic dispatches.</p>
         </div>
       </div>
 
@@ -161,3 +161,5 @@ const AdminOrdersPage = () => {
 };
 
 export default AdminOrdersPage;
+
+

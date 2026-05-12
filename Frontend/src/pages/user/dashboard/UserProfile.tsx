@@ -10,7 +10,8 @@ import {
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { Loader } from '../../../components/common/Loader';
-
+import { Input } from '../../../components/common/Input';
+import { useValidation } from '../../../utils/validation/useValidation';
 const UserProfile = () => {
   const { user, updateUser } = useAuthStore();
   const [fullUser, setFullUser] = useState<any>(user);
@@ -18,19 +19,27 @@ const UserProfile = () => {
   const [saving, setSaving] = useState(false);
   const [orders, setOrders] = useState<any[]>([]);
 
-  const [formData, setFormData] = useState({
+  const {
+    values,
+    errors,
+    touched,
+    handleChange,
+    handleBlur,
+    validateForm,
+    setValues
+  } = useValidation({
     name: '',
     mobile: ''
   });
 
   useEffect(() => {
     if (fullUser) {
-      setFormData({
+      setValues({
         name: fullUser.name || '',
         mobile: fullUser.mobile || ''
       });
     }
-  }, [fullUser]);
+  }, [fullUser, setValues]);
 
   useEffect(() => {
     const fetchProfileData = async () => {
@@ -49,7 +58,6 @@ const UserProfile = () => {
           orderData = Array.isArray(rawOrders) ? rawOrders : [];
           setOrders(orderData.slice(0, 5));
         }
-        setLoading(false);
       } catch (err) {
         console.error("Failed to load profile data", err);
       } finally {
@@ -61,14 +69,19 @@ const UserProfile = () => {
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name.trim()) return toast.error("Full Name is required");
+    
+    if (!validateForm()) {
+      toast.error("Please fix the validation errors");
+      return;
+    }
+
     try {
       setSaving(true);
       await userService.updateProfile({
-        name: formData.name.trim(),
-        mobile: formData.mobile.trim()
+        name: values.name.trim(),
+        mobile: values.mobile.trim()
       });
-      updateUser({ name: formData.name.trim() });
+      updateUser({ name: values.name.trim() });
       const userRes = await apiClient.get('/users/me');
       if (userRes.data?.data) setFullUser(userRes.data.data);
       toast.success('Profile updated successfully');
@@ -120,15 +133,32 @@ const UserProfile = () => {
           <div className="bg-white p-7 md:p-9 rounded-3xl shadow-sm border border-[#FBEAF0]">
             <h3 className="font-serif text-xl tracking-wide text-[#5A001F] mb-6">Personal Information</h3>
             <form onSubmit={handleUpdateProfile} className="space-y-6">
-              <div>
-                <label className="block text-[0.65rem] font-bold text-[#A51648] mb-2 uppercase tracking-[0.15em]">Full Name</label>
-                <input type="text" value={formData.name} onChange={(e) => setFormData({...formData, name: e.target.value})} className="w-full bg-[#FFF8F1] border-none rounded-xl px-5 py-4 text-sm font-medium" />
-              </div>
-              <div>
-                <label className="block text-[0.65rem] font-bold text-[#A51648] mb-2 uppercase tracking-[0.15em]">Mobile Number</label>
-                <input type="tel" value={formData.mobile} onChange={(e) => setFormData({...formData, mobile: e.target.value})} className="w-full bg-[#FFF8F1] border-none rounded-xl px-5 py-4 text-sm font-medium" />
-              </div>
-              <button type="submit" disabled={saving} className="w-full bg-gradient-to-r from-[#5A001F] to-[#A51648] text-white font-bold uppercase py-4 rounded-xl shadow-md">{saving ? 'Saving...' : 'Save Changes'}</button>
+              <Input 
+                label="Full Name"
+                name="name"
+                value={values.name}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={touched.name ? errors.name : ''}
+                success={touched.name && !errors.name}
+                placeholder="Enter your full name"
+                required
+              />
+              <Input 
+                label="Mobile Number"
+                name="mobile"
+                type="tel"
+                value={values.mobile}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={touched.mobile ? errors.mobile : ''}
+                success={touched.mobile && !errors.mobile}
+                placeholder="10-digit mobile number"
+                maxLength={10}
+              />
+              <button type="submit" disabled={saving} className="w-full bg-gradient-to-r from-[#5A001F] to-[#A51648] text-white font-bold uppercase py-4 rounded-xl shadow-md transition-all hover:opacity-90 disabled:opacity-50">
+                {saving ? 'Saving...' : 'Save Changes'}
+              </button>
             </form>
           </div>
         </div>

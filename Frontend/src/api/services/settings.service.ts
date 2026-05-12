@@ -1,4 +1,4 @@
-import apiClient from '../client';
+import apiClient, { publicClient } from '../client';
 
 export interface Setting {
   _id: string;
@@ -14,7 +14,7 @@ export interface Setting {
 
 export const settingsService = {
   getPublicSettings: async () => {
-    return apiClient.get<any, { success: boolean; data: Record<string, any> }>('/settings/public');
+    return publicClient.get<any, { success: boolean; data: Record<string, any> }>('/settings/public');
   },
   
   getAdminSettings: async (group?: string) => {

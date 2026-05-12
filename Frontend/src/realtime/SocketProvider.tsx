@@ -21,6 +21,8 @@ import {
 } from './events';
 import { useSocketStore, type SocketConnectionState } from './socketStore';
 
+import { config } from '../config/env.config';
+
 interface RealtimeContextValue {
   managerSocket: Socket | null;
   tailorSocket: Socket | null;
@@ -31,9 +33,7 @@ interface RealtimeContextValue {
 
 const RealtimeContext = createContext<RealtimeContextValue | null>(null);
 
-const apiBase = (import.meta.env.VITE_API_URL as string | undefined) ||
-  'http://localhost:5000/api/v1';
-const socketBase = deriveSocketBaseUrl(apiBase);
+const socketBase = config.socketUrl;
 
 const namespacesForRole = (role: string | undefined): ErpNamespace[] => {
   if (!role) return [];
@@ -140,6 +140,10 @@ export function SocketProvider({ children }: { children: ReactNode }) {
         queryClient.invalidateQueries({ queryKey: ['managerWorkflows'] });
         queryClient.invalidateQueries({ queryKey: ['adminWorkflows'] });
         queryClient.invalidateQueries({ queryKey: ['tailorTasks'] });
+        queryClient.invalidateQueries({ queryKey: ['workforceOverview'] });
+        queryClient.invalidateQueries({ queryKey: ['operationsIntelligence'] });
+        queryClient.invalidateQueries({ queryKey: ['auditLogs'] });
+        queryClient.invalidateQueries({ queryKey: ['auditStats'] });
         observe(event);
       });
 
@@ -165,12 +169,19 @@ export function SocketProvider({ children }: { children: ReactNode }) {
       connect(ERP_NAMESPACES.NOTIFICATIONS, notificationsRef);
     }
 
+    // Heartbeat Interval to maintain enterprise presence stability
+    const heartbeatInterval = setInterval(() => {
+      if (notificationsRef.current?.connected) {
+        notificationsRef.current.emit(ERP_CLIENT_INTENTS.PRESENCE_HEARTBEAT);
+      }
+    }, 30000); // 30s heartbeats
+
     return () => {
+      clearInterval(heartbeatInterval);
       [managerRef, tailorRef, workflowRef, notificationsRef].forEach((ref) => {
         if (ref.current) {
           const s = ref.current;
           s.removeAllListeners();
-          // Only disconnect if it's not already disconnected
           if (s.connected || (s as any).connecting) {
             s.disconnect();
           }

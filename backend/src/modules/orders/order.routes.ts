@@ -2,11 +2,13 @@ import { Router } from 'express';
 import { orderController } from './order.controller';
 import { authenticateUser, authenticateAdmin, requirePermission } from '../../common/middlewares';
 import { PERMISSIONS } from '../../common/constants';
+import { validateZod } from '../../common/middlewares/zodValidate.middleware';
+import { createOrderSchema } from '../../common/validation/enterprise.schemas';
 
 const router = Router();
 
 // ====== USER ROUTES ======
-router.post('/', authenticateUser, orderController.createOrder.bind(orderController));
+router.post('/', authenticateUser, validateZod(createOrderSchema), orderController.createOrder.bind(orderController));
 router.get('/my', authenticateUser, orderController.getUserOrders.bind(orderController));
 router.get('/my/:id', authenticateUser, orderController.getOrderDetail.bind(orderController));
 router.post('/my/:id/cancel', authenticateUser, orderController.cancelOrder.bind(orderController));

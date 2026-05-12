@@ -7,36 +7,8 @@ const router = Router();
 
 router.get('/sitemap.xml', async (req: Request, res: Response) => {
   try {
-    const baseUrl = 'https://vasanthicreations.com';
-    const staticPages = ['', '/shop', '/about', '/contact', '/blogs', '/custom-blouse'];
-    
-    const [products, categories, collections] = await Promise.all([
-      Product.find({ status: 'published', deletedAt: null }).select('slug').lean(),
-      Category.find({ isActive: true, deletedAt: null }).select('slug').lean(),
-      Collection.find({ isActive: true, deletedAt: null }).select('slug').lean(),
-    ]);
-
-    let xml = `<?xml version="1.0" encoding="UTF-8"?>
-<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">`;
-
-    // Static
-    staticPages.forEach(p => {
-      xml += `<url><loc>${baseUrl}${p}</loc><changefreq>weekly</changefreq></url>`;
-    });
-
-    // Dynamic
-    products.forEach(p => {
-      xml += `<url><loc>${baseUrl}/product/${p.slug}</loc></url>`;
-    });
-    categories.forEach(c => {
-      xml += `<url><loc>${baseUrl}/category/${c.slug}</loc></url>`;
-    });
-    collections.forEach(c => {
-      xml += `<url><loc>${baseUrl}/collection/${c.slug}</loc></url>`;
-    });
-
-    xml += `</urlset>`;
-
+    const { seoService } = await import('../modules/seo/seo.service');
+    const xml = await seoService.generateSitemap();
     res.header('Content-Type', 'application/xml');
     res.send(xml);
   } catch (err) {
@@ -44,10 +16,9 @@ router.get('/sitemap.xml', async (req: Request, res: Response) => {
   }
 });
 
-router.get('/robots.txt', (req: Request, res: Response) => {
-  const robots = `User-agent: *
-Allow: /
-Sitemap: https://vasanthicreations.com/sitemap.xml`;
+router.get('/robots.txt', async (req: Request, res: Response) => {
+  const { seoService } = await import('../modules/seo/seo.service');
+  const robots = seoService.generateRobotsTxt();
   res.header('Content-Type', 'text/plain');
   res.send(robots);
 });

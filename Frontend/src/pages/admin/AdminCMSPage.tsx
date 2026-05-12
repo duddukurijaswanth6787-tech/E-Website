@@ -59,7 +59,7 @@ const AdminCMSPage = () => {
           <h1 className="text-2xl font-serif text-gray-900 mb-1 flex items-center">
             <Type className="w-6 h-6 mr-3 text-primary-700" /> Headless Text Layouts (CMS)
           </h1>
-          <p className="text-sm text-gray-500">Inject raw JSON string patterns into the root React Static Page structures seamlessly.</p>
+          <p className="text-sm text-[var(--admin-text-secondary)]">Inject raw JSON string patterns into the root React Static Page structures seamlessly.</p>
         </div>
       </div>
 
@@ -69,14 +69,14 @@ const AdminCMSPage = () => {
                  <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-800 rounded-full animate-spin"></div>
              </div>
         ) : blocks.length === 0 ? (
-             <div className="col-span-full py-16 bg-white rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center">
+             <div className="col-span-full py-16 bg-[var(--admin-card)] rounded-xl shadow-sm border border-gray-100 flex flex-col items-center justify-center">
                  <FileText className="w-16 h-16 text-gray-300 mb-4" />
                  <h2 className="text-lg font-serif text-gray-900">No Pages Bootstrapped</h2>
-                 <p className="text-sm text-gray-500 mt-1 max-w-md text-center">Your Administrative database currently has no Text nodes mapped for UI rendering bindings.</p>
+                 <p className="text-sm text-[var(--admin-text-secondary)] mt-1 max-w-md text-center">Your Administrative database currently has no Text nodes mapped for UI rendering bindings.</p>
              </div>
         ) : (
           blocks.map(block => (
-             <div key={block._id} className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
+             <div key={block._id} className="bg-[var(--admin-card)] rounded-xl shadow-sm border border-gray-200 overflow-hidden flex flex-col">
                 <div className="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
                    <div>
                      <span className="block text-xs font-bold tracking-widest text-primary-800 uppercase">{block.page} ➝ {block.sectionKey}</span>
@@ -108,3 +108,5 @@ const AdminCMSPage = () => {
 };
 
 export default AdminCMSPage;
+
+

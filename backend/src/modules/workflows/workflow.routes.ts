@@ -48,6 +48,8 @@ import * as analyticsCtrl from './managerAnalytics.controller';
 // Manager Productivity & Analytics
 adminRouter.get('/analytics/dashboard', analyticsCtrl.getManagerDashboardAnalytics);
 adminRouter.get('/analytics/tailors', analyticsCtrl.getTailorProductivity);
+adminRouter.get('/analytics/escalations', analyticsCtrl.getEscalations);
+
 
 
 // ==========================================

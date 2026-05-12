@@ -78,6 +78,7 @@ export const ERP_CLIENT_INTENTS = {
 
   RESYNC_REQUEST: 'resync_request',
   PING: 'ping',
+  PRESENCE_HEARTBEAT: 'presence_heartbeat',
   
   // Notification intents
   NOTIFICATION_MARK_READ: 'notification_mark_read',

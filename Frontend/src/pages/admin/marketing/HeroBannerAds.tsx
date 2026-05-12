@@ -14,12 +14,12 @@ import { MarketingSkeleton } from '../../../components/admin/marketing/Marketing
 const StatWidget: React.FC<{ label: string, value: string | number, icon: any, iconColor: string, delay: number }> = ({ label, value, icon: Icon, iconColor, delay }) => (
   <GlassCard delay={delay} className="p-6">
     <div className="flex items-center gap-4">
-      <div className={`p-3 rounded-xl bg-white/5 ${iconColor}`}>
+      <div className={`p-3 rounded-xl bg-[var(--admin-card)] ${iconColor}`}>
         <Icon size={24} />
       </div>
       <div>
-        <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{label}</p>
-        <p className="text-2xl font-bold text-white">{value}</p>
+        <p className="text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">{label}</p>
+        <p className="text-2xl font-bold text-[var(--admin-text-primary)]">{value}</p>
       </div>
     </div>
   </GlassCard>
@@ -73,7 +73,7 @@ const HeroBannerAds: React.FC = () => {
   if (isLoading) return <MarketingSkeleton />;
 
   return (
-    <div className="min-h-screen bg-neutral-950 p-4 sm:p-8 text-white space-y-8 max-w-[1600px] mx-auto">
+    <div className=" space-y-8 max-w-[1600px] mx-auto">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
@@ -81,22 +81,22 @@ const HeroBannerAds: React.FC = () => {
             <Layout className="text-blue-500" size={32} />
             Asset Engine
           </h1>
-          <p className="text-gray-500 mt-2 font-bold uppercase text-[10px] tracking-[0.3em]">
+          <p className="text-[var(--admin-text-secondary)] mt-2 font-bold uppercase text-[10px] tracking-[0.3em]">
             Visual brand management & placement control
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
           <div className="relative flex-grow lg:flex-grow-0 min-w-[200px] sm:min-w-[300px]">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--admin-text-secondary)]" size={18} />
             <input 
               type="text" 
               placeholder="Search assets..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold focus:border-blue-500/50 outline-none transition-all placeholder:text-gray-600"
+              className="w-full bg-[var(--admin-card)] border border-[var(--admin-card-border)] rounded-2xl py-3 pl-12 pr-4 text-sm font-bold focus:border-blue-500/50 outline-none transition-all placeholder:text-gray-600"
             />
           </div>
-          <button className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-blue-600/20 flex items-center justify-center gap-2 active:scale-95 w-full sm:w-auto">
+          <button className="bg-blue-600 hover:bg-blue-700 text-[var(--admin-text-primary)] px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-blue-600/20 flex items-center justify-center gap-2 active:scale-95 w-full sm:w-auto">
             <Plus size={18} /> New Asset
           </button>
         </div>
@@ -128,12 +128,12 @@ const HeroBannerAds: React.FC = () => {
       </div>
 
       {/* Filters */}
-      <div className="flex flex-wrap items-center gap-4 border-b border-white/5 pb-4">
+      <div className="flex flex-wrap items-center gap-4 border-b border-[var(--admin-card-border)] pb-4">
         {['all', 'active', 'inactive'].map((f) => (
           <button
             key={f}
             onClick={() => setFilter(f)}
-            className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filter === f ? 'bg-white/10 text-white border border-white/10' : 'text-gray-500 hover:text-gray-300'}`}
+            className={`px-6 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${filter === f ? 'bg-[var(--admin-card)]/10 text-[var(--admin-text-primary)] border border-[var(--admin-card-border)]' : 'text-[var(--admin-text-secondary)] hover:text-gray-300'}`}
           >
             {f}
           </button>
@@ -148,7 +148,7 @@ const HeroBannerAds: React.FC = () => {
             delay={0.1 * (idx % 6)} 
             className="group/card flex flex-col !p-0 overflow-hidden"
           >
-            <div className="relative aspect-video overflow-hidden bg-neutral-900 border-b border-white/5">
+            <div className="relative aspect-video overflow-hidden bg-neutral-900 border-b border-[var(--admin-card-border)]">
               {banner.image ? (
                 <img src={banner.image} alt={banner.title} className="w-full h-full object-cover transition-transform duration-700 group-hover/card:scale-110" />
               ) : (
@@ -166,14 +166,14 @@ const HeroBannerAds: React.FC = () => {
             <div className="p-6 space-y-6 flex-grow">
               <div className="flex justify-between items-start">
                 <div>
-                  <h3 className="font-bold text-lg text-white truncate max-w-[200px]">{banner.title || 'Untitled Asset'}</h3>
+                  <h3 className="font-bold text-lg text-[var(--admin-text-primary)] truncate max-w-[200px]">{banner.title || 'Untitled Asset'}</h3>
                   <div className="flex items-center gap-2 mt-1">
-                    {banner.section === 'hero' ? <Monitor size={12} className="text-gray-500" /> : <Smartphone size={12} className="text-gray-500" />}
+                    {banner.section === 'hero' ? <Monitor size={12} className="text-[var(--admin-text-secondary)]" /> : <Smartphone size={12} className="text-[var(--admin-text-secondary)]" />}
                     <span className="text-[10px] font-black text-blue-500 uppercase tracking-widest">{banner.section}</span>
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button className="p-2 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all">
+                  <button className="p-2 bg-[var(--admin-card)] hover:bg-[var(--admin-card)]/10 rounded-xl border border-[var(--admin-card-border)] transition-all">
                     <Edit2 size={14} className="text-gray-400" />
                   </button>
                   <button 
@@ -185,10 +185,10 @@ const HeroBannerAds: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 border-y border-white/5 py-4">
+              <div className="grid grid-cols-2 gap-4 border-y border-[var(--admin-card-border)] py-4">
                 <div className="space-y-1">
                   <p className="text-[9px] font-black text-gray-600 uppercase tracking-widest">Impressions</p>
-                  <p className="text-sm font-black text-white">{banner.impressions?.toLocaleString() || 0}</p>
+                  <p className="text-sm font-black text-[var(--admin-text-primary)]">{banner.impressions?.toLocaleString() || 0}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[9px] font-black text-gray-600 uppercase tracking-widest">CTR</p>
@@ -216,8 +216,8 @@ const HeroBannerAds: React.FC = () => {
       </div>
 
       {banners.length === 0 && (
-        <div className="h-[400px] flex flex-col items-center justify-center text-center space-y-4 bg-white/[0.02] rounded-[2rem] border border-white/5">
-          <div className="p-6 bg-white/5 rounded-full text-gray-700">
+        <div className="h-[400px] flex flex-col items-center justify-center text-center space-y-4 bg-[var(--admin-card)]/[0.02] rounded-[2rem] border border-[var(--admin-card-border)]">
+          <div className="p-6 bg-[var(--admin-card)] rounded-full text-gray-700">
             <AlertCircle size={48} />
           </div>
           <div>
@@ -231,3 +231,5 @@ const HeroBannerAds: React.FC = () => {
 };
 
 export default HeroBannerAds;
+
+

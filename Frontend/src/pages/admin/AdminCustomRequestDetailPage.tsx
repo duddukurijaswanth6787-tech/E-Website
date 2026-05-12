@@ -147,13 +147,13 @@ const AdminCustomRequestDetailPage = () => {
         <div className="flex items-center">
           <button 
             onClick={() => navigate('/admin/custom-requests')}
-            className="p-2 mr-4 bg-white border border-gray-200 rounded-lg text-gray-500 hover:text-primary-700 transition-colors"
+            className="p-2 mr-4 bg-[var(--admin-card)] border border-gray-200 rounded-lg text-[var(--admin-text-secondary)] hover:text-primary-700 transition-colors"
           >
             <ChevronLeft size={20} />
           </button>
           <div>
             <h1 className="text-2xl font-serif text-gray-900 mb-1">CRM Ticket #{id?.substring(0, 10)}</h1>
-            <p className="text-sm text-gray-500">Design Specification & Fulfill Management</p>
+            <p className="text-sm text-[var(--admin-text-secondary)]">Design Specification & Fulfill Management</p>
           </div>
         </div>
         <div className="flex items-center gap-2 w-full sm:w-auto">
@@ -172,7 +172,7 @@ const AdminCustomRequestDetailPage = () => {
         <div className="lg:col-span-2 space-y-8">
           
           {/* Customer Context Card */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div className="bg-[var(--admin-card)] rounded-2xl shadow-sm border border-gray-100 p-6">
             <div className="flex items-center mb-6">
               <div className="w-10 h-10 bg-primary-100 rounded-lg flex items-center justify-center text-primary-700 mr-4">
                 <User size={20} />
@@ -204,7 +204,7 @@ const AdminCustomRequestDetailPage = () => {
           </div>
 
           {/* Style & Measurements Matrix */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div className="bg-[var(--admin-card)] rounded-2xl shadow-sm border border-gray-100 p-6">
             <div className="flex items-center mb-6">
               <div className="w-10 h-10 bg-accent/10 rounded-lg flex items-center justify-center text-accent-dark mr-4">
                 <Scissors size={20} />
@@ -237,15 +237,15 @@ const AdminCustomRequestDetailPage = () => {
                        return (
                          <div key={section.id} className="space-y-3">
                            <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
-                             <div className="w-5 h-5 rounded bg-stone-50 flex items-center justify-center text-stone-400">
+                             <div className="w-5 h-5 rounded bg-[var(--admin-card)] flex items-center justify-center text-[var(--admin-text-secondary)]">
                                <section.icon size={12} />
                              </div>
-                             <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-widest">{section.title}</h4>
+                             <h4 className="text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">{section.title}</h4>
                            </div>
                            <div className="grid grid-cols-1 gap-2">
                               {fieldsWithData.map(field => (
-                                <div key={field.name} className="flex justify-between items-center bg-gray-50/50 p-2.5 rounded-lg border border-gray-100/50 hover:bg-white hover:shadow-sm transition-all group">
-                                   <span className="text-[11px] font-medium text-gray-500">{field.label}</span>
+                                <div key={field.name} className="flex justify-between items-center bg-gray-50/50 p-2.5 rounded-lg border border-gray-100/50 hover:bg-[var(--admin-card)] hover:shadow-sm transition-all group">
+                                   <span className="text-[11px] font-medium text-[var(--admin-text-secondary)]">{field.label}</span>
                                    <span className="text-sm font-bold text-primary-950">{request.measurements[field.name]} {field.unit}</span>
                                 </div>
                               ))}
@@ -263,15 +263,15 @@ const AdminCustomRequestDetailPage = () => {
                        return (
                          <div className="space-y-3">
                            <div className="flex items-center gap-2 pb-2 border-b border-gray-100">
-                             <div className="w-5 h-5 rounded bg-stone-50 flex items-center justify-center text-stone-400">
+                             <div className="w-5 h-5 rounded bg-[var(--admin-card)] flex items-center justify-center text-[var(--admin-text-secondary)]">
                                <FileText size={12} />
                              </div>
-                             <h4 className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Other Details</h4>
+                             <h4 className="text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">Other Details</h4>
                            </div>
                            <div className="grid grid-cols-1 gap-2">
                               {extraFields.map(([key, value]) => (
                                 <div key={key} className="flex justify-between items-center bg-gray-50/50 p-2.5 rounded-lg border border-gray-100/50">
-                                   <span className="text-[11px] font-medium text-gray-500 capitalize">{key.replace(/_/g, ' ')}</span>
+                                   <span className="text-[11px] font-medium text-[var(--admin-text-secondary)] capitalize">{key.replace(/_/g, ' ')}</span>
                                    <span className="text-sm font-bold text-primary-950">{String(value)}</span>
                                 </div>
                               ))}
@@ -293,7 +293,7 @@ const AdminCustomRequestDetailPage = () => {
           </div>
 
           {/* Visual Reference Images */}
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6">
+          <div className="bg-[var(--admin-card)] rounded-2xl shadow-sm border border-gray-100 p-6">
             <div className="flex items-center mb-6">
               <div className="w-10 h-10 bg-blue-100 rounded-lg flex items-center justify-center text-blue-700 mr-4">
                 <ImageIcon size={20} />
@@ -313,14 +313,14 @@ const AdminCustomRequestDetailPage = () => {
                    >
                      <img src={img} alt={`ref-${idx}`} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" />
                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors flex items-center justify-center opacity-0 group-hover:opacity-100">
-                        <span className="text-white text-[0.6rem] font-bold uppercase tracking-widest py-1 px-2 border border-white/40 rounded backdrop-blur-sm">Enlarge View</span>
+                        <span className="text-[var(--admin-text-primary)] text-[0.6rem] font-bold uppercase tracking-widest py-1 px-2 border border-white/40 rounded backdrop-blur-sm">Enlarge View</span>
                      </div>
                    </a>
                  ))
                ) : (
                  <div className="col-span-full py-12 flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-2xl bg-gray-50">
                     <ImageIcon size={32} className="text-gray-300 mb-2" />
-                    <p className="text-sm text-gray-500">No reference images uploaded by customer.</p>
+                    <p className="text-sm text-[var(--admin-text-secondary)]">No reference images uploaded by customer.</p>
                  </div>
                )}
             </div>
@@ -331,7 +331,7 @@ const AdminCustomRequestDetailPage = () => {
         <div className="space-y-8">
            
            {/* Pipeline Management Card */}
-           <div className="bg-white rounded-2xl shadow-lg border border-primary-100 p-6 sticky top-28 overflow-hidden relative">
+           <div className="bg-[var(--admin-card)] rounded-2xl shadow-lg border border-primary-100 p-6 sticky top-28 overflow-hidden relative">
               <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-primary-600 via-primary-950 to-primary-600"></div>
               
               <div className="flex items-center mb-6">
@@ -357,7 +357,7 @@ const AdminCustomRequestDetailPage = () => {
                     <button 
                       onClick={handleSaveStatus}
                       disabled={saving === 'status'}
-                      className="mt-3 w-full bg-primary-950 text-white text-xs font-bold uppercase tracking-widest py-3 rounded-xl hover:bg-primary-900 transition-all flex items-center justify-center disabled:opacity-50"
+                      className="mt-3 w-full bg-primary-950 text-[var(--admin-text-primary)] text-xs font-bold uppercase tracking-widest py-3 rounded-xl hover:bg-primary-900 transition-all flex items-center justify-center disabled:opacity-50"
                     >
                       {saving === 'status' ? (
                         <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
@@ -427,7 +427,7 @@ const AdminCustomRequestDetailPage = () => {
                             <span className="block text-[0.65rem] font-bold text-emerald-600 uppercase tracking-widest mb-1">Assigned Workflow</span>
                             <span className="text-sm font-bold text-emerald-900">Active in Production</span>
                           </div>
-                          <button onClick={() => navigate('/admin/workflows')} className="text-xs font-bold bg-emerald-600 text-white px-3 py-1.5 rounded hover:bg-emerald-700">
+                          <button onClick={() => navigate('/admin/workflows')} className="text-xs font-bold bg-emerald-600 text-[var(--admin-text-primary)] px-3 py-1.5 rounded hover:bg-emerald-700">
                             View Board
                           </button>
                        </div>
@@ -448,7 +448,7 @@ const AdminCustomRequestDetailPage = () => {
                           <button 
                             onClick={handleAssignTailor}
                             disabled={!selectedTailorId || assignWorkflowMutation.isPending}
-                            className="w-full bg-primary-900 text-white text-xs font-bold uppercase tracking-widest py-2.5 rounded-lg hover:bg-primary-950 transition-all disabled:opacity-50"
+                            className="w-full bg-primary-900 text-[var(--admin-text-primary)] text-xs font-bold uppercase tracking-widest py-2.5 rounded-lg hover:bg-primary-950 transition-all disabled:opacity-50"
                           >
                             {assignWorkflowMutation.isPending ? 'Assigning...' : 'Assign to Production'}
                           </button>
@@ -459,24 +459,24 @@ const AdminCustomRequestDetailPage = () => {
            </div>
 
            {/* Quick Actions Card */}
-           <div className="bg-gray-900 rounded-2xl p-6 text-white overflow-hidden relative shadow-lg">
+           <div className="bg-gray-900 rounded-2xl p-6 text-[var(--admin-text-primary)] overflow-hidden relative shadow-lg">
                <div className="absolute -right-10 -bottom-10 w-40 h-40 bg-accent/10 rounded-full blur-3xl"></div>
                <h3 className="text-sm font-serif mb-4 flex items-center">
                   <MapPin size={16} className="text-accent mr-2" /> Logistics Check
                </h3>
                <div className="space-y-4">
                   <div>
-                    <span className="block text-[0.6rem] font-bold text-gray-500 uppercase tracking-widest mb-1">Target Delivery</span>
+                    <span className="block text-[0.6rem] font-bold text-[var(--admin-text-secondary)] uppercase tracking-widest mb-1">Target Delivery</span>
                     <span className="text-sm font-medium">{request.deliveryDate ? new Date(request.deliveryDate).toLocaleDateString() : 'N/A'}</span>
                   </div>
                   <div>
-                    <span className="block text-[0.6rem] font-bold text-gray-500 uppercase tracking-widest mb-1">Occasion / Event</span>
+                    <span className="block text-[0.6rem] font-bold text-[var(--admin-text-secondary)] uppercase tracking-widest mb-1">Occasion / Event</span>
                     <span className="text-sm font-medium text-accent">{request.occasion || 'General'}</span>
                   </div>
-                  <div className="pt-4 border-t border-white/10">
+                  <div className="pt-4 border-t border-[var(--admin-card-border)]">
                      <button 
                        onClick={() => navigate('/admin/custom-requests')}
-                       className="w-full py-3 text-[0.65rem] font-bold uppercase tracking-widest text-white/70 hover:text-white border border-white/20 hover:border-white/40 rounded-xl transition-all"
+                       className="w-full py-3 text-[0.65rem] font-bold uppercase tracking-widest text-[var(--admin-text-primary)]/70 hover:text-[var(--admin-text-primary)] border border-white/20 hover:border-white/40 rounded-xl transition-all"
                      >
                         Back to Bespoke Pipeline
                      </button>
@@ -490,3 +490,5 @@ const AdminCustomRequestDetailPage = () => {
 };
 
 export default AdminCustomRequestDetailPage;
+
+

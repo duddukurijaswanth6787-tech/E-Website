@@ -36,7 +36,7 @@ const AdminRolesPage = () => {
         <h1 className="text-2xl font-serif text-gray-900 mb-1 flex items-center gap-3">
           <Lock className="w-6 h-6 text-primary-700" /> Roles & Security Matrix
         </h1>
-        <p className="text-sm text-gray-500">Configure global access boundaries, map system operations, and audit administrative inheritance.</p>
+        <p className="text-sm text-[var(--admin-text-secondary)]">Configure global access boundaries, map system operations, and audit administrative inheritance.</p>
       </div>
 
       <div className="bg-blue-50 border border-blue-100 text-blue-800 px-4 py-3 rounded-lg text-sm flex items-start shadow-sm shadow-blue-900/5 mb-6">
@@ -54,7 +54,7 @@ const AdminRolesPage = () => {
               <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-800 rounded-full animate-spin"></div>
            </div>
       ) : (
-        <div className="overflow-x-auto bg-white border border-gray-200 rounded-xl shadow-sm bg-gradient-to-b from-white to-gray-50/30">
+        <div className="overflow-x-auto bg-[var(--admin-card)] border border-gray-200 rounded-xl shadow-sm bg-gradient-to-b from-white to-gray-50/30">
           <table className="w-full text-left border-collapse">
             <thead>
               <tr className="bg-gray-50 border-b border-gray-200">
@@ -100,3 +100,5 @@ const AdminRolesPage = () => {
 };
 
 export default AdminRolesPage;
+
+

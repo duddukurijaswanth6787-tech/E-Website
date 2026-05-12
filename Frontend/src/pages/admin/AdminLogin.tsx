@@ -55,24 +55,24 @@ const AdminLogin = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gray-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
+    <div className="min-h-screen bg-gray-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 font-sans">
       <div className="sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="flex justify-center text-primary-400 mb-4">
+        <div className="flex justify-center text-primary-600 mb-4">
            <AlertCircle className="w-16 h-16" />
         </div>
-        <h2 className="mt-2 text-center text-3xl font-extrabold text-white">
+        <h2 className="mt-2 text-center text-3xl font-extrabold text-gray-900">
           Admin Portal Access
         </h2>
-        <p className="mt-2 text-center text-sm text-gray-400">
+        <p className="mt-2 text-center text-sm text-gray-600">
           Vasanthi Creations Control Center
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md">
-        <div className="bg-gray-800 py-8 px-4 shadow-2xl sm:rounded-lg sm:px-10 border border-gray-700">
+        <div className="bg-white py-8 px-4 shadow-xl sm:rounded-lg sm:px-10 border border-gray-200">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label className="block text-sm font-medium text-gray-300 uppercase tracking-widest text-[0.7rem]">
+              <label className="block text-sm font-medium text-gray-700 uppercase tracking-widest text-[0.7rem]">
                 Admin Email ID
               </label>
               <div className="mt-1">
@@ -81,14 +81,14 @@ const AdminLogin = () => {
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="appearance-none block w-full px-3 py-3 border border-gray-600 bg-gray-900 rounded-md shadow-sm placeholder-gray-500 text-white focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-colors"
+                  className="appearance-none block w-full px-3 py-3 border border-gray-600 bg-white rounded-md shadow-sm placeholder-gray-400 text-black focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-colors"
                   placeholder="sysadmin@vasanthicreations.local"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-300 uppercase tracking-widest text-[0.7rem]">
+              <label className="block text-sm font-medium text-gray-700 uppercase tracking-widest text-[0.7rem]">
                 Access Token / Password
               </label>
               <div className="mt-1">
@@ -97,7 +97,7 @@ const AdminLogin = () => {
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
-                  className="appearance-none block w-full px-3 py-3 border border-gray-600 bg-gray-900 rounded-md shadow-sm placeholder-gray-500 text-white focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-colors"
+                  className="appearance-none block w-full px-3 py-3 border border-gray-600 bg-white rounded-md shadow-sm placeholder-gray-400 text-black focus:outline-none focus:ring-primary-500 focus:border-primary-500 sm:text-sm transition-colors"
                 />
               </div>
             </div>
@@ -107,9 +107,9 @@ const AdminLogin = () => {
                 <input
                   id="remember-me"
                   type="checkbox"
-                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-600 rounded bg-gray-900"
+                  className="h-4 w-4 text-primary-600 focus:ring-primary-500 border-gray-300 rounded bg-white"
                 />
-                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-400">
+                <label htmlFor="remember-me" className="ml-2 block text-sm text-gray-600">
                   Remember secure session
                 </label>
               </div>
@@ -125,10 +125,10 @@ const AdminLogin = () => {
               <button
                 type="submit"
                 disabled={isLoading}
-                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold uppercase tracking-widest text-gray-900 bg-primary-500 hover:bg-primary-400 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
+                className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-bold uppercase tracking-widest text-white bg-primary-950 hover:bg-primary-900 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all"
               >
                 {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-gray-900 border-t-transparent rounded-full animate-spin"></div>
+                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
                 ) : (
                   <span className="flex items-center">Authenticate <ArrowRight className="w-4 h-4 ml-2" /></span>
                 )}
@@ -136,18 +136,18 @@ const AdminLogin = () => {
             </div>
           </form>
           
-          <div className="mt-6 border-t border-gray-700 pt-6">
-             <div className="rounded-md bg-blue-900/40 p-4 border border-blue-800">
+          <div className="mt-6 border-t border-gray-200 pt-6">
+             <div className="rounded-md bg-blue-50 p-4 border border-blue-200">
                <div className="flex">
                  <div className="flex-shrink-0">
                    <AlertCircle className="h-5 w-5 text-blue-400" aria-hidden="true" />
                  </div>
-                 <div className="ml-3">
-                   <h3 className="text-sm font-medium text-blue-200">Local Development Hook</h3>
-                   <div className="mt-2 text-sm text-blue-300">
-                     <p>DB Seed Credentials:<br/>admin@vasanthicreations.com / Admin@12345!</p>
-                   </div>
-                 </div>
+                  <div className="ml-3">
+                    <h3 className="text-sm font-medium text-blue-800">Local Development Hook</h3>
+                    <div className="mt-2 text-sm text-blue-700">
+                      <p>DB Seed Credentials:<br/>admin@vasanthicreations.com / Admin@12345!</p>
+                    </div>
+                  </div>
                </div>
              </div>
           </div>
@@ -158,3 +158,5 @@ const AdminLogin = () => {
 };
 
 export default AdminLogin;
+
+

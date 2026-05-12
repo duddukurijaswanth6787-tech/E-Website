@@ -19,7 +19,7 @@ export interface IInfluencer extends Document {
 }
 
 const InfluencerSchema = new Schema<IInfluencer>({
-  tenantId: { type: String, required: true, index: true },
+  tenantId: { type: String, required: true },
   name: { type: String, required: true },
   handle: { type: String, required: true },
   platform: { type: String, enum: ['Instagram', 'YouTube', 'TikTok', 'Other'], required: true },
@@ -56,7 +56,7 @@ export interface IAdCampaign extends Document {
 }
 
 const AdCampaignSchema = new Schema<IAdCampaign>({
-  tenantId: { type: String, required: true, index: true },
+  tenantId: { type: String, required: true },
   name: { type: String, required: true },
   platform: { type: String, enum: ['Facebook', 'Instagram', 'Google', 'WhatsApp', 'YouTube', 'Organic'], required: true },
   budget: { type: Number, default: 0 },
@@ -85,7 +85,7 @@ export interface IFunnelStep extends Document {
 }
 
 const FunnelStepSchema = new Schema<IFunnelStep>({
-  tenantId: { type: String, required: true, index: true },
+  tenantId: { type: String, required: true },
   sessionId: { type: String, required: true },
   userId: { type: Schema.Types.ObjectId, ref: 'User' },
   stage: { 

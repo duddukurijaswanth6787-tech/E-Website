@@ -26,6 +26,7 @@ export const redisMetrics = {
   reconnectCount: 0,
   lastError: null as string | null,
   lastErrorAt: null as string | null,
+  lastPing: null as string | null,
 };
 
 const MAX_REDIS_RETRIES = 10;
@@ -38,6 +39,8 @@ const REDIS_RETRY_STRATEGY = (times: number) => {
   // Exponential backoff with a cap at 30s
   return Math.min(times * 500, 30_000);
 };
+
+export const isRedisEnabled = (): boolean => !!env.redis.url;
 
 export const getRedisClient = (): Redis => {
   if (!redisClient) {
@@ -84,18 +87,35 @@ export const createPubSubClients = (): { pubClient: Redis; subClient: Redis } =>
 };
 
 const setupRedisEventListeners = (client: Redis, label: string) => {
+  let pingInterval: NodeJS.Timeout | null = null;
+
   client.on('connect', () => {
     logger.info(`✅ Redis ${label} connected`);
-    if (label === 'Main') redisMetrics.status = 'connected';
+    if (label === 'Main') {
+      redisMetrics.status = 'connected';
+      // Phase 8: Active Heartbeat Ping Check Loop
+      pingInterval = setInterval(() => {
+        if (client.status === 'ready') {
+          client.ping().then(() => {
+            redisMetrics.lastPing = new Date().toISOString();
+          }).catch(() => {});
+        }
+      }, 30000);
+    }
   });
 
   client.on('reconnecting', () => {
     if (label === 'Main') {
       redisMetrics.reconnectCount++;
       redisMetrics.status = 'connecting';
-      logger.debug(`Redis ${label} reconnecting... (attempt ${redisMetrics.reconnectCount})`);
+      
+      // Reduce log spam: only log first 3 attempts, then every 10th attempt
+      if (redisMetrics.reconnectCount <= 3 || redisMetrics.reconnectCount % 10 === 0) {
+        logger.debug(`Redis ${label} reconnecting... (attempt ${redisMetrics.reconnectCount})`);
+      }
     }
   });
+
 
   client.on('error', (err) => {
     if (label === 'Main') {
@@ -117,6 +137,7 @@ const setupRedisEventListeners = (client: Redis, label: string) => {
   });
 
   client.on('close', () => {
+    if (pingInterval) clearInterval(pingInterval);
     if (label === 'Main') redisMetrics.status = 'disconnected';
     // Only log the first close per client to avoid log spam
     if (!hasLoggedRedisError) {
@@ -131,6 +152,8 @@ export const getRedisStatus = () => {
     host: env.redis.url ? new URL(env.redis.url).host : 'disabled',
     pubSub: pubClient?.status === 'ready' ? 'Active' : 'Inactive',
     cache: redisClient?.status === 'ready' ? 'Active' : 'Inactive',
+    fallbackMode: redisMetrics.status !== 'connected',
+    retryCounts: redisMetrics.reconnectCount,
   };
 };
 

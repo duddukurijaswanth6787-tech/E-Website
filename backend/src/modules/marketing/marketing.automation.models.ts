@@ -37,7 +37,7 @@ export interface INotificationCampaign extends Document {
 }
 
 const NotificationCampaignSchema = new Schema<INotificationCampaign>({
-  tenantId: { type: String, required: true, index: true },
+  tenantId: { type: String, required: true },
   name: { type: String, required: true },
   template: { type: Schema.Types.ObjectId, ref: 'NotificationTemplate', required: true },
   targetSegments: [{ type: String }],
@@ -66,7 +66,7 @@ export interface IAIPrediction extends Document {
 }
 
 const AIPredictionSchema = new Schema<IAIPrediction>({
-  tenantId: { type: String, required: true, index: true },
+  tenantId: { type: String, required: true },
   customer: { type: Schema.Types.ObjectId, ref: 'User', required: true },
   type: { type: String, enum: ['churn', 'conversion', 'ltv', 'recommendation'], required: true },
   score: { type: Number, required: true },

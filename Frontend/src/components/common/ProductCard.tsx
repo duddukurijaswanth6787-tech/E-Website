@@ -1,10 +1,9 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Heart, ShoppingBag } from 'lucide-react';
 import { motion } from 'framer-motion';
-import { ImageWithSkeleton } from './Skeleton';
+import { SafeImage } from './SafeImage';
 import { useCartStore } from '../../store/cartStore';
-import { useState } from 'react';
 
 export interface ProductCardProps {
   id: string;
@@ -53,12 +52,11 @@ export const ProductCard = memo(({ product }: { product: ProductCardProps }) => 
       {/* Product Image Box */}
       <div className="relative aspect-[3/4] overflow-hidden bg-gray-100 rounded-lg">
         <Link to={`/product/${product.slug}`}>
-          <ImageWithSkeleton 
+          <SafeImage 
             src={product.image} 
             alt={product.name}
-            className="w-full h-full object-cover object-center transition-transform duration-700 ease-out group-hover:scale-110"
-            containerClassName="w-full h-full"
-            loading="lazy"
+            className="w-full h-full transition-transform duration-700 ease-out group-hover:scale-110"
+            aspectRatio="portrait"
           />
         </Link>
 

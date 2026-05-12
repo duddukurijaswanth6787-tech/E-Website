@@ -204,7 +204,7 @@ const WorkflowTaskSchema = new Schema<IWorkflowTask>({
   assignedBy: { type: Schema.Types.ObjectId, required: true, refPath: 'assignedByModel' },
   assignedByModel: { type: String, enum: ['Admin', 'Manager'], required: true },
 
-  branchId: { type: String, default: null, index: true },
+  branchId: { type: String, default: null },
   branchName: { type: String, default: null },
 
   revision: { type: Number, default: 0, required: true },

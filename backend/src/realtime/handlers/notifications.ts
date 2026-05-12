@@ -3,6 +3,7 @@ import { socketAuthMiddleware } from '../auth/socketAuth';
 import { ERP_CLIENT_INTENTS, ERP_EVENTS, type RealtimeResponse } from '../events/erpEvents';
 import { notificationRoom } from '../rooms/roomNames';
 import { NotificationService } from '../../modules/notifications/notification.service';
+import { presenceManager } from '../presence';
 import { logger } from '../../common/logger';
 
 export const registerNotificationsNamespace = (nsp: Namespace) => {
@@ -14,7 +15,7 @@ export const registerNotificationsNamespace = (nsp: Namespace) => {
 
     // Join private notification room
     socket.join(room);
-    logger.debug(`[Notifications] Principal ${principal.id} joined room ${room}`);
+    logger.info(`[realtime/notifications] connected ${principal.type}:${principal.name || principal.id}`);
 
     // Initial unread count sync
     try {
@@ -67,8 +68,13 @@ export const registerNotificationsNamespace = (nsp: Namespace) => {
       }
     });
 
+    socket.on(ERP_CLIENT_INTENTS.PRESENCE_HEARTBEAT, async () => {
+       const { id, role, branchId, name } = principal;
+       await presenceManager.heartbeat(id, role, branchId, name);
+    });
+
     socket.on('disconnect', () => {
-      logger.debug(`[Notifications] Principal ${principal.id} disconnected from notification namespace`);
+      logger.info(`[realtime/notifications] disconnected ${principal.id}`);
     });
   });
 };

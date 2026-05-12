@@ -1,4 +1,4 @@
-import apiClient from '../client';
+import apiClient, { publicClient } from '../client';
 
 export interface Product {
   _id: string;
@@ -55,6 +55,12 @@ export interface Product {
     average: number;
     count: number;
   };
+  seo?: {
+    title?: string;
+    description?: string;
+    keywords?: string[];
+    ogImage?: string;
+  };
 }
 
 export interface ProductsResponse {
@@ -73,7 +79,7 @@ export interface ProductsResponse {
 export const productService = {
   // Configured with standard paginated API endpoints supporting multiple query hooks
   getProducts: async (params?: Record<string, any>) => {
-    return apiClient.get<any, ProductsResponse>('/products', { params });
+    return publicClient.get<any, ProductsResponse>('/products', { params });
   },
 
   // Admin list (full catalog with pagination)
@@ -83,12 +89,12 @@ export const productService = {
 
   // Lookup deeply nested product objects by SEO slug
   getProductBySlug: async (slug: string) => {
-    return apiClient.get<any, { success: boolean; data: Product }>(`/products/slug/${slug}`);
+    return publicClient.get<any, { success: boolean; data: Product }>(`/products/slug/${slug}`);
   },
 
   // Related items: backend route is GET /products/:id/related?category=<categoryId>
   getRelatedProducts: async (productId: string, categoryId?: string) => {
-    return apiClient.get<any, { success: boolean; data: Product[] }>(`/products/${productId}/related`, {
+    return publicClient.get<any, { success: boolean; data: Product[] }>(`/products/${productId}/related`, {
       params: categoryId ? { category: categoryId } : {},
     });
   },
@@ -110,12 +116,12 @@ export const productService = {
 
   // Featured items
   getFeaturedProducts: async () => {
-    return apiClient.get<any, { success: boolean; data: Product[] }>('/products/featured');
+    return publicClient.get<any, { success: boolean; data: Product[] }>('/products/featured');
   },
 
   // Trending items
   getTrendingProducts: async () => {
-    return apiClient.get<any, { success: boolean; data: Product[] }>('/products/trending');
+    return publicClient.get<any, { success: boolean; data: Product[] }>('/products/trending');
   },
 
   deleteProduct: async (id: string) => {

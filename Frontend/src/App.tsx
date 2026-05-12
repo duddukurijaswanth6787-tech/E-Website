@@ -19,6 +19,15 @@ const CheckoutPage = lazy(() => import('./pages/user/CheckoutPage'));
 const OrderSuccessPage = lazy(() => import('./pages/user/OrderSuccessPage'));
 const CollectionsPage = lazy(() => import('./pages/user/CollectionsPage'));
 const CustomBlousePage = lazy(() => import('./pages/user/CustomBlousePage'));
+const LandingPage = lazy(() => import('./pages/user/LandingPage'));
+const LegalPageViewer = lazy(() => import('./pages/user/LegalPageViewer'));
+const OnboardingFlow = lazy(() => import('./pages/user/onboarding/OnboardingFlow'));
+const MeasurementGuide = lazy(() => import('./pages/user/onboarding/MeasurementGuide'));
+
+import { WhatsAppCTA } from './components/common/WhatsAppCTA';
+import { PageTracker } from './components/analytics/PageTracker';
+import CookieConsentBanner from './components/common/CookieConsentBanner';
+import WelcomeBannerModal from './components/common/WelcomeBannerModal';
 
 // User Dashboard Pages
 const UserDashboard = lazy(() => import('./pages/user/dashboard/UserDashboard'));
@@ -51,19 +60,30 @@ const AdminCustomRequestDetailPage = lazy(() => import('./pages/admin/AdminCusto
 const AdminCategoriesPage = lazy(() => import('./pages/admin/AdminCategoriesPage'));
 const AdminCollectionsPage = lazy(() => import('./pages/admin/AdminCollectionsPage'));
 const AdminSettingsPage = lazy(() => import('./pages/admin/AdminSettingsPage'));
+const AdminHeroSectionPage = lazy(() => import('./pages/admin/AdminHeroSectionPage'));
 const AdminAnalyticsPage = lazy(() => import('./pages/admin/AdminAnalyticsPage'));
 const AdminPaymentsPage = lazy(() => import('./pages/admin/AdminPaymentsPage'));
 const AdminAuditLogsPage = lazy(() => import('./pages/admin/AdminAuditLogsPage'));
+const AdminSeoPage = lazy(() => import('./pages/admin/AdminSeoPage'));
 const AdminTailorsPage = lazy(() => import('./pages/admin/AdminTailorsPage'));
+const AdminWorkforcePage = lazy(() => import('./pages/admin/workforce/WorkforceMonitoringPage'));
 const AdminWorkflowsPage = lazy(() => import('./pages/admin/AdminWorkflowsPage'));
+const BlogsPage = lazy(() => import('./pages/user/BlogsPage'));
 const AdminManagersPage = lazy(() => import('./pages/admin/AdminManagersPage'));
 const AdminCustomBlouseOptionsPage = lazy(() => import('./pages/admin/AdminCustomBlouseOptionsPage'));
+const AdminLegalDashboard = lazy(() => import('./pages/admin/legal/AdminLegalDashboard'));
+const LegalPageEditor = lazy(() => import('./pages/admin/legal/LegalPageEditor')); // Legal Policy Editor
+const BusinessInsightsPage = lazy(() => import('./pages/admin/analytics/BusinessInsightsPage'));
+const APIHealthDashboard = lazy(() => import('./pages/admin/monitoring/APIHealthDashboard'));
+const WelcomeWizard = lazy(() => import('./components/user/onboarding/WelcomeWizard'));
 
 // Marketing ERP Phase 1, 2, 3 & 4
 const MarketingDashboard = lazy(() => import('./pages/admin/marketing/MarketingDashboard'));
 const HeroBannerAds = lazy(() => import('./pages/admin/marketing/HeroBannerAds'));
 const PromoBlocks = lazy(() => import('./pages/admin/marketing/PromoBlocks'));
 const StickyOffers = lazy(() => import('./pages/admin/marketing/StickyOffers'));
+const WelcomeBannersPage = lazy(() => import('./pages/admin/marketing/WelcomeBannersPage'));
+const OnboardingWizardPage = lazy(() => import('./pages/admin/marketing/OnboardingWizardPage'));
 const ReviewModeration = lazy(() => import('./pages/admin/marketing/ReviewModeration'));
 const InfluencerManager = lazy(() => import('./pages/admin/marketing/InfluencerManager'));
 const BlogCMS = lazy(() => import('./pages/admin/marketing/BlogCMS'));
@@ -75,6 +95,7 @@ const AIMarketing = lazy(() => import('./pages/admin/marketing/AIMarketing'));
 const CouponManagement = lazy(() => import('./pages/admin/marketing/CouponManagement'));
 const FestivalEngine = lazy(() => import('./pages/admin/marketing/FestivalEngine'));
 const SalesAnalytics = lazy(() => import('./pages/admin/marketing/SalesAnalytics'));
+const RetentionSettingsPage = lazy(() => import('./pages/admin/marketing/RetentionSettingsPage'));
 
 // Manager Pages
 const ManagerLayout = lazy(() => import('./layouts/ManagerLayout'));
@@ -127,6 +148,7 @@ const ProtectedRoute = ({ children, allowedRoles }: ProtectedRouteProps) => {
 function App() {
   return (
     <BrowserRouter>
+      <PageTracker />
       <LoadingProgress />
       <Suspense fallback={<PageLoader />}>
         <Routes>
@@ -144,6 +166,12 @@ function App() {
             <Route path="/custom-blouse" element={<CustomBlousePage />} />
             <Route path="/about" element={<AboutPageComp />} />
             <Route path="/contact" element={<ContactPageComp />} />
+            <Route path="/l/:slug" element={<LandingPage />} />
+            <Route path="/blogs" element={<BlogsPage />} />
+            <Route path="/blogs/:id" element={<BlogsPage />} />
+            <Route path="/legal/:slug" element={<LegalPageViewer />} />
+            <Route path="/onboarding" element={<OnboardingFlow />} />
+            <Route path="/onboarding/guide" element={<MeasurementGuide />} />
           </Route>
 
           {/* Auth Routes */}
@@ -205,13 +233,22 @@ function App() {
             <Route path="analytics" element={<AdminAnalyticsPage />} />
             <Route path="payments" element={<AdminPaymentsPage />} />
             <Route path="audit-logs" element={<AdminAuditLogsPage />} />
+            <Route path="seo" element={<AdminSeoPage />} />
             <Route path="settings" element={<AdminSettingsPage />} />
+            <Route path="hero" element={<AdminHeroSectionPage />} />
+            <Route path="workforce" element={<AdminWorkforcePage />} />
+            <Route path="legal" element={<AdminLegalDashboard />} />
+            <Route path="legal/edit/:slug" element={<LegalPageEditor />} />
+            <Route path="business-insights" element={<BusinessInsightsPage />} />
+            <Route path="monitoring" element={<APIHealthDashboard />} />
             
             {/* Marketing Hub (ERP M-1 to M-16) */}
             <Route path="marketing" element={<MarketingDashboard />} />
             <Route path="marketing/banners" element={<HeroBannerAds />} />
             <Route path="marketing/promo-blocks" element={<PromoBlocks />} />
             <Route path="marketing/sticky-offers" element={<StickyOffers />} />
+            <Route path="marketing/welcome-banners" element={<WelcomeBannersPage />} />
+            <Route path="marketing/onboarding-wizard" element={<OnboardingWizardPage />} />
             <Route path="marketing/reviews" element={<ReviewModeration />} />
             <Route path="marketing/influencers" element={<InfluencerManager />} />
             <Route path="marketing/blogs" element={<BlogCMS />} />
@@ -223,11 +260,16 @@ function App() {
             <Route path="marketing/coupons" element={<CouponManagement />} />
             <Route path="marketing/festivals" element={<FestivalEngine />} />
             <Route path="marketing/sales" element={<SalesAnalytics />} />
+            <Route path="marketing/retention" element={<RetentionSettingsPage />} />
           </Route>
 
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Suspense>
+      <WhatsAppCTA />
+      <CookieConsentBanner />
+      <WelcomeBannerModal />
+      <WelcomeWizard />
     </BrowserRouter>
   );
 }

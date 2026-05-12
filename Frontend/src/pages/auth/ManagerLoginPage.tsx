@@ -46,9 +46,9 @@ const ManagerLoginPage = () => {
   };
 
   return (
-    <div className="min-h-screen bg-stone-900 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
+    <div className="min-h-screen bg-stone-50 flex flex-col justify-center py-12 sm:px-6 lg:px-8 relative overflow-hidden">
       {/* Industrial Background Elements */}
-      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-20"></div>
+      <div className="absolute inset-0 bg-[url('https://www.transparenttextures.com/patterns/carbon-fibre.png')] opacity-5"></div>
       
       <div className="sm:mx-auto sm:w-full sm:max-w-md relative z-10">
         <div className="flex justify-center mb-6">
@@ -56,19 +56,19 @@ const ManagerLoginPage = () => {
             <Activity className="h-8 w-8 text-stone-900" />
           </div>
         </div>
-        <h2 className="mt-2 text-center text-3xl font-bold tracking-tight text-white uppercase tracking-wider">
+        <h2 className="mt-2 text-center text-3xl font-bold tracking-tight text-stone-900 uppercase tracking-wider">
           Operations Center
         </h2>
-        <p className="mt-2 text-center text-sm text-stone-400">
+        <p className="mt-2 text-center text-sm text-stone-600">
           Manager Authentication Gateway
         </p>
       </div>
 
       <div className="mt-8 sm:mx-auto sm:w-full sm:max-w-md relative z-10">
-        <div className="bg-stone-800 py-8 px-4 shadow-2xl shadow-black/50 sm:rounded-xl sm:px-10 border border-stone-700">
+        <div className="bg-white py-8 px-4 shadow-xl shadow-black/5 sm:rounded-xl sm:px-10 border border-stone-200">
           <form className="space-y-6" onSubmit={handleSubmit}>
             <div>
-              <label className="block text-sm font-medium text-stone-300">
+              <label className="block text-sm font-medium text-stone-700">
                 Official Email
               </label>
               <div className="mt-2 relative rounded-md shadow-sm">
@@ -78,7 +78,7 @@ const ManagerLoginPage = () => {
                 <input
                   type="email"
                   required
-                  className="block w-full pl-10 rounded-lg border-0 py-2.5 bg-stone-900 text-white shadow-sm ring-1 ring-inset ring-stone-700 focus:ring-2 focus:ring-inset focus:ring-amber-500 sm:text-sm sm:leading-6"
+                  className="block w-full pl-10 rounded-lg border-0 py-2.5 bg-stone-50 text-stone-900 shadow-sm ring-1 ring-inset ring-stone-200 focus:ring-2 focus:ring-inset focus:ring-amber-500 sm:text-sm sm:leading-6 placeholder-stone-400"
                   placeholder="manager@vasanthi.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
@@ -88,7 +88,7 @@ const ManagerLoginPage = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-stone-300">
+              <label className="block text-sm font-medium text-stone-700">
                 Access Code / Password
               </label>
               <div className="mt-2 relative rounded-md shadow-sm">
@@ -98,7 +98,7 @@ const ManagerLoginPage = () => {
                 <input
                   type="password"
                   required
-                  className="block w-full pl-10 rounded-lg border-0 py-2.5 bg-stone-900 text-white shadow-sm ring-1 ring-inset ring-stone-700 focus:ring-2 focus:ring-inset focus:ring-amber-500 sm:text-sm sm:leading-6"
+                  className="block w-full pl-10 rounded-lg border-0 py-2.5 bg-stone-50 text-stone-900 shadow-sm ring-1 ring-inset ring-stone-200 focus:ring-2 focus:ring-inset focus:ring-amber-500 sm:text-sm sm:leading-6 placeholder-stone-400"
                   placeholder="••••••••"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}

@@ -3,7 +3,7 @@ import { Order } from '../orders/order.model';
 import { User } from '../users/user.model';
 import { Banner } from '../banners/banner.model';
 import { Coupon } from '../coupons/coupon.model';
-import { PromoBlock, StickyOffer, FestivalCampaign } from './marketing.models';
+import { PromoBlock, StickyOffer, FestivalCampaign, WelcomeBanner, OnboardingWizard } from './marketing.models';
 import { sendSuccess, sendCreated, sendNoContent } from '../../common/responses';
 import { NotFoundError } from '../../common/errors';
 
@@ -43,6 +43,16 @@ export const getMarketingStats = async (req: Request, res: Response, next: NextF
 
     const revenue = revenueStats[0] || { totalRevenue: 0, avgOrderValue: 0, todayRevenue: 0 };
 
+    // Calculate real conversion rate
+    const [totalVisitors, totalOrdersCount] = await Promise.all([
+      import('../analytics/event.model').then(m => m.Event.countDocuments({ tenantId, type: 'page_view' })),
+      Order.countDocuments({ tenantId, status: { $ne: 'cancelled' }, deletedAt: null })
+    ]);
+
+    const conversionRate = totalVisitors > 0 
+      ? Number(((totalOrdersCount / totalVisitors) * 100).toFixed(2)) 
+      : 0;
+
     sendSuccess(res, {
       kpis: {
         totalRevenue: revenue.totalRevenue,
@@ -52,7 +62,7 @@ export const getMarketingStats = async (req: Request, res: Response, next: NextF
         activeCoupons,
         activePromoBlocks,
         totalCustomers: customerStats,
-        conversionRate: 3.8 
+        conversionRate
       },
       campaigns
     });
@@ -175,4 +185,126 @@ export const createFestivalCampaign = async (req: Request, res: Response, next: 
   } catch (err) { next(err); }
 };
 
+// --- WELCOME BANNERS (M-17) ---
+export const getWelcomeBanners = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const banners = await WelcomeBanner.find({ tenantId: req.tenantId }).sort({ priority: -1, createdAt: -1 }).lean();
+    sendSuccess(res, banners);
+  } catch (err) { next(err); }
+};
 
+export const createWelcomeBanner = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const banner = await WelcomeBanner.create({ ...req.body, tenantId: req.tenantId });
+    sendCreated(res, banner);
+  } catch (err) { next(err); }
+};
+
+export const updateWelcomeBanner = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const banner = await WelcomeBanner.findOneAndUpdate(
+      { _id: req.params.id, tenantId: req.tenantId },
+      req.body,
+      { new: true }
+    );
+    if (!banner) throw new NotFoundError('Welcome Banner');
+    sendSuccess(res, banner);
+  } catch (err) { next(err); }
+};
+
+export const deleteWelcomeBanner = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const banner = await WelcomeBanner.findOneAndDelete({ _id: req.params.id, tenantId: req.tenantId });
+    if (!banner) throw new NotFoundError('Welcome Banner');
+    sendNoContent(res);
+  } catch (err) { next(err); }
+};
+
+export const getActiveWelcomeBanners = async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    // Fetch all active banners first to guarantee visibility regardless of null date formats
+    const rawBanners = await WelcomeBanner.find({ isActive: true }).sort({ priority: -1 }).lean();
+    
+    const now = new Date().getTime();
+    const activeBanners = rawBanners.filter(b => {
+      if (b.startDate && new Date(b.startDate).getTime() > now) return false; // Not started yet
+      if (b.endDate && new Date(b.endDate).getTime() < now) return false; // Expired
+      return true;
+    });
+    
+    sendSuccess(res, activeBanners);
+  } catch (err) { next(err); }
+};
+
+export const trackWelcomeBannerAction = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { action } = req.body; // 'view' or 'click'
+    const updateQuery = action === 'click' ? { 'analytics.clicks': 1 } : { 'analytics.impressions': 1 };
+    
+    await WelcomeBanner.findByIdAndUpdate(req.params.id, { $inc: updateQuery });
+    sendSuccess(res, null, 'Action tracked');
+  } catch (err) { next(err); }
+};
+
+// --- ONBOARDING WIZARD (M-18) ---
+export const getOnboardingWizard = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    let wizard = await OnboardingWizard.findOne({ tenantId: req.tenantId }).lean();
+    if (!wizard) {
+      wizard = {
+        tenantId: req.tenantId,
+        isActive: false,
+        steps: [
+          {
+            title: 'Welcome to Vasanthi Creations',
+            subtitle: 'Where Tradition Meets Modern Elegance',
+            content: 'Experience the finest designer blouses and sarees, tailored specifically for you. Let us guide you through your luxury journey.',
+            icon: 'Sparkles',
+            color: 'blue'
+          },
+          {
+            title: 'Discover Your Style',
+            subtitle: 'Curated Collections for Every Occasion',
+            content: 'From bridal masterpieces to contemporary designer wear, our collections are crafted to make you stand out.',
+            icon: 'Heart',
+            color: 'rose'
+          },
+          {
+            title: 'Perfect Fit, Guaranteed',
+            subtitle: 'Smart Measurement & Custom Tailoring',
+            content: 'Save your measurements once and enjoy a perfect fit for all future orders. Our experts ensure precision in every stitch.',
+            icon: 'Ruler',
+            color: 'amber'
+          },
+          {
+            title: 'Let’s Get Started',
+            subtitle: 'Your Personal Boutique Experience',
+            content: 'Create your profile to save favorites, track orders, and receive exclusive styling consultations.',
+            icon: 'ShoppingBag',
+            color: 'emerald'
+          }
+        ]
+      } as any;
+    }
+    sendSuccess(res, wizard);
+  } catch (err) { next(err); }
+};
+
+export const saveOnboardingWizard = async (req: Request, res: Response, next: NextFunction) => {
+  try {
+    const { isActive, steps } = req.body;
+    const wizard = await OnboardingWizard.findOneAndUpdate(
+      { tenantId: req.tenantId },
+      { isActive, steps },
+      { new: true, upsert: true }
+    );
+    sendSuccess(res, wizard);
+  } catch (err) { next(err); }
+};
+
+export const getActiveOnboardingWizard = async (_req: Request, res: Response, next: NextFunction) => {
+  try {
+    const wizard = await OnboardingWizard.findOne({ isActive: true }).lean();
+    sendSuccess(res, wizard);
+  } catch (err) { next(err); }
+};

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { customBlouseOptionService } from '../../api/services/custom-blouse-option.service';
 import { uploadService } from '../../api/services/upload.service';
 import type { CustomBlouseOption } from '../../api/services/custom-blouse-option.service';
@@ -7,6 +7,7 @@ import {
   Settings, Layers, CheckCircle, ChevronRight,
   Upload, ImageIcon as ImageIconIcon
 } from 'lucide-react';
+import { ImageUploader } from '../../components/admin/ImageUploader';
 import toast from 'react-hot-toast';
 
 const CATEGORIES = [
@@ -30,7 +31,6 @@ const AdminCustomBlouseOptionsPage = () => {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [newOption, setNewOption] = useState({ value: '', order: 0, isActive: true, image: '' });
   const [uploading, setUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     fetchOptions();
@@ -129,11 +129,11 @@ const AdminCustomBlouseOptionsPage = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-2xl font-serif text-gray-900 mb-1">Custom Blouse Configurator</h1>
-          <p className="text-sm text-gray-500">Manage dropdown values and requirements for the customization wizard</p>
+          <p className="text-sm text-[var(--admin-text-secondary)]">Manage dropdown values and requirements for the customization wizard</p>
         </div>
         <button 
           onClick={() => setIsAdding(true)}
-          className="bg-primary-950 text-white px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-widest hover:bg-primary-900 transition-all flex items-center gap-2 shadow-sm"
+          className="bg-primary-950 text-[var(--admin-text-primary)] px-5 py-2.5 rounded-xl text-sm font-bold uppercase tracking-widest hover:bg-primary-900 transition-all flex items-center gap-2 shadow-sm"
         >
           <Plus size={18} /> Add New {CATEGORIES.find(c => c.id === activeCategory)?.label}
         </button>
@@ -142,7 +142,7 @@ const AdminCustomBlouseOptionsPage = () => {
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
         {/* Categories Sidebar */}
         <div className="lg:col-span-1 space-y-2">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-3">
+          <div className="bg-[var(--admin-card)] rounded-2xl shadow-sm border border-gray-100 p-3">
             <div className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-gray-400 uppercase tracking-widest mb-2">
               <Layers size={14} /> Step Categories
             </div>
@@ -165,7 +165,7 @@ const AdminCustomBlouseOptionsPage = () => {
 
         {/* Options Management */}
         <div className="lg:col-span-3">
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
+          <div className="bg-[var(--admin-card)] rounded-2xl shadow-sm border border-gray-100 overflow-hidden">
             <div className="p-6 border-b border-gray-50 bg-gray-50/30 flex items-center justify-between">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 bg-primary-100 rounded-lg flex items-center justify-center text-primary-700 font-bold text-xs uppercase">
@@ -183,32 +183,12 @@ const AdminCustomBlouseOptionsPage = () => {
                 <div className="p-6 bg-primary-50/20 animate-in fade-in slide-in-from-top-4 duration-300">
                   <div className="flex flex-col lg:flex-row gap-6">
                     {/* Image Upload Area */}
-                    <div className="w-full lg:w-32 lg:h-32">
-                      <input 
-                        type="file" 
-                        ref={fileInputRef}
-                        className="hidden" 
-                        accept="image/*"
-                        onChange={(e) => e.target.files?.[0] && handleFileUpload(e.target.files[0])}
+                    <div className="w-full lg:w-48">
+                      <ImageUploader
+                        value={newOption.image}
+                        onChange={(url) => setNewOption({ ...newOption, image: url })}
+                        folder="custom-blouse-options"
                       />
-                      <div 
-                        onClick={() => fileInputRef.current?.click()}
-                        className={`w-32 h-32 rounded-2xl border-2 border-dashed border-gray-200 bg-white flex flex-col items-center justify-center cursor-pointer hover:border-primary-300 transition-all overflow-hidden relative group ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
-                      >
-                        {newOption.image ? (
-                          <>
-                            <img src={newOption.image} alt="preview" className="w-full h-full object-cover" />
-                            <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all">
-                              <Upload size={20} className="text-white" />
-                            </div>
-                          </>
-                        ) : (
-                          <div className="flex flex-col items-center text-gray-400">
-                            {uploading ? <div className="w-5 h-5 border-2 border-gray-200 border-t-primary-600 rounded-full animate-spin mb-2" /> : <Upload size={24} className="mb-2" />}
-                            <span className="text-[0.6rem] font-bold uppercase tracking-tight">Upload</span>
-                          </div>
-                        )}
-                      </div>
                     </div>
 
                     <div className="flex-1 flex flex-col sm:flex-row items-end gap-4">
@@ -235,13 +215,13 @@ const AdminCustomBlouseOptionsPage = () => {
                         <button 
                           onClick={handleAdd}
                           disabled={uploading}
-                          className="flex-1 sm:flex-none p-3 bg-primary-950 text-white rounded-xl hover:bg-primary-900 transition-all disabled:opacity-50"
+                          className="flex-1 sm:flex-none p-3 bg-primary-950 text-[var(--admin-text-primary)] rounded-xl hover:bg-primary-900 transition-all disabled:opacity-50"
                         >
                           <CheckCircle size={20} />
                         </button>
                         <button 
                           onClick={() => { setIsAdding(false); setNewOption({ ...newOption, image: '' }); }}
-                          className="flex-1 sm:flex-none p-3 bg-white border border-gray-200 text-gray-500 rounded-xl hover:bg-gray-50 transition-all"
+                          className="flex-1 sm:flex-none p-3 bg-[var(--admin-card)] border border-gray-200 text-[var(--admin-text-secondary)] rounded-xl hover:bg-gray-50 transition-all"
                         >
                           <X size={20} />
                         </button>
@@ -281,13 +261,13 @@ const AdminCustomBlouseOptionsPage = () => {
                         />
                         <button 
                           onClick={() => document.getElementById(`file-${opt._id}`)?.click()}
-                          className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all text-white"
+                          className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all text-[var(--admin-text-primary)]"
                         >
                           <Upload size={14} />
                         </button>
                       </div>
 
-                      <div className="w-8 h-8 flex items-center justify-center bg-gray-50 text-[0.65rem] font-bold text-gray-400 rounded-lg group-hover:bg-white group-hover:shadow-sm transition-all">
+                      <div className="w-8 h-8 flex items-center justify-center bg-gray-50 text-[0.65rem] font-bold text-gray-400 rounded-lg group-hover:bg-[var(--admin-card)] group-hover:shadow-sm transition-all">
                         {idx + 1}
                       </div>
                       {editingId === opt._id ? (
@@ -377,3 +357,5 @@ const AdminCustomBlouseOptionsPage = () => {
 };
 
 export default AdminCustomBlouseOptionsPage;
+
+

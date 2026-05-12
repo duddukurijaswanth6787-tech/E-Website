@@ -10,51 +10,52 @@ import toast from 'react-hot-toast';
 import { useMeasurementStore } from '../../store/measurementStore';
 import PremiumMeasurementModal from '../../components/user/PremiumMeasurementModal';
 import { Ruler, Sparkles, History, ChevronRight } from 'lucide-react';
+import { IMAGES } from '../../constants/assets';
 
 const REFERENCE_IMAGES: Record<string, string[]> = {
   fabricType: [
-    'https://images.unsplash.com/photo-1600180758895-0c6c2e20d2c0?q=80&w=400&auto=format&fit=crop',
-    'https://images.unsplash.com/photo-1582719478250-1c5f8a0e6c5b?q=80&w=400&auto=format&fit=crop',
+    IMAGES.categories.designer,
+    IMAGES.categories.cotton,
   ],
   computerWorkDesign: [
-    'https://images.unsplash.com/photo-1582719478250-1c5f8a0e6c5b?q=80&w=400&auto=format&fit=crop',
+    IMAGES.categories.kanchipuram,
   ],
   workPatternType: [
-    'https://images.unsplash.com/photo-1600180758895-0c6c2e20d2c0?q=80&w=400&auto=format&fit=crop',
+    IMAGES.categories.designer,
   ],
   frontNeckType: [
-    'https://images.unsplash.com/photo-1600180758895-0c6c2e20d2c0?q=80&w=400&auto=format&fit=crop',
+    IMAGES.placeholder,
   ],
   backNeckType: [
-    'https://images.unsplash.com/photo-1582719478250-1c5f8a0e6c5b?q=80&w=400&auto=format&fit=crop',
+    IMAGES.placeholder,
   ],
   sleeveType: [
-    'https://images.unsplash.com/photo-1600180758895-0c6c2e20d2c0?q=80&w=400&auto=format&fit=crop',
+    IMAGES.placeholder,
   ],
   sleeveLength: [
-    'https://images.unsplash.com/photo-1582719478250-1c5f8a0e6c5b?q=80&w=400&auto=format&fit=crop',
+    IMAGES.placeholder,
   ],
   openingType: [
-    'https://images.unsplash.com/photo-1600180758895-0c6c2e20d2c0?q=80&w=400&auto=format&fit=crop',
+    IMAGES.placeholder,
   ],
   closureStyle: [
-    'https://images.unsplash.com/photo-1582719478250-1c5f8a0e6c5b?q=80&w=400&auto=format&fit=crop',
+    IMAGES.placeholder,
   ],
   padding: [
-    'https://images.unsplash.com/photo-1600180758895-0c6c2e20d2c0?q=80&w=400&auto=format&fit=crop',
+    IMAGES.placeholder,
   ],
   lining: [
-    'https://images.unsplash.com/photo-1582719478250-1c5f8a0e6c5b?q=80&w=400&auto=format&fit=crop',
+    IMAGES.placeholder,
   ],
-  bust: ['https://images.unsplash.com/photo-1600180758895-0c6c2e20d2c0?q=80&w=400&auto=format&fit=crop'],
-  waist: ['https://images.unsplash.com/photo-1582719478250-1c5f8a0e6c5b?q=80&w=400&auto=format&fit=crop'],
-  shoulder: ['https://images.unsplash.com/photo-1600180758895-0c6c2e20d2c0?q=80&w=400&auto=format&fit=crop'],
-  armhole: ['https://images.unsplash.com/photo-1582719478250-1c5f8a0e6c5b?q=80&w=400&auto=format&fit=crop'],
-  sleeveRound: ['https://images.unsplash.com/photo-1600180758895-0c6c2e20d2c0?q=80&w=400&auto=format&fit=crop'],
-  sleeveLengthMeas: ['https://images.unsplash.com/photo-1582719478250-1c5f8a0e6c5b?q=80&w=400&auto=format&fit=crop'],
-  blouseLengthMeas: ['https://images.unsplash.com/photo-1600180758895-0c6c2e20d2c0?q=80&w=400&auto=format&fit=crop'],
-  frontNeckDepth: ['https://images.unsplash.com/photo-1582719478250-1c5f8a0e6c5b?q=80&w=400&auto=format&fit=crop'],
-  backNeckDepth: ['https://images.unsplash.com/photo-1600180758895-0c6c2e20d2c0?q=80&w=400&auto=format&fit=crop'],
+  bust: [IMAGES.placeholder],
+  waist: [IMAGES.placeholder],
+  shoulder: [IMAGES.placeholder],
+  armhole: [IMAGES.placeholder],
+  sleeveRound: [IMAGES.placeholder],
+  sleeveLengthMeas: [IMAGES.placeholder],
+  blouseLengthMeas: [IMAGES.placeholder],
+  frontNeckDepth: [IMAGES.placeholder],
+  backNeckDepth: [IMAGES.placeholder],
 };
 
 interface ModalProps {

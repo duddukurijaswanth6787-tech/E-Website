@@ -19,10 +19,16 @@ export const injectTenantId = (req: Request, _res: Response, next: NextFunction)
  */
 export const requireMarketingPermission = (permission: string) => {
   return (req: Request, _res: Response, next: NextFunction) => {
-    const adminRole = req.admin?.role as MARKETING_ROLES;
+    const rawRole = req.admin?.role?.toUpperCase();
     
-    if (!adminRole) {
+    if (!rawRole) {
       throw new UnauthorizedError('Admin role not identified');
+    }
+
+    // Map global store roles to Marketing ERP roles safely
+    let adminRole = rawRole as MARKETING_ROLES;
+    if (rawRole === 'SUPER_ADMIN' || rawRole === 'ADMIN') {
+      adminRole = MARKETING_ROLES.SUPER_ADMIN;
     }
 
     const permissions = ROLE_PERMISSION_MATRIX[adminRole] || [];

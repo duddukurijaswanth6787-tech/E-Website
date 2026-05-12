@@ -15,9 +15,11 @@ interface Props {
 const generateSecurePassword = () => {
   const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*';
   let password = '';
-  for (let i = 0; i < 12; i++) {
-    password += chars.charAt(Math.floor(Math.random() * chars.length));
-  }
+    const randomValues = new Uint32Array(8);
+    crypto.getRandomValues(randomValues);
+    for (let i = 0; i < 8; i++) {
+      password += chars.charAt(randomValues[i] % chars.length);
+    }
   return password;
 };
 

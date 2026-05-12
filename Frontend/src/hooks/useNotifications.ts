@@ -1,5 +1,5 @@
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import axios from 'axios';
+import api from '../lib/api';
 import { useNotificationStore } from '../realtime/notificationStore';
 
 const API_BASE = '/api/v1/notifications';
@@ -12,7 +12,7 @@ export const useNotifications = () => {
   const historyQuery = useInfiniteQuery({
     queryKey: ['notifications', 'history'],
     queryFn: async ({ pageParam = 1 }) => {
-      const res = await axios.get(`${API_BASE}?page=${pageParam}&limit=15`);
+      const res = await api.get(`${API_BASE}?page=${pageParam}&limit=15`);
       return res.data;
     },
     getNextPageParam: (lastPage) => {
@@ -26,7 +26,7 @@ export const useNotifications = () => {
   // Mark single as read
   const markReadMutation = useMutation({
     mutationFn: async (id: string) => {
-      await axios.patch(`${API_BASE}/${id}/read`);
+      await api.patch(`${API_BASE}/${id}/read`);
     },
     onMutate: async (id) => {
       // Optimistic update
@@ -40,7 +40,7 @@ export const useNotifications = () => {
   // Mark all as read
   const markAllReadMutation = useMutation({
     mutationFn: async () => {
-      await axios.patch(`${API_BASE}/mark-all-read`);
+      await api.patch(`${API_BASE}/mark-all-read`);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
@@ -49,7 +49,13 @@ export const useNotifications = () => {
   });
 
   return {
-    history: historyQuery.data?.pages.flatMap((p) => p.data) || [],
+    history: historyQuery.data?.pages.flatMap((p) => {
+      if (!p?.data || !Array.isArray(p.data)) return [];
+      return p.data.map((n: any) => ({
+        ...n,
+        id: n.id || n._id // Standardize ID field
+      })).filter((n: any) => n.id); // Ensure ID exists
+    }) || [],
     isLoading: historyQuery.isLoading,
     isFetchingNextPage: historyQuery.isFetchingNextPage,
     hasNextPage: historyQuery.hasNextPage,

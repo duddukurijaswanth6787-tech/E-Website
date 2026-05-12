@@ -6,7 +6,11 @@ let transporter: Transporter | null = null;
 
 export const getMailTransporter = (): Transporter => {
   if (!transporter) {
+    // Phase 5: SMTP Connection Hardening - Pooling & Reuse
     transporter = nodemailer.createTransport({
+      pool: true, // Use connection pooling to reduce TCP overhead
+      maxConnections: 5, // Concurrent SMTP connections
+      maxMessages: 100, // Reuse connections for up to 100 messages
       host: env.mail.host,
       port: env.mail.port,
       secure: env.mail.port === 465,
@@ -14,6 +18,9 @@ export const getMailTransporter = (): Transporter => {
         user: env.mail.user,
         pass: env.mail.pass,
       },
+      connectionTimeout: 10000, // 10s
+      greetingTimeout: 5000,   // 5s
+      socketTimeout: 30000,    // 30s
     });
   }
   return transporter;

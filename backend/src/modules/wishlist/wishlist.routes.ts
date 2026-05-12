@@ -5,6 +5,8 @@ import { authenticateUser, authenticateAdmin, requirePermission } from '../../co
 import { sendSuccess } from '../../common/responses';
 import { PERMISSIONS } from '../../common/constants';
 import { NotFoundError } from '../../common/errors';
+import { CleanupService } from '../marketing/retention/cleanup.service';
+import { User } from '../users/user.model';
 
 const router = Router();
 
@@ -39,6 +41,18 @@ router.post('/toggle', authenticateUser, async (req: Request, res: Response, nex
     }
 
     await wishlist.save();
+
+    if (action === 'added') {
+      const user = await User.findById(req.user!.userId);
+      CleanupService.recordActivity({
+        type: 'wishlist',
+        title: `Added ${product.name} to wishlist`,
+        customerName: user?.name || 'A customer',
+        module: 'wishlist',
+        metadata: { productId: product._id }
+      }).catch(() => {});
+    }
+
     sendSuccess(res, { wishlist, action }, `Product ${action} ${action === 'added' ? 'to' : 'from'} wishlist`);
   } catch (err) { next(err); }
 });

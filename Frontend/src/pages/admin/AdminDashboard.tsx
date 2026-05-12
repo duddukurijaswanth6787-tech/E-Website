@@ -16,7 +16,7 @@ const StatCard = React.memo(({ title, value, subtitle, icon: Icon, trend, trendV
     initial={{ opacity: 0, y: 20 }}
     animate={{ opacity: 1, y: 0 }}
     transition={{ delay }}
-    className="bg-white rounded-[2rem] p-6 border border-stone-100 shadow-sm hover:shadow-xl transition-all group relative overflow-hidden"
+    className="bg-[var(--admin-card)] rounded-[2rem] p-6 border border-[var(--admin-card-border)] shadow-sm hover:shadow-xl transition-all group relative overflow-hidden"
   >
     <div className={`absolute top-0 right-0 w-24 h-24 -mr-8 -mt-8 rounded-full opacity-[0.03] group-hover:opacity-[0.08] transition-opacity ${color}`} />
     
@@ -35,9 +35,9 @@ const StatCard = React.memo(({ title, value, subtitle, icon: Icon, trend, trendV
     </div>
 
     <div>
-      <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-1">{title}</p>
-      <h3 className="text-2xl font-bold text-stone-950 tracking-tight">{value}</h3>
-      <p className="text-[11px] text-stone-500 mt-1 font-medium">{subtitle}</p>
+      <p className="text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest mb-1">{title}</p>
+      <h3 className="text-2xl font-bold text-[var(--admin-text-primary)] tracking-tight">{value}</h3>
+      <p className="text-[11px] text-[var(--admin-text-secondary)] mt-1 font-medium">{subtitle}</p>
     </div>
   </motion.div>
 ));
@@ -131,7 +131,7 @@ const AdminDashboard = () => {
   if (isLoading) return <Loader fullPage message="Synchronizing executive dashboard..." />;
 
   const quickActions = [
-    { label: 'Add Product', icon: Plus, path: '/admin/products/new', color: 'bg-stone-900 text-white' },
+    { label: 'Add Product', icon: Plus, path: '/admin/products/new', color: 'bg-[var(--admin-card)] text-[var(--admin-text-primary)]' },
     { label: 'Create Order', icon: ShoppingBag, path: '/admin/orders', color: 'bg-primary-50 text-primary-950' },
     { label: 'Assign Tailor', icon: Users, path: '/admin/tailors', color: 'bg-blue-50 text-blue-900' },
     { label: 'Workflow Board', icon: Activity, path: '/admin/workflows', color: 'bg-indigo-50 text-indigo-900' },
@@ -146,16 +146,16 @@ const AdminDashboard = () => {
         <div className="space-y-1">
           <div className="flex items-center gap-2 mb-2">
             <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
-            <span className="text-[10px] font-black text-stone-400 uppercase tracking-[0.3em]">Operational Live Feed</span>
+            <span className="text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-[0.3em]">Operational Live Feed</span>
           </div>
-          <h1 className="text-3xl md:text-4xl font-serif font-bold text-stone-950 tracking-tight leading-tight">Executive Dashboard</h1>
-          <p className="text-stone-500 text-sm mt-1 max-w-md">Boutique Production Intelligence & Operational Control Center.</p>
+          <h1 className="text-3xl md:text-4xl font-serif font-bold text-[var(--admin-text-primary)] tracking-tight leading-tight">Executive Dashboard</h1>
+          <p className="text-[var(--admin-text-secondary)] text-sm mt-1 max-w-md">Boutique Production Intelligence & Operational Control Center.</p>
         </div>
         <div className="flex items-center gap-3 w-full sm:w-auto">
-           <button className="flex-1 sm:flex-none px-5 py-2.5 bg-white border border-stone-200 rounded-2xl text-xs font-black uppercase tracking-widest text-stone-600 hover:bg-stone-50 transition-all shadow-sm">
+           <button className="flex-1 sm:flex-none px-5 py-2.5 bg-[var(--admin-card)] border border-[var(--admin-card-border)] rounded-2xl text-xs font-black uppercase tracking-widest text-stone-600 hover:bg-[var(--admin-card)] transition-all shadow-sm">
              Report
            </button>
-           <Link to="/admin/workflows" className="flex-1 sm:flex-none px-5 py-2.5 bg-stone-950 text-white text-center rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-stone-800 transition-all shadow-xl shadow-stone-900/10">
+           <Link to="/admin/workflows" className="flex-1 sm:flex-none px-5 py-2.5 bg-[var(--admin-card)] text-[var(--admin-text-primary)] text-center rounded-2xl text-xs font-black uppercase tracking-widest hover:bg-stone-800 transition-all shadow-xl shadow-stone-900/10">
              Production
            </Link>
         </div>
@@ -174,7 +174,7 @@ const AdminDashboard = () => {
           <Link 
             key={i} 
             to={action.path}
-            className={`p-4 rounded-3xl flex flex-col items-center justify-center text-center gap-3 transition-all hover:scale-[1.05] active:scale-[0.98] ${action.color} shadow-sm border border-stone-100`}
+            className={`p-4 rounded-3xl flex flex-col items-center justify-center text-center gap-3 transition-all hover:scale-[1.05] active:scale-[0.98] ${action.color} shadow-sm border border-[var(--admin-card-border)]`}
           >
             <action.icon size={20} />
             <span className="text-[10px] font-black uppercase tracking-widest leading-tight">{action.label}</span>
@@ -186,15 +186,15 @@ const AdminDashboard = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         
         {/* Revenue Overview (Executive View) */}
-        <div className="lg:col-span-2 bg-white rounded-[2.5rem] border border-stone-100 p-8 shadow-sm">
+        <div className="lg:col-span-2 bg-[var(--admin-card)] rounded-[2.5rem] border border-[var(--admin-card-border)] p-8 shadow-sm">
            <div className="flex justify-between items-center mb-8">
               <div>
-                <h3 className="text-xl font-serif font-bold text-stone-900">Revenue Performance</h3>
-                <p className="text-xs text-stone-400 mt-1 uppercase tracking-widest font-black">7 Day Snapshot</p>
+                <h3 className="text-xl font-serif font-bold text-[var(--admin-text-primary)]">Revenue Performance</h3>
+                <p className="text-xs text-[var(--admin-text-secondary)] mt-1 uppercase tracking-widest font-black">7 Day Snapshot</p>
               </div>
               <div className="flex gap-2">
-                <button className="px-3 py-1.5 bg-stone-50 text-[10px] font-black uppercase tracking-widest text-stone-600 rounded-xl hover:bg-stone-100">Monthly</button>
-                <button className="px-3 py-1.5 bg-primary-950 text-[10px] font-black uppercase tracking-widest text-white rounded-xl shadow-lg shadow-primary-900/20">Weekly</button>
+                <button className="px-3 py-1.5 bg-[var(--admin-card)] text-[10px] font-black uppercase tracking-widest text-stone-600 rounded-xl hover:bg-stone-100">Monthly</button>
+                <button className="px-3 py-1.5 bg-primary-950 text-[10px] font-black uppercase tracking-widest text-[var(--admin-text-primary)] rounded-xl shadow-lg shadow-primary-900/20">Weekly</button>
               </div>
            </div>
 
@@ -205,15 +205,15 @@ const AdminDashboard = () => {
                      initial={{ height: 0 }}
                      animate={{ height: `${height}%` }}
                      transition={{ duration: 1, delay: i * 0.1 }}
-                     className="w-full bg-stone-50 group-hover:bg-primary-900 transition-all rounded-2xl relative overflow-hidden"
+                     className="w-full bg-[var(--admin-card)] group-hover:bg-primary-900 transition-all rounded-2xl relative overflow-hidden"
                    >
-                     <div className="absolute top-0 left-0 w-full h-1/2 bg-white/5" />
+                     <div className="absolute top-0 left-0 w-full h-1/2 bg-[var(--admin-card)]/5" />
                    </motion.div>
-                   <span className="text-[9px] font-bold text-stone-400 mt-3 uppercase tracking-tighter">Day {i+1}</span>
+                   <span className="text-[9px] font-bold text-[var(--admin-text-secondary)] mt-3 uppercase tracking-tighter">Day {i+1}</span>
                    
                    {/* Tooltip */}
-                   <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-stone-900 text-white text-[10px] px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all shadow-xl pointer-events-none whitespace-nowrap z-20">
-                      <p className="font-black text-stone-400 uppercase tracking-widest">Revenue</p>
+                   <div className="absolute -top-12 left-1/2 -translate-x-1/2 bg-[var(--admin-card)] text-[var(--admin-text-primary)] text-[10px] px-3 py-2 rounded-xl opacity-0 group-hover:opacity-100 transition-all shadow-xl pointer-events-none whitespace-nowrap z-20">
+                      <p className="font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">Revenue</p>
                       <p className="font-bold">₹{(height * 5000).toLocaleString()}</p>
                    </div>
                 </div>
@@ -222,27 +222,27 @@ const AdminDashboard = () => {
 
            <div className="mt-10 pt-8 border-t border-stone-50 grid grid-cols-1 sm:grid-cols-3 gap-8">
               <div className="flex flex-col">
-                <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Total Sales</span>
-                <span className="text-xl font-bold text-stone-950 mt-1">₹{data?.totalRevenue?.toLocaleString() || 0}</span>
+                <span className="text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">Total Sales</span>
+                <span className="text-xl font-bold text-[var(--admin-text-primary)] mt-1">₹{data?.totalRevenue?.toLocaleString() || 0}</span>
                 <div className="flex items-center text-emerald-600 text-[10px] font-bold mt-1">
                   <ArrowUpRight size={10} /> +15.2% vs last week
                 </div>
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Average Ticket</span>
-                <span className="text-xl font-bold text-stone-950 mt-1">₹4,820</span>
-                <p className="text-[10px] text-stone-400 mt-1">Consistent with boutique target</p>
+                <span className="text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">Average Ticket</span>
+                <span className="text-xl font-bold text-[var(--admin-text-primary)] mt-1">₹4,820</span>
+                <p className="text-[10px] text-[var(--admin-text-secondary)] mt-1">Consistent with boutique target</p>
               </div>
               <div className="flex flex-col">
-                <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Orders Handled</span>
-                <span className="text-xl font-bold text-stone-950 mt-1">{data?.totalOrders || 0}</span>
-                <p className="text-[10px] text-stone-400 mt-1">Operational pipeline active</p>
+                <span className="text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">Orders Handled</span>
+                <span className="text-xl font-bold text-[var(--admin-text-primary)] mt-1">{data?.totalOrders || 0}</span>
+                <p className="text-[10px] text-[var(--admin-text-secondary)] mt-1">Operational pipeline active</p>
               </div>
            </div>
         </div>
 
         {/* Workflow overview Stage Distribution */}
-        <div className="bg-stone-950 rounded-[2.5rem] p-8 text-white shadow-2xl shadow-stone-900/20">
+        <div className="bg-[var(--admin-card)] rounded-[2.5rem] p-8 text-[var(--admin-text-primary)] shadow-2xl shadow-stone-900/20">
            <h3 className="text-xl font-serif font-bold mb-8">Production Stages</h3>
            
            <div className="space-y-6">
@@ -255,10 +255,10 @@ const AdminDashboard = () => {
               ].map((stage, i) => (
                 <div key={i} className="space-y-2">
                    <div className="flex justify-between items-end">
-                      <span className="text-[10px] font-black text-stone-400 uppercase tracking-widest">{stage.label}</span>
+                      <span className="text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">{stage.label}</span>
                       <span className="text-sm font-bold">{stage.value}</span>
                    </div>
-                   <div className="h-1.5 w-full bg-white/5 rounded-full overflow-hidden">
+                   <div className="h-1.5 w-full bg-[var(--admin-card)]/5 rounded-full overflow-hidden">
                       <motion.div 
                         initial={{ width: 0 }}
                         animate={{ width: `${(stage.value / (data?.totalOrders || 10)) * 100}%` }}
@@ -270,17 +270,17 @@ const AdminDashboard = () => {
               ))}
            </div>
 
-           <div className="mt-10 p-6 bg-white/5 rounded-3xl border border-white/10">
+           <div className="mt-10 p-6 bg-[var(--admin-card)]/5 rounded-3xl border border-[var(--admin-card-border)]">
               <div className="flex items-center gap-3 mb-4">
                  <div className="w-10 h-10 rounded-2xl bg-amber-500/20 flex items-center justify-center text-amber-500">
                     <Zap size={18} />
                  </div>
                  <div>
                     <h4 className="text-xs font-bold">Production Efficiency</h4>
-                    <p className="text-[10px] text-stone-400">Target: 85% | Current: 92%</p>
+                    <p className="text-[10px] text-[var(--admin-text-secondary)]">Target: 85% | Current: 92%</p>
                  </div>
               </div>
-              <p className="text-[11px] text-stone-400 leading-relaxed">
+              <p className="text-[11px] text-[var(--admin-text-secondary)] leading-relaxed">
                 Your production line is operating at high efficiency. Consider assigning more tasks to available tailors.
               </p>
            </div>
@@ -289,9 +289,9 @@ const AdminDashboard = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
          {/* Delayed Orders Tracking */}
-         <div className="lg:col-span-1 bg-white rounded-[2.5rem] border border-stone-100 p-8 shadow-sm">
+         <div className="lg:col-span-1 bg-[var(--admin-card)] rounded-[2.5rem] border border-[var(--admin-card-border)] p-8 shadow-sm">
             <div className="flex justify-between items-center mb-6">
-               <h3 className="text-xl font-serif font-bold text-stone-900">Operational Delays</h3>
+               <h3 className="text-xl font-serif font-bold text-[var(--admin-text-primary)]">Operational Delays</h3>
                <Link to="/admin/workflows?status=Delayed" className="text-rose-600">
                  <AlertCircle size={20} />
                </Link>
@@ -299,15 +299,15 @@ const AdminDashboard = () => {
             
             <div className="space-y-4">
                {data?.production?.workflows?.delayed === 0 ? (
-                 <div className="py-8 text-center bg-stone-50 rounded-3xl border border-dashed border-stone-200">
+                 <div className="py-8 text-center bg-[var(--admin-card)] rounded-3xl border border-dashed border-[var(--admin-card-border)]">
                     <CheckCircle size={32} className="mx-auto text-emerald-500 mb-2" />
-                    <p className="text-xs text-stone-500 font-medium tracking-tight">Zero delays in production.</p>
+                    <p className="text-xs text-[var(--admin-text-secondary)] font-medium tracking-tight">Zero delays in production.</p>
                  </div>
                ) : (
                  [...Array(Math.min(3, data?.production?.workflows?.delayed || 0))].map((_, i) => (
                    <div key={i} className="p-4 bg-rose-50/50 rounded-2xl border border-rose-100 flex justify-between items-center">
                       <div>
-                         <p className="text-xs font-bold text-stone-950">WT-102{i+4}</p>
+                         <p className="text-xs font-bold text-[var(--admin-text-primary)]">WT-102{i+4}</p>
                          <p className="text-[10px] text-rose-600 font-medium uppercase tracking-widest mt-0.5">Overdue by {i+2}h</p>
                       </div>
                       <ChevronRight size={16} className="text-rose-400" />
@@ -316,7 +316,7 @@ const AdminDashboard = () => {
                )}
                {data?.production?.workflows?.urgent !== undefined && data.production.workflows.urgent > 0 && (
                  <div className="p-4 bg-amber-50 rounded-2xl border border-amber-100 flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-white">
+                    <div className="w-8 h-8 rounded-full bg-amber-500 flex items-center justify-center text-[var(--admin-text-primary)]">
                        <Zap size={14} />
                     </div>
                     <div>
@@ -329,9 +329,9 @@ const AdminDashboard = () => {
          </div>
 
          {/* Today's Deliveries */}
-         <div className="lg:col-span-2 bg-white rounded-[2.5rem] border border-stone-100 p-8 shadow-sm flex flex-col">
+         <div className="lg:col-span-2 bg-[var(--admin-card)] rounded-[2.5rem] border border-[var(--admin-card-border)] p-8 shadow-sm flex flex-col">
             <div className="flex justify-between items-center mb-6">
-               <h3 className="text-xl font-serif font-bold text-stone-900">Today's Delivery Schedule</h3>
+               <h3 className="text-xl font-serif font-bold text-[var(--admin-text-primary)]">Today's Delivery Schedule</h3>
                <span className="px-3 py-1 bg-primary-50 text-[10px] font-black uppercase tracking-widest text-primary-700 rounded-full">
                  {new Date().toLocaleDateString('en-IN', { month: 'short', day: 'numeric' })}
                </span>
@@ -341,23 +341,23 @@ const AdminDashboard = () => {
                {data?.production?.todayDeliveries?.length === 0 ? (
                  <div className="h-full flex flex-col items-center justify-center py-10">
                     <Calendar size={40} className="text-stone-100 mb-2" />
-                    <p className="text-sm text-stone-400 italic">No deliveries scheduled for today.</p>
+                    <p className="text-sm text-[var(--admin-text-secondary)] italic">No deliveries scheduled for today.</p>
                  </div>
                ) : (
                  <table className="w-full">
                    <thead>
                       <tr className="border-b border-stone-50">
-                         <th className="pb-3 text-left text-[10px] font-black text-stone-400 uppercase tracking-widest">Order</th>
-                         <th className="pb-3 text-left text-[10px] font-black text-stone-400 uppercase tracking-widest">Customer</th>
-                         <th className="pb-3 text-left text-[10px] font-black text-stone-400 uppercase tracking-widest">Status</th>
-                         <th className="pb-3 text-right text-[10px] font-black text-stone-400 uppercase tracking-widest">Action</th>
+                         <th className="pb-3 text-left text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">Order</th>
+                         <th className="pb-3 text-left text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">Customer</th>
+                         <th className="pb-3 text-left text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">Status</th>
+                         <th className="pb-3 text-right text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">Action</th>
                       </tr>
                    </thead>
                    <tbody className="divide-y divide-stone-50">
                       {data?.production?.todayDeliveries?.map((delivery: any, i: number) => (
-                        <tr key={i} className="group hover:bg-stone-50/50 transition-colors">
+                        <tr key={i} className="group hover:bg-[var(--admin-card)]/50 transition-colors">
                            <td className="py-4">
-                              <span className="text-xs font-bold text-stone-950">#{delivery.taskNumber}</span>
+                              <span className="text-xs font-bold text-[var(--admin-text-primary)]">#{delivery.taskNumber}</span>
                            </td>
                            <td className="py-4">
                               <span className="text-xs font-medium text-stone-600">Client Verified</span>
@@ -370,7 +370,7 @@ const AdminDashboard = () => {
                               </span>
                            </td>
                            <td className="py-4 text-right">
-                              <Link to={`/admin/workflows`} className="p-2 text-stone-400 hover:text-primary-600 transition-colors">
+                              <Link to={`/admin/workflows`} className="p-2 text-[var(--admin-text-secondary)] hover:text-primary-600 transition-colors">
                                 <Eye size={16} />
                               </Link>
                            </td>
@@ -384,42 +384,42 @@ const AdminDashboard = () => {
       </div>
 
       {/* Tailor Workload Section */}
-      <div className="bg-white rounded-[2.5rem] border border-stone-100 p-8 shadow-sm">
+      <div className="bg-[var(--admin-card)] rounded-[2.5rem] border border-[var(--admin-card-border)] p-8 shadow-sm">
          <div className="flex justify-between items-center mb-8">
             <div>
-               <h3 className="text-xl font-serif font-bold text-stone-900">Tailor Workload Distribution</h3>
-               <p className="text-xs text-stone-400 mt-1 uppercase tracking-widest font-black">Efficiency Indicators</p>
+               <h3 className="text-xl font-serif font-bold text-[var(--admin-text-primary)]">Tailor Workload Distribution</h3>
+               <p className="text-xs text-[var(--admin-text-secondary)] mt-1 uppercase tracking-widest font-black">Efficiency Indicators</p>
             </div>
             <div className="flex items-center gap-4 text-[10px] font-bold uppercase tracking-widest">
                <div className="flex items-center gap-2">
                  <div className="w-2 h-2 rounded-full bg-emerald-500" />
-                 <span className="text-stone-500">Available</span>
+                 <span className="text-[var(--admin-text-secondary)]">Available</span>
                </div>
                <div className="flex items-center gap-2">
                  <div className="w-2 h-2 rounded-full bg-amber-500" />
-                 <span className="text-stone-500">Near Capacity</span>
+                 <span className="text-[var(--admin-text-secondary)]">Near Capacity</span>
                </div>
                <div className="flex items-center gap-2">
                  <div className="w-2 h-2 rounded-full bg-rose-500" />
-                 <span className="text-stone-500">At Max</span>
+                 <span className="text-[var(--admin-text-secondary)]">At Max</span>
                </div>
             </div>
          </div>
 
          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-            <div className="p-6 bg-stone-50 rounded-3xl flex flex-col justify-between">
+            <div className="p-6 bg-[var(--admin-card)] rounded-3xl flex flex-col justify-between">
                <div>
-                 <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Active Tailors</p>
-                 <p className="text-2xl font-bold text-stone-950 mt-1">{data?.production.tailors.active}</p>
+                 <p className="text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">Active Tailors</p>
+                 <p className="text-2xl font-bold text-[var(--admin-text-primary)] mt-1">{data?.production.tailors.active}</p>
                </div>
-               <div className="mt-6 flex items-center gap-2 text-[10px] text-stone-500 font-medium">
+               <div className="mt-6 flex items-center gap-2 text-[10px] text-[var(--admin-text-secondary)] font-medium">
                   Total of {data?.production.tailors.total} registered
                </div>
             </div>
-            <div className="p-6 bg-stone-50 rounded-3xl flex flex-col justify-between">
+            <div className="p-6 bg-[var(--admin-card)] rounded-3xl flex flex-col justify-between">
                <div>
-                 <p className="text-[10px] font-black text-stone-400 uppercase tracking-widest">Overall Workload</p>
-                 <p className="text-2xl font-bold text-stone-950 mt-1">
+                 <p className="text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">Overall Workload</p>
+                 <p className="text-2xl font-bold text-[var(--admin-text-primary)] mt-1">
                    {Math.round(((data?.production.tailors.totalWorkload || 0) / (data?.production.tailors.totalCapacity || 1)) * 100)}%
                  </p>
                </div>
@@ -453,3 +453,5 @@ const AdminDashboard = () => {
 };
 
 export default AdminDashboard;
+
+

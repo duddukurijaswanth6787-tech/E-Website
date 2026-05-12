@@ -170,24 +170,24 @@ const ManagerWorkflowsBoard = () => {
   if (isLoading) return <Loader fullPage message="Syncing Production Board..." />;
 
   return (
-    <div className="h-full flex flex-col bg-stone-50">
+    <div className="h-full flex flex-col bg-[var(--admin-card)]">
       {/* Production Stats Bar */}
-      <div className="bg-stone-900 text-white px-8 py-4 flex items-center gap-12 overflow-x-auto no-scrollbar">
-         <div className="flex items-center gap-3 border-r border-white/10 pr-12">
+      <div className="bg-[var(--admin-card)] text-[var(--admin-text-primary)] px-8 py-4 flex items-center gap-12 overflow-x-auto no-scrollbar">
+         <div className="flex items-center gap-3 border-r border-[var(--admin-card-border)] pr-12">
             <TrendingUp size={20} className="text-emerald-400" />
             <div>
               <p className="text-[10px] font-black text-stone-500 uppercase tracking-widest">Efficiency</p>
               <p className="text-sm font-bold">94% <span className="text-[10px] text-emerald-400">+2%</span></p>
             </div>
          </div>
-         <div className="flex items-center gap-3 border-r border-white/10 pr-12">
+         <div className="flex items-center gap-3 border-r border-[var(--admin-card-border)] pr-12">
             <Users size={20} className="text-primary-400" />
             <div>
               <p className="text-[10px] font-black text-stone-500 uppercase tracking-widest">Workload</p>
               <p className="text-sm font-bold">{stats.total} Active Tasks</p>
             </div>
          </div>
-         <div className="flex items-center gap-3 border-r border-white/10 pr-12">
+         <div className="flex items-center gap-3 border-r border-[var(--admin-card-border)] pr-12">
             <Clock size={20} className="text-red-400" />
             <div>
               <p className="text-[10px] font-black text-stone-500 uppercase tracking-widest">Delayed</p>
@@ -203,7 +203,7 @@ const ManagerWorkflowsBoard = () => {
          </div>
       </div>
 
-      <div className="bg-white border-b border-stone-200 px-8 py-4 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-20">
+      <div className="bg-[var(--admin-card)] border-b border-[var(--admin-card-border)] px-8 py-4 flex flex-wrap items-center justify-between gap-4 sticky top-0 z-20">
         <div className="flex items-center gap-6 flex-1">
           <div className="relative w-full max-w-xs">
             <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-stone-400" />
@@ -296,3 +296,5 @@ const ManagerWorkflowsBoard = () => {
 };
 
 export default ManagerWorkflowsBoard;
+
+

@@ -64,3 +64,53 @@ export const trackEngagementSchema = z.object({
     deviceId: z.string().optional(),
   }).optional(),
 });
+
+// M-17: Welcome Banners
+export const createWelcomeBannerSchema = z.object({
+  body: z.object({
+    title: z.string().optional(),
+    subtitle: z.string().optional(),
+    buttonText: z.string().optional(),
+    imageUrl: z.string().url(),
+    redirectUrl: z.string().optional(),
+    isActive: z.boolean().default(false),
+    targetAudience: z.enum(['all', 'first_time', 'returning']).default('all'),
+    deviceTarget: z.enum(['all', 'mobile', 'desktop']).default('all'),
+    startDate: z.string().datetime().optional().nullable(),
+    endDate: z.string().datetime().optional().nullable(),
+    priority: z.number().default(0),
+  }),
+});
+
+export const updateWelcomeBannerSchema = z.object({
+  body: z.object({
+    title: z.string().optional(),
+    subtitle: z.string().optional(),
+    buttonText: z.string().optional(),
+    imageUrl: z.string().url().optional(),
+    redirectUrl: z.string().optional(),
+    isActive: z.boolean().optional(),
+    targetAudience: z.enum(['all', 'first_time', 'returning']).optional(),
+    deviceTarget: z.enum(['all', 'mobile', 'desktop']).optional(),
+    startDate: z.string().datetime().optional().nullable(),
+    endDate: z.string().datetime().optional().nullable(),
+    priority: z.number().optional(),
+  }),
+});
+
+// M-18: Onboarding Wizard
+export const saveOnboardingWizardSchema = z.object({
+  body: z.object({
+    isActive: z.boolean().default(false),
+    steps: z.array(
+      z.object({
+        title: z.string().min(1, 'Title is required'),
+        subtitle: z.string().min(1, 'Subtitle is required'),
+        content: z.string().min(1, 'Content is required'),
+        icon: z.string().default('Sparkles'),
+        color: z.string().default('blue'),
+      })
+    ).default([]),
+  }),
+});
+

@@ -181,12 +181,12 @@ const AdminCouponsPage = () => {
           <h1 className="text-2xl font-serif text-gray-900 mb-1 flex items-center">
             <Tag className="w-6 h-6 mr-3 text-primary-700" /> Voucher Marketing Hub
           </h1>
-          <p className="text-sm text-gray-500">Configure global discounts, seasonal promo codes, and isolated cart subsidies.</p>
+          <p className="text-sm text-[var(--admin-text-secondary)]">Configure global discounts, seasonal promo codes, and isolated cart subsidies.</p>
         </div>
         <div className="mt-4 sm:mt-0">
            <button 
              onClick={openCreate}
-             className="flex items-center px-4 py-2 bg-primary-950 text-white text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors"
+             className="flex items-center px-4 py-2 bg-primary-950 text-[var(--admin-text-primary)] text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors"
            >
               <Plus size={16} className="mr-2" />
               Generate Token
@@ -221,3 +221,5 @@ const AdminCouponsPage = () => {
 };
 
 export default AdminCouponsPage;
+
+

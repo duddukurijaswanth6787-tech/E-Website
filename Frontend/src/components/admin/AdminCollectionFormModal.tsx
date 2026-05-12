@@ -1,4 +1,5 @@
 import React from 'react';
+import { ImageUploader } from './ImageUploader';
 
 export type CollectionFormState = {
   name: string;
@@ -75,18 +76,12 @@ const AdminCollectionFormModal: React.FC<AdminCollectionFormModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Banner Visual URL</label>
-            <input
+            <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Banner Visual</label>
+            <ImageUploader
               value={form.banner}
-              onChange={(e) => setForm((f) => ({ ...f, banner: e.target.value }))}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none transition-shadow"
-              placeholder="https://images.unsplash.com/..."
+              onChange={url => setForm(f => ({ ...f, banner: url }))}
+              folder="collections"
             />
-            {form.banner && (
-              <div className="mt-3 h-24 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
-                <img src={form.banner} alt="Preview" className="w-full h-full object-cover" />
-              </div>
-            )}
           </div>
         </div>
 

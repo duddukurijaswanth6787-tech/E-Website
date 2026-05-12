@@ -13,6 +13,7 @@ import { useState } from 'react';
 import toast from 'react-hot-toast';
 import NotificationBell from '../components/notifications/NotificationBell';
 import NotificationDrawer from '../components/notifications/NotificationDrawer';
+import AttendanceControls from '../components/workforce/AttendanceControls';
 
 const TailorLayout = () => {
   const { user, logout } = useAuthStore();
@@ -122,7 +123,7 @@ const TailorLayout = () => {
         </header>
 
         {/* Desktop Header */}
-        <header className="hidden md:flex h-16 bg-white border-b border-gray-200 items-center justify-between px-8 z-10 shrink-0">
+        <header className="hidden md:flex h-20 bg-white border-b border-gray-200 items-center justify-between px-8 z-10 shrink-0">
            <div className="flex items-center gap-4">
              <div className="p-1.5 bg-emerald-100 rounded-md">
                <Activity size={16} className="text-emerald-600" />
@@ -131,7 +132,10 @@ const TailorLayout = () => {
                Live Production Node
              </span>
            </div>
-           <NotificationBell />
+           <div className="flex items-center gap-6">
+             <AttendanceControls />
+             <NotificationBell />
+           </div>
         </header>
 
         {/* Mobile Menu Dropdown */}

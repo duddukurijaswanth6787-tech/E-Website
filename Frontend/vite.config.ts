@@ -8,8 +8,21 @@ export default defineConfig({
     host: true,
     port: 5173,
     strictPort: false,
+    headers: {
+      'Cache-Control': 'public, max-age=31536000, immutable',
+    },
+  },
+  preview: {
+    port: 4173,
+    headers: {
+      'Cache-Control': 'public, max-age=31536000, immutable',
+    },
   },
   build: {
+    target: 'esnext',
+    cssCodeSplit: true,
+    cssMinify: true,
+    assetsInlineLimit: 4096,
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -22,6 +35,6 @@ export default defineConfig({
         }
       }
     },
-    chunkSizeWarningLimit: 1000
+    chunkSizeWarningLimit: 1500
   }
 })

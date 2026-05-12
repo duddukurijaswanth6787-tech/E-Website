@@ -1,3 +1,5 @@
+@import './styles/fonts.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -21,6 +23,48 @@
     --accent-light: #e8dcc4;
     --bg-cream: #faf9f6;
     --bg-ivory: #f7f5f0;
+
+    /* Luxury Spacing Scale */
+    --space-xs: 0.25rem;   /* 4px */
+    --space-sm: 0.5rem;    /* 8px */
+    --space-md: 1rem;      /* 16px */
+    --space-lg: 1.5rem;    /* 24px */
+    --space-xl: 2.5rem;    /* 40px */
+    --space-xxl: 4rem;     /* 64px */
+    --space-luxury: 6rem;  /* 96px */
+
+    /* Admin Theme Variables (Default Light) */
+    --admin-bg: #f8fafc;
+    --admin-card: #ffffff;
+    --admin-card-border: #e2e8f0;
+    --admin-text-primary: #0f172a;
+    --admin-text-secondary: #64748b;
+    --admin-sidebar: #ffffff;
+    --admin-header: rgba(255, 255, 255, 0.8);
+  }
+
+  /* Light Theme (Explicit) */
+  [data-theme='light'],
+  :root[data-theme='light'] {
+    --admin-bg: #f8fafc;
+    --admin-card: #ffffff;
+    --admin-card-border: #e2e8f0;
+    --admin-text-primary: #0f172a;
+    --admin-text-secondary: #64748b;
+    --admin-sidebar: #ffffff;
+    --admin-header: rgba(255, 255, 255, 0.8);
+  }
+
+  /* Dark Theme Overrides */
+  [data-theme='dark'],
+  :root[data-theme='dark'] {
+    --admin-bg: #0a0a0a;
+    --admin-card: rgba(255, 255, 255, 0.03);
+    --admin-card-border: rgba(255, 255, 255, 0.08);
+    --admin-text-primary: #ffffff;
+    --admin-text-secondary: #9ca3af;
+    --admin-sidebar: #0a0a0a;
+    --admin-header: rgba(10, 10, 10, 0.7);
   }
 
   html {
@@ -29,10 +73,31 @@
   }
 
   body {
-    @apply font-sans antialiased text-neutral-black w-full h-full;
+    @apply antialiased w-full h-full;
+    font-family: 'Inter', sans-serif;
     overflow-x: hidden;
-    background: linear-gradient(180deg, #faf9f6 0%, #f7f5f0 45%, #f5f0e8 100%);
+    background: linear-gradient(180deg, var(--bg-cream) 0%, var(--bg-ivory) 45%, #f5f0e8 100%);
     background-attachment: fixed;
+    color: var(--primary-950);
+    transition: background-color 0.5s ease, color 0.5s ease;
+    letter-spacing: -0.011em;
+  }
+
+  [data-theme='dark'] body {
+    background: #0a0a0a;
+    color: #ffffff;
+  }
+
+  /* Admin Theming Overrides */
+  .admin-theme-aware {
+    background-color: var(--admin-bg);
+    color: var(--admin-text-primary);
+  }
+
+  .admin-card-theme {
+    background-color: var(--admin-card);
+    border-color: var(--admin-card-border);
+    color: var(--admin-text-primary);
   }
 
   #root {
@@ -40,14 +105,23 @@
     overflow-x: hidden;
   }
 
-  /* Raw CSS: @apply cannot use selection: + custom palette names with opacity in all Tailwind setups */
   body ::selection {
     background: #c9a961;
     color: #2d0a14;
   }
 
   h1, h2, h3, h4, h5, h6 {
-    @apply font-serif text-neutral-black tracking-tight text-primary-950/95 break-words;
+    font-family: 'Playfair Display', serif;
+    @apply tracking-tight text-primary-950/95 break-words transition-colors;
+    line-height: 1.1;
+  }
+
+  .admin-theme-aware h1, .admin-theme-aware h2, .admin-theme-aware h3, 
+  .admin-theme-aware h4, .admin-theme-aware h5, .admin-theme-aware h6 {
+    font-family: 'Inter', sans-serif;
+    color: var(--admin-text-primary) !important;
+    letter-spacing: -0.02em;
+    font-weight: 800;
   }
 }
 

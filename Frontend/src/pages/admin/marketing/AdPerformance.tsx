@@ -32,7 +32,7 @@ const AdPerformance: React.FC = () => {
   if (isLoading) return <MarketingSkeleton />;
 
   return (
-    <div className="min-h-screen bg-neutral-950 p-4 sm:p-8 text-white space-y-8 max-w-[1600px] mx-auto">
+    <div className=" space-y-8 max-w-[1600px] mx-auto">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
@@ -40,14 +40,14 @@ const AdPerformance: React.FC = () => {
             <BarChart3 className="text-blue-500" size={32} />
             Ad Intel
           </h1>
-          <p className="text-gray-500 mt-2 font-bold uppercase text-[10px] tracking-[0.3em]">
+          <p className="text-[var(--admin-text-secondary)] mt-2 font-bold uppercase text-[10px] tracking-[0.3em]">
             Cross-platform advertising performance & ROAS intelligence
           </p>
         </div>
-        <div className="flex bg-white/5 p-1 rounded-2xl border border-white/10">
-          <button className="px-6 py-2.5 bg-blue-600 text-white rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-600/20">All Channels</button>
-          <button className="px-6 py-2.5 text-gray-500 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Meta</button>
-          <button className="px-6 py-2.5 text-gray-500 hover:text-white rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Google</button>
+        <div className="flex bg-[var(--admin-card)] p-1 rounded-2xl border border-[var(--admin-card-border)]">
+          <button className="px-6 py-2.5 bg-blue-600 text-[var(--admin-text-primary)] rounded-xl text-[10px] font-black uppercase tracking-widest shadow-lg shadow-blue-600/20">All Channels</button>
+          <button className="px-6 py-2.5 text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Meta</button>
+          <button className="px-6 py-2.5 text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] rounded-xl text-[10px] font-black uppercase tracking-widest transition-all">Google</button>
         </div>
       </div>
 
@@ -63,10 +63,10 @@ const AdPerformance: React.FC = () => {
         {/* Main Chart */}
         <GlassCard className="xl:col-span-2 min-h-[450px] flex flex-col">
           <div className="flex items-center justify-between mb-8">
-            <h3 className="font-bold text-lg text-white">Spend vs Revenue Growth</h3>
+            <h3 className="font-bold text-lg text-[var(--admin-text-primary)]">Spend vs Revenue Growth</h3>
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-blue-500" /> <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Revenue</span></div>
-              <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-white/20" /> <span className="text-[10px] font-bold text-gray-500 uppercase tracking-widest">Spend</span></div>
+              <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-blue-500" /> <span className="text-[10px] font-bold text-[var(--admin-text-secondary)] uppercase tracking-widest">Revenue</span></div>
+              <div className="flex items-center gap-2"><div className="w-3 h-3 rounded-full bg-[var(--admin-card)]/20" /> <span className="text-[10px] font-bold text-[var(--admin-text-secondary)] uppercase tracking-widest">Spend</span></div>
             </div>
           </div>
           <div className="flex-grow">
@@ -104,27 +104,27 @@ const AdPerformance: React.FC = () => {
 
         {/* Platform Breakdown */}
         <GlassCard className="flex flex-col">
-          <h3 className="font-bold text-lg text-white mb-8">Channel ROI</h3>
+          <h3 className="font-bold text-lg text-[var(--admin-text-primary)] mb-8">Channel ROI</h3>
           <div className="space-y-6 flex-grow">
             {[
               { name: 'Instagram', roi: '12.4x', spend: '12k', icon: <Camera size={18} className="text-pink-500" /> },
               { name: 'Facebook', roi: '5.2x', spend: '8k', icon: <Globe size={18} className="text-blue-600" /> },
               { name: 'YouTube', roi: '8.1x', spend: '4k', icon: <Video size={18} className="text-red-500" /> },
             ].map((p, idx) => (
-              <div key={idx} className="p-4 rounded-2xl bg-white/5 border border-white/5 group hover:border-white/10 transition-all">
+              <div key={idx} className="p-4 rounded-2xl bg-[var(--admin-card)] border border-[var(--admin-card-border)] group hover:border-[var(--admin-card-border)] transition-all">
                 <div className="flex items-center justify-between mb-3">
                   <div className="flex items-center gap-3">
-                    <div className="p-2 rounded-xl bg-white/5">{p.icon}</div>
-                    <span className="font-bold text-white text-sm">{p.name}</span>
+                    <div className="p-2 rounded-xl bg-[var(--admin-card)]">{p.icon}</div>
+                    <span className="font-bold text-[var(--admin-text-primary)] text-sm">{p.name}</span>
                   </div>
                   <span className="text-[10px] font-black text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-lg">ROI {p.roi}</span>
                 </div>
                 <div className="flex justify-between items-end">
                   <div className="flex flex-col">
                     <span className="text-[9px] font-black text-gray-600 uppercase tracking-widest">Monthly Spend</span>
-                    <span className="text-sm font-black text-white">₹{p.spend}</span>
+                    <span className="text-sm font-black text-[var(--admin-text-primary)]">₹{p.spend}</span>
                   </div>
-                  <div className="w-24 h-1 bg-white/5 rounded-full overflow-hidden">
+                  <div className="w-24 h-1 bg-[var(--admin-card)] rounded-full overflow-hidden">
                     <div className="h-full bg-blue-500" style={{ width: idx === 0 ? '80%' : idx === 1 ? '40%' : '20%' }} />
                   </div>
                 </div>
@@ -138,3 +138,5 @@ const AdPerformance: React.FC = () => {
 };
 
 export default AdPerformance;
+
+

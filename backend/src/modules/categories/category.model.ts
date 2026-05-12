@@ -19,6 +19,7 @@ export interface ICategory extends Document {
     title?: string;
     description?: string;
     keywords?: string[];
+    ogImage?: string;
   };
   createdBy?: mongoose.Types.ObjectId;
   updatedBy?: mongoose.Types.ObjectId;
@@ -47,6 +48,7 @@ const CategorySchema = new Schema<ICategory>(
       title: { type: String },
       description: { type: String },
       keywords: [{ type: String }],
+      ogImage: { type: String },
     },
     createdBy: { type: Schema.Types.ObjectId, ref: 'Admin' },
     updatedBy: { type: Schema.Types.ObjectId, ref: 'Admin' },

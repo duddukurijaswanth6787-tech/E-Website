@@ -5,8 +5,10 @@ export enum TailorSpecialization {
   BLOUSE = 'Blouse',
   BRIDAL = 'Bridal',
   SAREE_FINISHING = 'Saree Finishing',
-  ALTERATIONS = 'Alterations',
-  EMBROIDERY = 'Embroidery'
+  ALTERATION = 'Alteration',
+  EMBROIDERY = 'Embroidery',
+  LEHENGA = 'Lehenga',
+  GENERAL = 'General'
 }
 
 export interface ITailor extends Document {
@@ -55,7 +57,7 @@ export interface ITailor extends Document {
 const TailorSchema = new Schema<ITailor>({
   tailorCode: { type: String, required: true, unique: true, uppercase: true },
   name: { type: String, required: true, trim: true },
-  email: { type: String, required: true, unique: true, lowercase: true, index: true },
+  email: { type: String, required: true, unique: true, lowercase: true },
   phone: { type: String, required: true, unique: true },
   passwordHash: { type: String, required: true, select: false },
   

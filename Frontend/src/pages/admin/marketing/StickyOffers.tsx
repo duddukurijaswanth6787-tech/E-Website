@@ -22,7 +22,7 @@ const StickyOffers: React.FC = () => {
   if (isLoading) return <MarketingSkeleton />;
 
   return (
-    <div className="min-h-screen bg-neutral-950 p-4 sm:p-8 text-white space-y-8 max-w-[1600px] mx-auto">
+    <div className=" space-y-8 max-w-[1600px] mx-auto">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
@@ -30,11 +30,11 @@ const StickyOffers: React.FC = () => {
             <Type className="text-emerald-500" size={32} />
             Sticky Engine
           </h1>
-          <p className="text-gray-500 mt-2 font-bold uppercase text-[10px] tracking-[0.3em]">
+          <p className="text-[var(--admin-text-secondary)] mt-2 font-bold uppercase text-[10px] tracking-[0.3em]">
             Manage top-bar announcements & countdowns
           </p>
         </div>
-        <button className="bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-emerald-600/20 flex items-center justify-center gap-2 active:scale-95 w-full sm:w-auto">
+        <button className="bg-emerald-600 hover:bg-emerald-700 text-[var(--admin-text-primary)] px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-emerald-600/20 flex items-center justify-center gap-2 active:scale-95 w-full sm:w-auto">
           <Plus size={18} /> New Offer Bar
         </button>
       </div>
@@ -47,14 +47,14 @@ const StickyOffers: React.FC = () => {
               {/* Preview Section */}
               <div className="w-full lg:w-1/2 space-y-4">
                 <div className="flex items-center justify-between mb-2">
-                  <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">Live Preview</span>
+                  <span className="text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">Live Preview</span>
                   <div className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${offer.isActive ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400' : 'bg-rose-500/20 border-rose-500/50 text-rose-400'}`}>
                     {offer.isActive ? 'Active' : 'Draft'}
                   </div>
                 </div>
                 
                 <div 
-                  className="w-full py-3 px-6 rounded-xl flex items-center justify-between shadow-2xl border border-white/10"
+                  className="w-full py-3 px-6 rounded-xl flex items-center justify-between shadow-2xl border border-[var(--admin-card-border)]"
                   style={{ backgroundColor: offer.theme?.background || '#000', color: offer.theme?.text || '#fff' }}
                 >
                   <div className="flex items-center gap-4">
@@ -63,24 +63,24 @@ const StickyOffers: React.FC = () => {
                     <span className="text-sm font-bold tracking-tight">{offer.text}</span>
                   </div>
                   {offer.ctaText && (
-                    <button className="px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest bg-white/20 hover:bg-white/30 transition-all border border-white/10">
+                    <button className="px-4 py-1.5 rounded-lg text-xs font-black uppercase tracking-widest bg-[var(--admin-card)]/20 hover:bg-[var(--admin-card)]/30 transition-all border border-[var(--admin-card-border)]">
                       {offer.ctaText}
                     </button>
                   )}
                 </div>
 
                 <div className="flex gap-4 pt-4">
-                  <div className="flex-grow p-4 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-between">
+                  <div className="flex-grow p-4 bg-[var(--admin-card)] rounded-2xl border border-[var(--admin-card-border)] flex items-center justify-between">
                     <div>
-                      <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-1">Views</p>
-                      <p className="text-xl font-black text-white">{(offer.analytics?.views || 0).toLocaleString()}</p>
+                      <p className="text-[9px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest mb-1">Views</p>
+                      <p className="text-xl font-black text-[var(--admin-text-primary)]">{(offer.analytics?.views || 0).toLocaleString()}</p>
                     </div>
                     <Eye size={20} className="text-gray-700" />
                   </div>
-                  <div className="flex-grow p-4 bg-white/5 rounded-2xl border border-white/5 flex items-center justify-between">
+                  <div className="flex-grow p-4 bg-[var(--admin-card)] rounded-2xl border border-[var(--admin-card-border)] flex items-center justify-between">
                     <div>
-                      <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-1">Clicks</p>
-                      <p className="text-xl font-black text-white">{(offer.analytics?.clicks || 0).toLocaleString()}</p>
+                      <p className="text-[9px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest mb-1">Clicks</p>
+                      <p className="text-xl font-black text-[var(--admin-text-primary)]">{(offer.analytics?.clicks || 0).toLocaleString()}</p>
                     </div>
                     <MousePointer2 size={20} className="text-gray-700" />
                   </div>
@@ -91,14 +91,14 @@ const StickyOffers: React.FC = () => {
               <div className="w-full lg:w-1/2 flex flex-col justify-between h-full space-y-6">
                 <div className="grid grid-cols-2 gap-6">
                   <div className="space-y-2">
-                    <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Bar Type</label>
-                    <div className="text-sm font-bold text-white uppercase tracking-tighter bg-white/5 p-3 rounded-xl border border-white/5">
+                    <label className="text-[9px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">Bar Type</label>
+                    <div className="text-sm font-bold text-[var(--admin-text-primary)] uppercase tracking-tighter bg-[var(--admin-card)] p-3 rounded-xl border border-[var(--admin-card-border)]">
                       {offer.type}
                     </div>
                   </div>
                   <div className="space-y-2">
-                    <label className="text-[9px] font-black text-gray-500 uppercase tracking-widest">Theme Accent</label>
-                    <div className="flex items-center gap-3 bg-white/5 p-3 rounded-xl border border-white/5">
+                    <label className="text-[9px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">Theme Accent</label>
+                    <div className="flex items-center gap-3 bg-[var(--admin-card)] p-3 rounded-xl border border-[var(--admin-card-border)]">
                       <div className="w-4 h-4 rounded-full border border-white/20" style={{ backgroundColor: offer.theme?.accent }} />
                       <span className="text-xs font-bold text-gray-300 uppercase">{offer.theme?.accent}</span>
                     </div>
@@ -106,10 +106,10 @@ const StickyOffers: React.FC = () => {
                 </div>
 
                 <div className="flex items-center gap-4 pt-4">
-                  <button className="flex-grow bg-white/5 hover:bg-white/10 text-white py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/10 flex items-center justify-center gap-2">
+                  <button className="flex-grow bg-[var(--admin-card)] hover:bg-[var(--admin-card)]/10 text-[var(--admin-text-primary)] py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all border border-[var(--admin-card-border)] flex items-center justify-center gap-2">
                     <Edit2 size={16} /> Edit Configuration
                   </button>
-                  <button className="bg-white/5 hover:bg-white/10 text-white p-3 rounded-2xl border border-white/10 transition-all">
+                  <button className="bg-[var(--admin-card)] hover:bg-[var(--admin-card)]/10 text-[var(--admin-text-primary)] p-3 rounded-2xl border border-[var(--admin-card-border)] transition-all">
                     <ExternalLink size={18} />
                   </button>
                 </div>
@@ -120,8 +120,8 @@ const StickyOffers: React.FC = () => {
       </div>
 
       {offers.length === 0 && (
-        <div className="h-[400px] flex flex-col items-center justify-center text-center space-y-4 bg-white/[0.02] rounded-[2rem] border border-white/5">
-          <div className="p-6 bg-white/5 rounded-full text-gray-700">
+        <div className="h-[400px] flex flex-col items-center justify-center text-center space-y-4 bg-[var(--admin-card)]/[0.02] rounded-[2rem] border border-[var(--admin-card-border)]">
+          <div className="p-6 bg-[var(--admin-card)] rounded-full text-gray-700">
             <Type size={48} />
           </div>
           <div>
@@ -135,3 +135,5 @@ const StickyOffers: React.FC = () => {
 };
 
 export default StickyOffers;
+
+

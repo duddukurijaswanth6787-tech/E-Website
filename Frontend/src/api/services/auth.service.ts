@@ -76,5 +76,10 @@ export const authService = {
 
   resetPassword: async (email: string, otp: string, newPassword: string) => {
     return apiClient.post<any, { success: boolean; message: string }>('/auth/reset-password', { email, otp, newPassword });
+  },
+
+  resendOtp: async (email: string, type: 'signup' | 'login' | 'forgot' = 'signup') => {
+    return apiClient.post<any, { success: boolean; message: string }>('/auth/resend-otp', { email, type });
   }
 };
+

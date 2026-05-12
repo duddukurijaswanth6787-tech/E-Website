@@ -2,12 +2,14 @@ import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { useState, useEffect } from 'react';
 import { settingsService } from '../../api/services/settings.service';
+import { IMAGES } from '../../constants/assets';
+import { SafeImage } from '../common/SafeImage';
 
 const DEFAULT_BRIDAL = {
   title: 'The Bridal Edit',
   subtitle: 'Legacy of Opulence & Grace.',
   description: 'Your special day deserves the finest craftsmanship. Explore our exclusive bridal catalog featuring handcrafted zari work, heirloom quality silks, and custom-tailored designer blouses.',
-  image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=1500&auto=format&fit=crop',
+  image: IMAGES.bridal,
   ctaText: 'Explore Bridal Wear',
   ctaPath: '/category/bridal'
 };
@@ -16,18 +18,27 @@ const BridalSpotlight = () => {
   const [data, setData] = useState(DEFAULT_BRIDAL);
 
   useEffect(() => {
+    const abortController = new AbortController();
+
     const fetchBridal = async () => {
       try {
         const res = await settingsService.getPublicSettings();
+        if (abortController.signal.aborted) return;
+
         const settingsData = res.data?.data || res.data;
         if (settingsData && settingsData.homepage_bridal_spotlight) {
           setData(settingsData.homepage_bridal_spotlight);
         }
-      } catch (err) {
-        console.warn('Bridal Spotlight fallback triggered');
+      } catch (err: any) {
+        if (err.name === 'AbortError') return;
+        if (import.meta.env.DEV) {
+          console.warn('[Bridal] Settings fetch deferred:', err.message);
+        }
       }
     };
     fetchBridal();
+
+    return () => abortController.abort();
   }, []);
 
   return (
@@ -95,10 +106,11 @@ const BridalSpotlight = () => {
               <div className="absolute inset-4 border border-accent/40 z-20 rounded-t-full rounded-b-xl pointer-events-none translate-x-4 -translate-y-4" />
               
               <div className="relative h-full w-full rounded-t-full rounded-b-xl overflow-hidden shadow-2xl">
-                <img 
+                <SafeImage 
                   src={data.image} 
                   alt="Vasanthi Creations Bridal Saree" 
-                  className="w-full h-full object-cover object-center"
+                  className="w-full h-full"
+                  fallback={IMAGES.bridal}
                 />
                 <div className="absolute inset-0 bg-primary-950/20 mix-blend-overlay"></div>
               </div>

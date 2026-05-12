@@ -12,12 +12,12 @@ const StatWidget: React.FC<{ label: string, value: string | number, icon: any, i
   <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay }}>
     <GlassCard className="p-6">
       <div className="flex items-center gap-4">
-        <div className={`p-3 rounded-xl bg-white/5 ${iconColor}`}>
+        <div className={`p-3 rounded-xl bg-[var(--admin-card)] ${iconColor}`}>
           <Icon size={24} />
         </div>
         <div>
-          <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{label}</p>
-          <p className="text-2xl font-bold text-white">{value}</p>
+          <p className="text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">{label}</p>
+          <p className="text-2xl font-bold text-[var(--admin-text-primary)]">{value}</p>
         </div>
       </div>
     </GlassCard>
@@ -36,7 +36,7 @@ const FestivalEngine: React.FC = () => {
   if (isLoading) return <MarketingSkeleton />;
 
   return (
-    <div className="min-h-screen bg-neutral-950 p-4 sm:p-8 text-white space-y-8 max-w-[1600px] mx-auto">
+    <div className=" space-y-8 max-w-[1600px] mx-auto">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
@@ -44,11 +44,11 @@ const FestivalEngine: React.FC = () => {
             <Sparkles className="text-amber-500" size={32} />
             Festival Control
           </h1>
-          <p className="text-gray-500 mt-2 font-bold uppercase text-[10px] tracking-[0.3em]">
+          <p className="text-[var(--admin-text-secondary)] mt-2 font-bold uppercase text-[10px] tracking-[0.3em]">
             Automated Indian festival campaign management
           </p>
         </div>
-        <button className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-amber-600/20 flex items-center justify-center gap-2 active:scale-95 w-full sm:w-auto">
+        <button className="bg-amber-600 hover:bg-amber-700 text-[var(--admin-text-primary)] px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-amber-600/20 flex items-center justify-center gap-2 active:scale-95 w-full sm:w-auto">
           <Plus size={18} /> Schedule Festival
         </button>
       </div>
@@ -91,24 +91,24 @@ const FestivalEngine: React.FC = () => {
             <div className="p-8 space-y-6">
               <div className="flex justify-between items-start">
                 <div className="flex items-center gap-4">
-                  <div className="p-3 rounded-2xl bg-white/5 border border-white/10 text-amber-500">
+                  <div className="p-3 rounded-2xl bg-[var(--admin-card)] border border-[var(--admin-card-border)] text-amber-500">
                     <Gift size={24} />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-white tracking-tight">{campaign.name}</h3>
-                    <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">
+                    <h3 className="text-xl font-bold text-[var(--admin-text-primary)] tracking-tight">{campaign.name}</h3>
+                    <p className="text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest mt-1">
                       {campaign.festivalType} Edition
                     </p>
                   </div>
                 </div>
-                <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${campaign.status === 'active' ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400' : 'bg-white/5 border-white/10 text-gray-500'}`}>
+                <span className={`px-4 py-1.5 rounded-full text-[9px] font-black uppercase tracking-widest border ${campaign.status === 'active' ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400' : 'bg-[var(--admin-card)] border-[var(--admin-card-border)] text-[var(--admin-text-secondary)]'}`}>
                   {campaign.status}
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-6 p-6 bg-white/[0.02] rounded-3xl border border-white/5">
+              <div className="grid grid-cols-2 gap-6 p-6 bg-[var(--admin-card)]/[0.02] rounded-3xl border border-[var(--admin-card-border)]">
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-[9px] font-black text-gray-500 uppercase tracking-widest">
+                  <div className="flex items-center gap-2 text-[9px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">
                     <Calendar size={12} />
                     Duration
                   </div>
@@ -117,7 +117,7 @@ const FestivalEngine: React.FC = () => {
                   </p>
                 </div>
                 <div className="space-y-2">
-                  <div className="flex items-center gap-2 text-[9px] font-black text-gray-500 uppercase tracking-widest">
+                  <div className="flex items-center gap-2 text-[9px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">
                     <Zap size={12} />
                     Takeover
                   </div>
@@ -129,18 +129,18 @@ const FestivalEngine: React.FC = () => {
                 <div className="flex gap-4">
                   <div className="text-center">
                     <p className="text-[9px] font-black text-gray-600 uppercase tracking-widest mb-1">Orders</p>
-                    <p className="text-sm font-black text-white">{(campaign.analytics?.totalOrders || 0).toLocaleString()}</p>
+                    <p className="text-sm font-black text-[var(--admin-text-primary)]">{(campaign.analytics?.totalOrders || 0).toLocaleString()}</p>
                   </div>
                   <div className="text-center">
                     <p className="text-[9px] font-black text-gray-600 uppercase tracking-widest mb-1">Value</p>
-                    <p className="text-sm font-black text-white">₹{(campaign.analytics?.totalRevenue || 0).toLocaleString()}</p>
+                    <p className="text-sm font-black text-[var(--admin-text-primary)]">₹{(campaign.analytics?.totalRevenue || 0).toLocaleString()}</p>
                   </div>
                 </div>
                 <div className="flex gap-3">
-                  <button className="p-3 bg-white/5 hover:bg-white/10 rounded-2xl border border-white/10 transition-all text-gray-400 hover:text-white">
+                  <button className="p-3 bg-[var(--admin-card)] hover:bg-[var(--admin-card)]/10 rounded-2xl border border-[var(--admin-card-border)] transition-all text-gray-400 hover:text-[var(--admin-text-primary)]">
                     <Palette size={18} />
                   </button>
-                  <button className="bg-amber-600 hover:bg-amber-700 text-white px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-amber-600/20">
+                  <button className="bg-amber-600 hover:bg-amber-700 text-[var(--admin-text-primary)] px-6 py-3 rounded-2xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-amber-600/20">
                     Configure
                   </button>
                 </div>
@@ -151,8 +151,8 @@ const FestivalEngine: React.FC = () => {
       </div>
 
       {campaigns.length === 0 && (
-        <div className="h-[400px] flex flex-col items-center justify-center text-center space-y-4 bg-white/[0.02] rounded-[2rem] border border-white/5">
-          <div className="p-6 bg-white/5 rounded-full text-gray-700">
+        <div className="h-[400px] flex flex-col items-center justify-center text-center space-y-4 bg-[var(--admin-card)]/[0.02] rounded-[2rem] border border-[var(--admin-card-border)]">
+          <div className="p-6 bg-[var(--admin-card)] rounded-full text-gray-700">
             <Calendar size={48} />
           </div>
           <div>
@@ -166,3 +166,5 @@ const FestivalEngine: React.FC = () => {
 };
 
 export default FestivalEngine;
+
+

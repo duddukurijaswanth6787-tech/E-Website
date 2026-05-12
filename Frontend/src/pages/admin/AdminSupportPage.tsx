@@ -63,7 +63,7 @@ const AdminSupportPage = () => {
        accessor: (row: SupportTicket) => (
          <div className="max-w-xs">
            <span className="block font-medium tracking-wide text-primary-950 text-sm truncate uppercase">#{row._id?.substring(0,8) || 'N/A'} - {row.subject || 'No Subject Provided'}</span>
-           <span className="block text-[0.65rem] text-gray-500 font-mono mt-0.5 tracking-wide">{new Date(row.createdAt || Date.now()).toLocaleString()}</span>
+           <span className="block text-[0.65rem] text-[var(--admin-text-secondary)] font-mono mt-0.5 tracking-wide">{new Date(row.createdAt || Date.now()).toLocaleString()}</span>
          </div>
        )
     },
@@ -72,7 +72,7 @@ const AdminSupportPage = () => {
        accessor: (row: SupportTicket) => (
          <div>
            <span className="block text-sm text-gray-800 font-medium">{row.customerName || 'Anonymous Entry'}</span>
-           <span className="block text-xs text-gray-500 mt-0.5">{row.email || 'N/A'} {row.phone ? `• ${row.phone}` : ''}</span>
+           <span className="block text-xs text-[var(--admin-text-secondary)] mt-0.5">{row.email || 'N/A'} {row.phone ? `• ${row.phone}` : ''}</span>
          </div>
        )
     },
@@ -124,7 +124,7 @@ const AdminSupportPage = () => {
           <h1 className="text-2xl font-serif text-gray-900 mb-1 flex items-center">
             <LifeBuoy className="w-6 h-6 mr-3 text-primary-700" /> CRM Inbox & Ticketing
           </h1>
-          <p className="text-sm text-gray-500">Handle logistical disputes, sizing inquiries, and generic contact form drops.</p>
+          <p className="text-sm text-[var(--admin-text-secondary)]">Handle logistical disputes, sizing inquiries, and generic contact form drops.</p>
         </div>
       </div>
 
@@ -145,3 +145,5 @@ const AdminSupportPage = () => {
 };
 
 export default AdminSupportPage;
+
+

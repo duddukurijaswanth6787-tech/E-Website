@@ -101,7 +101,7 @@ const AdminCollectionsPage = () => {
            </div>
            <div>
              <span className="block font-medium tracking-wide text-primary-950">{row.name}</span>
-             <span className="block text-xs text-gray-500 font-mono mt-0.5">/{row.slug}</span>
+             <span className="block text-xs text-[var(--admin-text-secondary)] font-mono mt-0.5">/{row.slug}</span>
            </div>
          </div>
        )
@@ -140,12 +140,12 @@ const AdminCollectionsPage = () => {
           <h1 className="text-2xl font-serif text-gray-900 mb-1 flex items-center">
             <Layers className="w-6 h-6 mr-3 text-primary-700" /> Collections Dashboard
           </h1>
-          <p className="text-sm text-gray-500">Curate seasonal themes, bridal collections, and exclusive drops.</p>
+          <p className="text-sm text-[var(--admin-text-secondary)]">Curate seasonal themes, bridal collections, and exclusive drops.</p>
         </div>
         <div className="mt-4 sm:mt-0">
            <button 
              onClick={openCreate}
-             className="flex items-center px-4 py-2 bg-primary-950 text-white text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors"
+             className="flex items-center px-4 py-2 bg-primary-950 text-[var(--admin-text-primary)] text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors"
            >
               <Plus size={16} className="mr-2" />
               Create Collection
@@ -174,3 +174,5 @@ const AdminCollectionsPage = () => {
 };
 
 export default AdminCollectionsPage;
+
+

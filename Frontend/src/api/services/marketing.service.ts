@@ -54,6 +54,40 @@ export interface FestivalCampaign {
   status: 'draft' | 'scheduled' | 'active' | 'completed';
 }
 
+export interface WelcomeBanner {
+  _id: string;
+  title?: string;
+  subtitle?: string;
+  buttonText?: string;
+  imageUrl: string;
+  redirectUrl?: string;
+  isActive: boolean;
+  targetAudience: 'all' | 'first_time' | 'returning';
+  deviceTarget: 'all' | 'mobile' | 'desktop';
+  startDate?: string;
+  endDate?: string;
+  priority: number;
+  analytics: {
+    impressions: number;
+    clicks: number;
+  };
+}
+
+export interface OnboardingWizardStep {
+  title: string;
+  subtitle: string;
+  content: string;
+  icon: string;
+  color: string;
+}
+
+export interface OnboardingWizard {
+  _id?: string;
+  tenantId?: string;
+  isActive: boolean;
+  steps: OnboardingWizardStep[];
+}
+
 export const marketingService = {
   // M-3 Promo Blocks
   getPromoBlocks: (params?: any) => api.get<PromoBlock[]>('/marketing/promo-blocks', { params }),
@@ -96,9 +130,24 @@ export const marketingService = {
   getAIPredictions: (type?: string) => api.get<any[]>('/marketing/ai/predictions', { params: { type } }),
   getAIInsights: () => api.get<any>('/marketing/ai/insights'),
 
+  // Product Analytics
+  getTopProducts: () => api.get<any[]>('/analytics/top-products'),
+
   // Automation
   getAutomationRules: () => api.get<any[]>('/marketing/automation-rules'),
   createAutomationRule: (data: any) => api.post('/marketing/automation-rules', data),
+
+  // M-17 Welcome Banners
+  getWelcomeBanners: () => api.get<WelcomeBanner[]>('/marketing/welcome-banners'),
+  createWelcomeBanner: (data: Partial<WelcomeBanner>) => api.post<WelcomeBanner>('/marketing/welcome-banners', data),
+  updateWelcomeBanner: (id: string, data: Partial<WelcomeBanner>) => api.put<WelcomeBanner>(`/marketing/welcome-banners/${id}`, data),
+  deleteWelcomeBanner: (id: string) => api.delete(`/marketing/welcome-banners/${id}`),
+
+  // M-18 Onboarding Wizard
+  getOnboardingWizard: () => api.get<OnboardingWizard>('/marketing/onboarding-wizard'),
+  saveOnboardingWizard: (data: { isActive: boolean; steps: OnboardingWizardStep[] }) => api.put<OnboardingWizard>('/marketing/onboarding-wizard', data),
+  getActiveOnboardingWizard: () => api.get<OnboardingWizard>('/marketing/onboarding-wizard/active'),
 };
+
 
 

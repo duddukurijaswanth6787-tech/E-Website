@@ -9,12 +9,21 @@ import { addressService } from '../../api/services/address.service';
 import type { Address } from '../../api/services/address.service';
 import { AddressFormModal } from '../../components/common/AddressFormModal';
 import { Loader } from '../../components/common/Loader';
+import { useEventTracker } from '../../hooks/useEventTracker';
 
 const CheckoutPage = () => {
   const navigate = useNavigate();
   const { isAuthenticated, user } = useAuthStore();
   const { items, subtotal, clearCart } = useCartStore();
+  const { trackEvent } = useEventTracker();
 
+  useEffect(() => {
+    if (items.length > 0) {
+      trackEvent('checkout_start', { 
+        metadata: { itemsCount: items.length, total: subtotal() } 
+      });
+    }
+  }, []);
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [selectedAddress, setSelectedAddress] = useState<string>('');
   const [paymentMethod, setPaymentMethod] = useState<'razorpay' | 'cod'>('razorpay');
@@ -84,6 +93,9 @@ const CheckoutPage = () => {
       
       if (paymentMethod === 'cod') {
         clearCart();
+        trackEvent('purchase', { 
+          metadata: { orderId, total: grandTotal, paymentMethod: 'cod' } 
+        });
         toast.success('Order placed successfully!');
         navigate(`/order-success/${orderId}`);
       } else {
@@ -103,6 +115,9 @@ const CheckoutPage = () => {
                 razorpaySignature: response.razorpay_signature,
               });
               clearCart();
+              trackEvent('purchase', { 
+                metadata: { orderId, total: grandTotal, paymentMethod: 'razorpay' } 
+              });
               toast.success('Payment Verified!');
               navigate(`/order-success/${orderId}`);
             } catch (err) {

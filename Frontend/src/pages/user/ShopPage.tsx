@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Check, X, ChevronDown } from 'lucide-react';
-import SEO from '../../components/common/SEO';
 import { ProductCard, type ProductCardProps } from '../../components/common/ProductCard';
 import { ProductCardSkeleton } from '../../components/common/Skeleton';
 import { productService } from '../../api/services/product.service';
@@ -71,11 +70,26 @@ const FilterSection = ({
   );
 };
 
+import { getBreadcrumbSchema } from '../../utils/seoSchemas';
+import { useSEO } from '../../context/SEOContext';
+
 const ShopPage = () => {
+  const { setMetadata } = useSEO();
   const [activeCategories, setActiveCategories] = useState<string[]>([]);
   const [activeOccasions, setActiveOccasions] = useState<string[]>([]);
   const [sortBy, setSortBy] = useState('recommended');
   const [showMobileFilters, setShowMobileFilters] = useState(false);
+
+  useEffect(() => {
+    setMetadata({
+      title: "The Heritage Collection - Premium Ethnic Wear | Vasanthi Creations",
+      description: "Explore our curated collection of Banarasi sarees, handloom silks, and designer ethnic wear. Discover timeless craftsmanship and modern elegance in our boutique catalog.",
+      schemaData: getBreadcrumbSchema([
+        { name: 'Home', item: '/' },
+        { name: 'Shop All', item: '/shop' }
+      ])
+    });
+  }, [setMetadata]);
 
   const toggleFilter = (list: string[], setList: React.Dispatch<React.SetStateAction<string[]>>, val: string) => {
     if (list.includes(val)) {
@@ -188,20 +202,10 @@ const ShopPage = () => {
     </>
   );
 
-  const { slug } = useParams();
-  const [pageTitle, setPageTitle] = useState("Boutique Collection");
 
-  useEffect(() => {
-    if (slug) {
-      setPageTitle(`${slug.charAt(0).toUpperCase() + slug.slice(1)} Collection`);
-    } else {
-      setPageTitle("Boutique Collection");
-    }
-  }, [slug]);
 
   return (
     <div className="min-h-screen bg-neutral-cream flex flex-col">
-      <SEO title={pageTitle} description="Browse the complete catalog of Vasanthi Creations." />
       
       <div className="bg-primary-50 py-10 md:py-12 text-center border-b border-primary-100">
         <div className="max-w-7xl mx-auto px-4">

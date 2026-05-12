@@ -3,16 +3,21 @@ import { Link } from 'react-router-dom';
 import { ProductCard, type ProductCardProps } from '../common/ProductCard';
 import { ProductCardSkeleton } from '../common/Skeleton';
 import { productService } from '../../api/services/product.service';
+import { IMAGES } from '../../constants/assets';
 
 const TrendingProducts = () => {
   const [products, setProducts] = useState<ProductCardProps[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const abortController = new AbortController();
+
     const fetchTrending = async () => {
       try {
         const res = await productService.getTrendingProducts();
-        const list = res.data;
+        if (abortController.signal.aborted) return;
+
+        const list = Array.isArray(res.data) ? res.data : [];
 
         const mappedProducts = list.map((p: any) => ({
           id: p._id,
@@ -20,7 +25,7 @@ const TrendingProducts = () => {
           slug: p.slug,
           price: p.price,
           originalPrice: p.comparePrice ?? p.originalPrice,
-          image: p.images && p.images.length > 0 ? (typeof p.images[0] === 'string' ? p.images[0] : p.images[0]?.url) : 'https://placehold.co/600x800/f3f4f6/A51648?text=No+Image',
+          image: p.images && p.images.length > 0 ? (typeof p.images[0] === 'string' ? p.images[0] : p.images[0]?.url) : IMAGES.placeholder,
           category: p.category?.name || 'Trending',
           tag: p.tags && p.tags.length > 0 ? p.tags[0] : (p.isNewArrival ? 'New' : (p.isBestSeller ? 'Bestseller' : undefined)),
           rating: p.ratings?.average,
@@ -29,17 +34,24 @@ const TrendingProducts = () => {
           isTrending: p.isTrending
         }));
         setProducts(mappedProducts);
-      } catch (error) {
-        console.error("Failed to load trending products", error);
+      } catch (error: any) {
+        if (error.name === 'AbortError') return;
+        if (import.meta.env.DEV) {
+          console.warn("[Trending] API unavailable:", error.message);
+        }
       } finally {
-        setLoading(false);
+        if (!abortController.signal.aborted) {
+          setLoading(false);
+        }
       }
     };
     fetchTrending();
+
+    return () => abortController.abort();
   }, []);
 
   return (
-    <section className="py-24 bg-premium-pearl/40">
+    <section className="py-24 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">

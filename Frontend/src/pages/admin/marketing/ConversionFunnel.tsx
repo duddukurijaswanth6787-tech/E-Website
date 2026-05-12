@@ -5,30 +5,32 @@ import {
   CreditCard, CheckCircle2, ArrowDown,
   AlertTriangle, Zap
 } from 'lucide-react';
-import { marketingService } from '../../../api/services/marketing.service';
+import { analyticsService } from '../../../api/services/analytics.service';
 import { GlassCard } from '../../../components/common/GlassCard';
 import { MarketingSkeleton } from '../../../components/admin/marketing/MarketingComponents';
 import { motion } from 'framer-motion';
 
 const ConversionFunnel: React.FC = () => {
-  const { isLoading } = useQuery({
-    queryKey: ['funnelAnalytics'],
-    queryFn: () => marketingService.getFunnelAnalytics()
+  const { data: insightsRes, isLoading } = useQuery({
+    queryKey: ['executiveInsights'],
+    queryFn: () => analyticsService.getExecutiveInsights()
   });
 
-  // Mocked for visualization
+  const insights = insightsRes?.data?.data;
+  const realFunnel = insights?.funnel || [];
+
   const funnelSteps = [
-    { label: 'Visitors', icon: Users, count: 12500, color: 'from-blue-500/20 to-blue-500/40', textColor: 'text-blue-400' },
-    { label: 'Product Views', icon: Eye, count: 8400, color: 'from-purple-500/20 to-purple-500/40', textColor: 'text-purple-400' },
-    { label: 'Add to Cart', icon: ShoppingCart, count: 2100, color: 'from-pink-500/20 to-pink-500/40', textColor: 'text-pink-400' },
-    { label: 'Checkout', icon: CreditCard, count: 1200, color: 'from-amber-500/20 to-amber-500/40', textColor: 'text-amber-400' },
-    { label: 'Purchase', icon: CheckCircle2, count: 450, color: 'from-emerald-500/20 to-emerald-500/40', textColor: 'text-emerald-400' },
+    { label: 'Visitors', icon: Users, count: realFunnel[0]?.count || 0, color: 'from-blue-500/20 to-blue-500/40', textColor: 'text-blue-400' },
+    { label: 'Product Views', icon: Eye, count: realFunnel[1]?.count || 0, color: 'from-purple-500/20 to-purple-500/40', textColor: 'text-purple-400' },
+    { label: 'Add to Cart', icon: ShoppingCart, count: realFunnel[2]?.count || 0, color: 'from-pink-500/20 to-pink-500/40', textColor: 'text-pink-400' },
+    { label: 'Checkout', icon: CreditCard, count: realFunnel[3]?.count || 0, color: 'from-amber-500/20 to-amber-500/40', textColor: 'text-amber-400' },
+    { label: 'Purchase', icon: CheckCircle2, count: realFunnel[4]?.count || 0, color: 'from-emerald-500/20 to-emerald-500/40', textColor: 'text-emerald-400' },
   ];
 
   if (isLoading) return <MarketingSkeleton />;
 
   return (
-    <div className="min-h-screen bg-neutral-950 p-4 sm:p-8 text-white space-y-8 max-w-[1600px] mx-auto">
+    <div className=" space-y-8 max-w-[1600px] mx-auto">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
@@ -36,7 +38,7 @@ const ConversionFunnel: React.FC = () => {
             <Filter className="text-purple-500" size={32} />
             Funnel Intel
           </h1>
-          <p className="text-gray-500 mt-2 font-bold uppercase text-[10px] tracking-[0.3em]">
+          <p className="text-[var(--admin-text-secondary)] mt-2 font-bold uppercase text-[10px] tracking-[0.3em]">
             Behavioral conversion flow & abandonment intelligence
           </p>
         </div>
@@ -59,21 +61,21 @@ const ConversionFunnel: React.FC = () => {
                   className="relative group"
                 >
                   <div 
-                    className={`h-24 bg-gradient-to-r ${step.color} rounded-[2rem] border border-white/5 p-6 flex items-center justify-between group-hover:border-white/20 transition-all shadow-xl`}
+                    className={`h-24 bg-gradient-to-r ${step.color} rounded-[2rem] border border-[var(--admin-card-border)] p-6 flex items-center justify-between group-hover:border-white/20 transition-all shadow-xl`}
                     style={{ width: `${width}%`, marginLeft: `${idx * 4}%` }}
                   >
                     <div className="flex items-center gap-6">
-                      <div className={`p-4 rounded-2xl bg-white/5 ${step.textColor}`}>
+                      <div className={`p-4 rounded-2xl bg-[var(--admin-card)] ${step.textColor}`}>
                         <step.icon size={24} />
                       </div>
                       <div>
-                        <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">{step.label}</p>
-                        <p className="text-2xl font-black text-white">{step.count.toLocaleString()}</p>
+                        <p className="text-[10px] font-black uppercase tracking-widest text-[var(--admin-text-secondary)]">{step.label}</p>
+                        <p className="text-2xl font-black text-[var(--admin-text-primary)]">{step.count.toLocaleString()}</p>
                       </div>
                     </div>
                     <div className="text-right">
-                      <p className="text-[10px] font-black uppercase tracking-widest text-gray-500">Conversion</p>
-                      <p className="text-lg font-black text-white">{idx === 0 ? '100%' : ((step.count / funnelSteps[0].count) * 100).toFixed(1) + '%'}</p>
+                      <p className="text-[10px] font-black uppercase tracking-widest text-[var(--admin-text-secondary)]">Conversion</p>
+                      <p className="text-lg font-black text-[var(--admin-text-primary)]">{idx === 0 ? '100%' : ((step.count / funnelSteps[0].count) * 100).toFixed(1) + '%'}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -101,13 +103,13 @@ const ConversionFunnel: React.FC = () => {
             <div className="space-y-6">
               <div className="p-4 rounded-2xl bg-rose-500/5 border border-rose-500/10">
                 <p className="text-[10px] font-black text-rose-400 uppercase tracking-widest mb-2">Cart Abandonment</p>
-                <p className="text-2xl font-black text-white">42.8%</p>
-                <p className="text-xs text-gray-500 mt-2">Users dropping out after adding items to cart. Higher than industry avg.</p>
+                <p className="text-2xl font-black text-[var(--admin-text-primary)]">42.8%</p>
+                <p className="text-xs text-[var(--admin-text-secondary)] mt-2">Users dropping out after adding items to cart. Higher than industry avg.</p>
               </div>
-              <div className="p-4 rounded-2xl bg-white/5 border border-white/5">
+              <div className="p-4 rounded-2xl bg-[var(--admin-card)] border border-[var(--admin-card-border)]">
                 <p className="text-[10px] font-black text-amber-400 uppercase tracking-widest mb-2">Checkout Friction</p>
-                <p className="text-2xl font-black text-white">15.2%</p>
-                <p className="text-xs text-gray-500 mt-2">Drop-off during payment processing. Check gateway health.</p>
+                <p className="text-2xl font-black text-[var(--admin-text-primary)]">15.2%</p>
+                <p className="text-xs text-[var(--admin-text-secondary)] mt-2">Drop-off during payment processing. Check gateway health.</p>
               </div>
             </div>
           </GlassCard>
@@ -117,7 +119,7 @@ const ConversionFunnel: React.FC = () => {
               <Zap size={24} />
               <h3 className="font-bold text-lg uppercase tracking-tight">Optimization</h3>
             </div>
-            <button className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-white rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition-all active:scale-95">
+            <button className="w-full py-4 bg-emerald-600 hover:bg-emerald-700 text-[var(--admin-text-primary)] rounded-2xl text-xs font-black uppercase tracking-widest shadow-lg shadow-emerald-600/20 transition-all active:scale-95">
               Run Retargeting Campaign
             </button>
             <p className="text-[10px] text-gray-600 font-black text-center mt-4 uppercase tracking-[0.2em]">Targeted at 1.2k cart abandoners</p>
@@ -129,3 +131,5 @@ const ConversionFunnel: React.FC = () => {
 };
 
 export default ConversionFunnel;
+
+

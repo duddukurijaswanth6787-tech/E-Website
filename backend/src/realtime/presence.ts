@@ -23,6 +23,9 @@ class PresenceManager {
         }
       }
     }, 300000); // Every 5 minutes
+
+    // Periodic cleanup of stale database sessions
+    setInterval(() => this.cleanupStaleSessions(), 60000); // Every minute
   }
 
   private getBranchKey(branchId: string): string {
@@ -43,16 +46,27 @@ class PresenceManager {
     try {
       const redis = getRedisClient();
       const userKey = this.getUserKey(userId);
-      // Set user info with TTL (90s)
       await redis.set(userKey, JSON.stringify(info), 'EX', 90);
-      // Add to branch set if applicable
       if (branchId) {
         await redis.sadd(this.getBranchKey(branchId), userId);
-        await redis.expire(this.getBranchKey(branchId), 3600); // 1hr cleanup
+        await redis.expire(this.getBranchKey(branchId), 3600);
       }
-    } catch (err) {
-      // Swallowed: local fallback is already set
-    }
+
+      // Proactively sync online status to MongoDB
+      const { WorkforceStatus } = await import('../modules/workforce/workforceStatus.model');
+      await WorkforceStatus.findOneAndUpdate(
+        { employeeId: userId },
+        { 
+          $set: { 
+            currentStatus: 'online', 
+            lastActiveAt: new Date(),
+            branchId: branchId ? (branchId as any) : undefined,
+            employeeType: role === 'super_admin' || role === 'admin' ? 'admin' : (role as any),
+          } 
+        },
+        { upsert: true }
+      );
+    } catch (err) {}
   }
 
   /**
@@ -63,17 +77,43 @@ class PresenceManager {
     try {
       const redis = getRedisClient();
       await redis.del(this.getUserKey(userId));
-      if (branchId) {
-        await redis.srem(this.getBranchKey(branchId), userId);
+      if (branchId) await redis.srem(this.getBranchKey(branchId), userId);
+
+      const { WorkforceStatus } = await import('../modules/workforce/workforceStatus.model');
+      await WorkforceStatus.findOneAndUpdate(
+        { employeeId: userId },
+        { $set: { currentStatus: 'offline', lastActiveAt: new Date() } }
+      );
+    } catch (err) {}
+  }
+
+  /**
+   * Global cleanup of stale sessions.
+   * This is critical for enterprise stability to prevent "zombie" online workers.
+   */
+  async cleanupStaleSessions(): Promise<void> {
+    try {
+      const { WorkforceStatus } = await import('../modules/workforce/workforceStatus.model');
+      const threshold = new Date(Date.now() - 120000); // 2 minutes
+      
+      const result = await WorkforceStatus.updateMany(
+        { 
+          currentStatus: { $ne: 'offline' },
+          lastActiveAt: { $lt: threshold }
+        },
+        { $set: { currentStatus: 'offline' } }
+      );
+      
+      if (result.modifiedCount > 0) {
+        logger.info(`[Presence] Cleaned up ${result.modifiedCount} stale workforce sessions`);
       }
     } catch (err) {
-      // Swallowed
+      logger.error('[Presence] Cleanup failed:', err);
     }
   }
 
   /**
    * Get all online users in a branch.
-   * Note: This filters out expired users from the branch set.
    */
   async getBranchPresence(branchId: string): Promise<PresenceInfo[]> {
     try {
@@ -101,19 +141,13 @@ class PresenceManager {
         }
       });
 
-      // Cleanup expired users from the set in background
       if (expired.length > 0) {
         redis.srem(branchKey, ...expired).catch(() => {});
       }
 
-      // If we got results from Redis, return them. 
-      // If Redis was empty but we have local sessions, use those.
       if (results.length > 0) return results;
-    } catch (err) {
-      // Fallback to local below
-    }
+    } catch (err) {}
 
-    // Local fallback: filter by branchId and lastSeen (90s window)
     const now = Date.now();
     return Array.from(this.localSessions.values()).filter(
       (p) => p.branchId === branchId && now - p.lastSeen < 90000

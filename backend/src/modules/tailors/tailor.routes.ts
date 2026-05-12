@@ -2,13 +2,14 @@ import { Router } from 'express';
 import { createTailor, getTailors, getTailorById, updateTailor, updateTailorStatus, deleteTailor } from './tailor.controller';
 import { validateZod } from '../../common/middlewares/zodValidate.middleware';
 import { createTailorSchema, updateTailorSchema, getTailorsQuerySchema, updateTailorStatusSchema } from './tailor.validation';
-import { requirePermission } from '../../common/middlewares/auth.middleware';
+import { authenticateAdmin, requirePermission } from '../../common/middlewares/auth.middleware';
 import { PERMISSIONS } from '../../common/constants/roles';
 import 'express-async-errors';
 
 const router = Router();
 
 // Apply RBAC to all routes
+router.use(authenticateAdmin);
 router.use(requirePermission(PERMISSIONS.MANAGE_TAILORS));
 
 router.route('/')

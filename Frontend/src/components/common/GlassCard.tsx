@@ -31,12 +31,13 @@ export const GlassCard: React.FC<GlassCardProps> = ({
       whileHover={hoverable ? { y: -5, transition: { duration: 0.2 } } : {}}
       className={`
         relative overflow-hidden
-        bg-white/[0.03] backdrop-blur-xl
-        border border-white/10
+        bg-[var(--admin-card)] backdrop-blur-xl
+        border border-[var(--admin-card-border)]
         rounded-[2rem] shadow-2xl
-        text-white group
+        text-[var(--admin-text-primary)] group
         ${className}
       `}
+
     >
       {/* Background Glows */}
       <div className="absolute -top-[10%] -left-[10%] w-[40%] h-[40%] bg-blue-500/10 blur-[100px] pointer-events-none group-hover:bg-blue-500/20 transition-colors" />

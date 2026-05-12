@@ -1,5 +1,7 @@
 import { Outlet, Link, Navigate, useLocation } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
+import { IMAGES } from '../constants/assets';
+
 
 const AuthLayout = () => {
   const { isAuthenticated, user } = useAuthStore();
@@ -9,10 +11,22 @@ const AuthLayout = () => {
      const redirect = new URLSearchParams(location.search).get('redirect');
      if (redirect) return <Navigate to={redirect} replace />;
      
-     if (user?.role === 'admin' || user?.role === 'super_admin') {
-       return <Navigate to="/admin" replace />;
+     // Only redirect if on a generic auth page. 
+     // Allow access to specialized login pages if the user specifically navigated there.
+     const isSpecializedLogin = ['/manager/login', '/tailor/login', '/admin/login'].includes(location.pathname);
+     
+     if (!isSpecializedLogin) {
+       if (user?.role === 'admin' || user?.role === 'super_admin') {
+         return <Navigate to="/admin" replace />;
+       }
+       if (user?.role === 'manager') {
+         return <Navigate to="/manager/dashboard" replace />;
+       }
+       if (user?.role === 'tailor') {
+         return <Navigate to="/tailor/dashboard" replace />;
+       }
+       return <Navigate to="/my/profile" replace />;
      }
-     return <Navigate to="/my/profile" replace />;
   }
 
   return (
@@ -29,8 +43,10 @@ const AuthLayout = () => {
       
       {/* Right side Image/Branding Area */}
       <div className="hidden md:flex bg-primary-900 justify-center items-center relative overflow-hidden">
-        {/* Placeholder image overlay */}
-        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1610030469983-98e550d61b36?q=80&w=2574&auto=format&fit=crop')] bg-cover bg-center opacity-30 mix-blend-overlay"></div>
+        <div 
+          className="absolute inset-0 bg-cover bg-center opacity-30 mix-blend-overlay"
+          style={{ backgroundImage: `url('${IMAGES.bridal}')` }}
+        ></div>
         <div className="relative z-10 text-center p-12 text-neutral-cream max-w-lg">
           <h2 className="text-4xl font-serif mb-6 leading-tight">Authentic Elegance <br/>For Every Occasion</h2>
           <p className="text-lg opacity-80 text-neutral-beige">

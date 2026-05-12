@@ -25,6 +25,8 @@ import supportRoutes from '../modules/support/support.routes';
 import notificationRoutes from '../modules/notifications/notification.routes';
 import auditLogRoutes from '../modules/auditLogs/auditLog.routes';
 import paymentRoutes from '../modules/payments/payment.routes';
+import reconciliationRoutes from '../modules/reconciliation/reconciliation.routes';
+import idempotencyRoutes from '../modules/payments/idempotency.routes';
 import boutiqueRoutes from '../modules/boutique/boutique.routes';
 import measurementRoutes from '../modules/measurements/measurement.routes';
 
@@ -38,6 +40,11 @@ import { adminWorkflowRoutes, tailorDashboardRoutes } from '../modules/workflows
 import managerAuthRoutes from '../modules/managerAuth/managerAuth.routes';
 import managerRoutes from '../modules/managers/manager.routes';
 import marketingRoutes from '../modules/marketing/marketing.routes';
+import attendanceRoutes from '../modules/attendance/attendance.routes';
+import workforceRoutes from '../modules/workforce/workforce.routes';
+import legalRoutes from '../modules/legal/legalPage.routes';
+import healthRoutes from '../modules/monitoring/health.routes';
+import seoRoutes from '../modules/seo/seo.routes';
 
 const router = Router();
 
@@ -69,6 +76,8 @@ router.use('/support', supportRoutes);
 router.use('/notifications', notificationRoutes);
 router.use('/audit-logs', auditLogRoutes);
 router.use('/payments', paymentRoutes);
+router.use('/admin/reconciliation', reconciliationRoutes);
+router.use('/admin/idempotency', idempotencyRoutes);
 router.use('/boutique', boutiqueRoutes);
 router.use('/measurements', measurementRoutes);
 router.use('/cms', cmsRoutes);
@@ -82,5 +91,10 @@ router.use('/tailor-dashboard/tasks', tailorDashboardRoutes);
 router.use('/manager-auth', managerAuthRoutes);
 router.use('/admin/managers', managerRoutes);
 router.use('/marketing', marketingRoutes);
+router.use('/attendance', attendanceRoutes);
+router.use('/workforce', workforceRoutes);
+router.use('/legal', legalRoutes);
+router.use('/monitoring', healthRoutes);
+router.use('/seo', seoRoutes);
 
 export default router;

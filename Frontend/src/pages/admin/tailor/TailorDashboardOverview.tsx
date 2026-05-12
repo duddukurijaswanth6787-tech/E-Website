@@ -38,46 +38,46 @@ const TailorDashboardOverview = () => {
     <div className="max-w-6xl mx-auto">
       <div className="mb-8">
         <h1 className="text-2xl font-bold text-gray-900">Welcome back, {user?.name?.split(' ')[0]}</h1>
-        <p className="text-gray-500 mt-1">Here is your production overview for today.</p>
+        <p className="text-[var(--admin-text-secondary)] mt-1">Here is your production overview for today.</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex items-center">
+        <div className="bg-[var(--admin-card)] p-5 rounded-xl border border-gray-200 shadow-sm flex items-center">
           <div className="bg-blue-50 p-3 rounded-lg text-blue-600 mr-4">
             <Briefcase size={24} />
           </div>
           <div>
-            <p className="text-sm font-semibold text-gray-500">Active Tasks</p>
+            <p className="text-sm font-semibold text-[var(--admin-text-secondary)]">Active Tasks</p>
             <p className="text-2xl font-bold text-gray-900">{activeTasks.length}</p>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex items-center">
+        <div className="bg-[var(--admin-card)] p-5 rounded-xl border border-gray-200 shadow-sm flex items-center">
           <div className="bg-amber-50 p-3 rounded-lg text-amber-600 mr-4">
             <Clock size={24} />
           </div>
           <div>
-            <p className="text-sm font-semibold text-gray-500">Due Today</p>
+            <p className="text-sm font-semibold text-[var(--admin-text-secondary)]">Due Today</p>
             <p className="text-2xl font-bold text-gray-900">{dueSoonTasks.length}</p>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-red-200 shadow-sm flex items-center ring-1 ring-red-50">
+        <div className="bg-[var(--admin-card)] p-5 rounded-xl border border-red-200 shadow-sm flex items-center ring-1 ring-red-50">
           <div className="bg-red-50 p-3 rounded-lg text-red-600 mr-4">
             <AlertTriangle size={24} />
           </div>
           <div>
-            <p className="text-sm font-semibold text-gray-500 text-red-600">Urgent</p>
+            <p className="text-sm font-semibold text-[var(--admin-text-secondary)] text-red-600">Urgent</p>
             <p className="text-2xl font-bold text-red-700">{urgentTasks.length}</p>
           </div>
         </div>
 
-        <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex items-center">
+        <div className="bg-[var(--admin-card)] p-5 rounded-xl border border-gray-200 shadow-sm flex items-center">
           <div className="bg-emerald-50 p-3 rounded-lg text-emerald-600 mr-4">
             <CheckCircle size={24} />
           </div>
           <div>
-            <p className="text-sm font-semibold text-gray-500">Completed (Today)</p>
+            <p className="text-sm font-semibold text-[var(--admin-text-secondary)]">Completed (Today)</p>
             <p className="text-2xl font-bold text-gray-900">
                {tasks.filter((t: any) => t.status === 'Completed' && new Date(t.updatedAt) > new Date(new Date().setHours(0,0,0,0))).length}
             </p>
@@ -98,7 +98,7 @@ const TailorDashboardOverview = () => {
           </div>
 
           {dueSoonTasks.length === 0 ? (
-            <div className="bg-white p-8 rounded-xl border border-gray-200 text-center text-gray-500">
+            <div className="bg-[var(--admin-card)] p-8 rounded-xl border border-gray-200 text-center text-[var(--admin-text-secondary)]">
               <CheckCircle size={40} className="mx-auto mb-3 text-emerald-300" />
               <p>No urgent deadlines approaching. You're caught up!</p>
             </div>
@@ -117,7 +117,7 @@ const TailorDashboardOverview = () => {
 
         <div>
           <h2 className="text-lg font-bold text-gray-900 mb-4">Quick Actions</h2>
-          <div className="bg-white border border-gray-200 rounded-xl p-4 space-y-2">
+          <div className="bg-[var(--admin-card)] border border-gray-200 rounded-xl p-4 space-y-2">
             <button 
               onClick={() => navigate('/tailor/tasks')}
               className="w-full text-left px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg font-semibold text-gray-700 transition-colors"
@@ -138,3 +138,5 @@ const TailorDashboardOverview = () => {
 };
 
 export default TailorDashboardOverview;
+
+

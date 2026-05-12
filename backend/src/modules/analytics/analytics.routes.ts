@@ -6,14 +6,19 @@ import { CustomBlouse } from '../customBlouse/customBlouse.model';
 import { authenticateAdmin, requirePermission } from '../../common/middlewares';
 import { sendSuccess } from '../../common/responses';
 import { PERMISSIONS } from '../../common/constants';
+import { ReportingController } from './reporting.controller';
+import { trackEventSchema, getHeatmapSchema } from './analytics.validation';
+import { validateZod } from '../../common/middlewares/zodValidate.middleware';
 
 const router = Router();
 
-// All analytics routes require admin auth + VIEW_ANALYTICS permission
+// --- Public Behavioral Tracking (Unauthenticated) ---
+router.post('/public/track-event', validateZod(trackEventSchema), ReportingController.trackEvent);
+
+// All other analytics routes require admin auth + VIEW_ANALYTICS permission
 router.use(authenticateAdmin, requirePermission(PERMISSIONS.VIEW_ANALYTICS));
 
 // Dashboard summary
-// Dashboard summary (v2)
 router.get('/dashboard', async (_req: Request, res: Response, next: NextFunction) => {
   try {
     const now = new Date();
@@ -24,7 +29,6 @@ router.get('/dashboard', async (_req: Request, res: Response, next: NextFunction
       totalOrders, totalRevenue, totalUsers, totalProducts,
       pendingBlouseRequests, lowStockProducts,
       recentOrders, ordersByStatus,
-      // New Workflow & Production Metrics
       workflowStats,
       tailorStats,
       todayDeliveries
@@ -38,7 +42,6 @@ router.get('/dashboard', async (_req: Request, res: Response, next: NextFunction
       Order.find({ deletedAt: null }).populate('user', 'name email').sort({ createdAt: -1 }).limit(10).lean(),
       Order.aggregate([{ $match: { deletedAt: null } }, { $group: { _id: '$status', count: { $sum: 1 } } }]),
       
-      // Workflow aggregation
       import('../workflows/workflow.model').then(m => m.WorkflowTask.aggregate([
         { $match: { status: { $ne: 'Delivered' } } },
         {
@@ -55,7 +58,6 @@ router.get('/dashboard', async (_req: Request, res: Response, next: NextFunction
         }
       ])),
 
-      // Tailor stats
       import('../tailors/tailor.model').then(m => m.Tailor.aggregate([
         {
           $group: {
@@ -70,7 +72,6 @@ router.get('/dashboard', async (_req: Request, res: Response, next: NextFunction
         }
       ])),
 
-      // Today's Deliveries
       import('../workflows/workflow.model').then(m => m.WorkflowTask.find({
         deadline: { $gte: todayStart, $lte: todayEnd }
       }).populate('orderId').lean())
@@ -153,5 +154,18 @@ router.get('/customer-growth', async (_req: Request, res: Response, next: NextFu
     sendSuccess(res, growth);
   } catch (err) { next(err); }
 });
+
+// M-17 Executive Business Insights
+router.get('/executive-insights', ReportingController.getExecutiveInsights);
+
+// M-18 Marketing & Behavior (Live Feed)
+router.get('/marketing-activity', ReportingController.getMarketingActivity);
+
+// M-14 Behavioral Heatmaps
+router.get('/heatmap-data', validateZod(getHeatmapSchema), ReportingController.getHeatmapData);
+
+// M-16 Export Systems
+router.get('/export/orders', ReportingController.exportOrders);
+router.get('/export/customers', ReportingController.exportCustomers);
 
 export default router;

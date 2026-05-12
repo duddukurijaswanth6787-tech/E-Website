@@ -6,6 +6,7 @@ import {
   RefreshCw, Truck, ArrowLeft, AlertTriangle
 } from 'lucide-react';
 import { DataTable } from '../../components/admin/DataTable';
+import { Input } from '../../components/common/Input';
 import { userService, type UserNode, type CustomerDetail, type Order } from '../../api/services/user.service';
 import toast from 'react-hot-toast';
 
@@ -39,12 +40,12 @@ const StatusBadge = ({ status, map }: { status: string; map: Record<string, stri
 
 // ─── Stat Card ───────────────────────────────────────────────────────────────
 const StatCard = ({ label, value, icon: Icon, color }: { label: string; value: string | number; icon: any; color: string }) => (
-  <div className="bg-white border border-gray-200 rounded-xl p-4 flex items-center gap-3 shadow-sm">
+  <div className="bg-[var(--admin-card)] border border-gray-200 rounded-xl p-4 flex items-center gap-3 shadow-sm">
     <div className={`w-10 h-10 rounded-lg flex items-center justify-center ${color}`}>
       <Icon size={18} />
     </div>
     <div>
-      <p className="text-[0.65rem] text-gray-500 uppercase tracking-widest font-semibold">{label}</p>
+      <p className="text-[0.65rem] text-[var(--admin-text-secondary)] uppercase tracking-widest font-semibold">{label}</p>
       <p className="text-xl font-bold text-gray-900">{value}</p>
     </div>
   </div>
@@ -85,13 +86,13 @@ const OrderDetailModal = ({ orderId, onClose }: { orderId: string; onClose: () =
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto"
+        className="bg-[var(--admin-card)] rounded-2xl shadow-2xl w-full max-w-3xl max-h-[90vh] overflow-y-auto"
       >
         {/* Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-100 px-6 py-4 flex items-center justify-between z-10">
+        <div className="sticky top-0 bg-[var(--admin-card)] border-b border-gray-100 px-6 py-4 flex items-center justify-between z-10">
           <div>
             <h2 className="text-lg font-bold text-gray-900 font-serif">Order Detail</h2>
-            {order && <p className="text-xs text-gray-500 font-mono mt-0.5">#{order.orderNumber}</p>}
+            {order && <p className="text-xs text-[var(--admin-text-secondary)] font-mono mt-0.5">#{order.orderNumber}</p>}
           </div>
           <button
             onClick={onClose}
@@ -106,7 +107,7 @@ const OrderDetailModal = ({ orderId, onClose }: { orderId: string; onClose: () =
             <div className="w-8 h-8 border-4 border-primary-200 border-t-primary-800 rounded-full animate-spin" />
           </div>
         ) : !order ? (
-          <div className="py-24 text-center text-gray-500">Order not found.</div>
+          <div className="py-24 text-center text-[var(--admin-text-secondary)]">Order not found.</div>
         ) : (
           <div className="p-6 space-y-6">
             {/* Status Row */}
@@ -116,7 +117,7 @@ const OrderDetailModal = ({ orderId, onClose }: { orderId: string; onClose: () =
               <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[0.65rem] font-bold uppercase tracking-widest border bg-gray-50 text-gray-700 border-gray-200">
                 {order.paymentMethod === 'cod' ? 'Cash on Delivery' : 'Razorpay'}
               </span>
-              <span className="text-xs text-gray-500 ml-auto">{fmtDate(order.createdAt)}</span>
+              <span className="text-xs text-[var(--admin-text-secondary)] ml-auto">{fmtDate(order.createdAt)}</span>
             </div>
 
             {/* Customer & Address Row */}
@@ -130,8 +131,8 @@ const OrderDetailModal = ({ orderId, onClose }: { orderId: string; onClose: () =
                     </div>
                     <div>
                       <p className="font-semibold text-gray-900 text-sm">{order.user.name}</p>
-                      <p className="text-xs text-gray-500">{order.user.email}</p>
-                      {order.user.mobile && <p className="text-xs text-gray-500">{order.user.mobile}</p>}
+                      <p className="text-xs text-[var(--admin-text-secondary)]">{order.user.email}</p>
+                      {order.user.mobile && <p className="text-xs text-[var(--admin-text-secondary)]">{order.user.mobile}</p>}
                     </div>
                   </div>
                 </div>
@@ -147,7 +148,7 @@ const OrderDetailModal = ({ orderId, onClose }: { orderId: string; onClose: () =
                       {order.address.line2 && <p>{order.address.line2}</p>}
                       <p>{order.address.city}, {order.address.state} {order.address.pincode || order.address.zipCode}</p>
                       {(order.address.mobile || order.address.phone) && (
-                        <p className="text-gray-500">{order.address.mobile || order.address.phone}</p>
+                        <p className="text-[var(--admin-text-secondary)]">{order.address.mobile || order.address.phone}</p>
                       )}
                     </div>
                   </div>
@@ -172,8 +173,8 @@ const OrderDetailModal = ({ orderId, onClose }: { orderId: string; onClose: () =
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-gray-900 text-sm truncate">{item.name}</p>
-                      <p className="text-xs text-gray-500 font-mono mt-0.5">SKU: {item.sku}</p>
-                      <p className="text-xs text-gray-500 mt-0.5">Qty: {item.quantity} × {fmt(item.price)}</p>
+                      <p className="text-xs text-[var(--admin-text-secondary)] font-mono mt-0.5">SKU: {item.sku}</p>
+                      <p className="text-xs text-[var(--admin-text-secondary)] mt-0.5">Qty: {item.quantity} × {fmt(item.price)}</p>
                     </div>
                     <div className="text-right">
                       <p className="font-bold text-gray-900">{fmt(item.total)}</p>
@@ -206,12 +207,12 @@ const OrderDetailModal = ({ orderId, onClose }: { orderId: string; onClose: () =
                     const Icon = TIMELINE_ICONS[entry.status] || Clock;
                     return (
                       <div key={i} className="relative mb-4 last:mb-0">
-                        <div className="absolute -left-4 top-0.5 w-5 h-5 rounded-full bg-white border-2 border-primary-300 flex items-center justify-center">
+                        <div className="absolute -left-4 top-0.5 w-5 h-5 rounded-full bg-[var(--admin-card)] border-2 border-primary-300 flex items-center justify-center">
                           <Icon size={10} className="text-primary-600" />
                         </div>
                         <div>
                           <p className="text-sm font-semibold text-gray-800 capitalize">{entry.status}</p>
-                          {entry.note && <p className="text-xs text-gray-500 mt-0.5">{entry.note}</p>}
+                          {entry.note && <p className="text-xs text-[var(--admin-text-secondary)] mt-0.5">{entry.note}</p>}
                           <p className="text-xs text-gray-400 mt-0.5">{fmtDate(entry.updatedAt)}</p>
                         </div>
                       </div>
@@ -338,14 +339,14 @@ const CustomerDetailDrawer = ({
         className="fixed right-0 top-0 bottom-0 z-40 w-full max-w-3xl bg-gray-50 shadow-2xl overflow-y-auto"
       >
         {/* Drawer Header */}
-        <div className="sticky top-0 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10 shadow-sm">
+        <div className="sticky top-0 bg-[var(--admin-card)] border-b border-gray-200 px-6 py-4 flex items-center justify-between z-10 shadow-sm">
           <div className="flex items-center gap-3">
             <button onClick={onClose} className="p-1.5 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
               <ArrowLeft size={18} />
             </button>
             <div>
               <h2 className="text-lg font-bold text-gray-900 font-serif">Customer Profile</h2>
-              <p className="text-xs text-gray-500">{detail?.user.email}</p>
+              <p className="text-xs text-[var(--admin-text-secondary)]">{detail?.user.email}</p>
             </div>
           </div>
           <button onClick={onClose} className="p-2 text-gray-400 hover:text-gray-700 hover:bg-gray-100 rounded-lg transition-colors">
@@ -358,14 +359,14 @@ const CustomerDetailDrawer = ({
             <div className="w-10 h-10 border-4 border-primary-200 border-t-primary-800 rounded-full animate-spin" />
           </div>
         ) : !detail ? (
-          <div className="py-32 text-center text-gray-500">
+          <div className="py-32 text-center text-[var(--admin-text-secondary)]">
             <AlertTriangle className="mx-auto mb-4 text-gray-300" size={48} />
             <p>Customer data unavailable.</p>
           </div>
         ) : (
           <div className="p-6 space-y-6">
             {/* Profile Card */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-6">
+            <div className="bg-[var(--admin-card)] rounded-2xl border border-gray-200 shadow-sm p-6">
               <div className="flex items-start justify-between">
                 <div className="flex items-center gap-4">
                   <div className="w-16 h-16 rounded-full bg-gradient-to-br from-primary-100 to-primary-200 flex items-center justify-center text-2xl font-bold text-primary-800">
@@ -385,7 +386,7 @@ const CustomerDetailDrawer = ({
                     )}
                     <div className="flex items-center gap-1 mt-0.5">
                       <Calendar size={13} className="text-gray-400" />
-                      <span className="text-xs text-gray-500">Joined {fmtDate(detail.user.createdAt)}</span>
+                      <span className="text-xs text-[var(--admin-text-secondary)]">Joined {fmtDate(detail.user.createdAt)}</span>
                     </div>
                   </div>
                 </div>
@@ -416,7 +417,7 @@ const CustomerDetailDrawer = ({
               {/* Verification Badges */}
               <div className="flex gap-2 mt-4 pt-4 border-t border-gray-100">
                 <span className={`inline-flex items-center gap-1 px-2 py-0.5 rounded text-[0.65rem] font-bold uppercase border ${
-                  detail.user.isEmailVerified ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-gray-500 border-gray-200'
+                  detail.user.isEmailVerified ? 'bg-green-50 text-green-700 border-green-200' : 'bg-gray-50 text-[var(--admin-text-secondary)] border-gray-200'
                 }`}>
                   <CheckCircle size={10} /> Email {detail.user.isEmailVerified ? 'Verified' : 'Unverified'}
                 </span>
@@ -444,14 +445,14 @@ const CustomerDetailDrawer = ({
 
             {/* Saved Addresses */}
             {detail.addresses.length > 0 && (
-              <div className="bg-white rounded-2xl border border-gray-200 shadow-sm p-5">
+              <div className="bg-[var(--admin-card)] rounded-2xl border border-gray-200 shadow-sm p-5">
                 <p className="text-sm font-bold text-gray-700 mb-3 flex items-center gap-2">
                   <MapPin size={15} className="text-primary-600" /> Saved Addresses
                 </p>
                 <div className="space-y-2">
                   {detail.addresses.map((addr, i) => (
                     <div key={i} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg border border-gray-100">
-                      <div className={`mt-0.5 px-1.5 py-0.5 rounded text-[0.6rem] font-bold uppercase ${addr.isDefault ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-gray-500'}`}>
+                      <div className={`mt-0.5 px-1.5 py-0.5 rounded text-[0.6rem] font-bold uppercase ${addr.isDefault ? 'bg-primary-100 text-primary-700' : 'bg-gray-100 text-[var(--admin-text-secondary)]'}`}>
                         {addr.type || 'Home'}
                       </div>
                       <p className="text-xs text-gray-700 flex-1">
@@ -465,7 +466,7 @@ const CustomerDetailDrawer = ({
             )}
 
             {/* Order History Table */}
-            <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
+            <div className="bg-[var(--admin-card)] rounded-2xl border border-gray-200 shadow-sm overflow-hidden">
               <div className="px-5 py-4 border-b border-gray-100 flex items-center gap-2">
                 <Package size={16} className="text-primary-600" />
                 <h3 className="text-sm font-bold text-gray-800">Order History</h3>
@@ -582,7 +583,7 @@ const AdminCustomersPage = () => {
           </div>
           <div>
             <p className="font-semibold text-gray-900 text-sm">{row.name}</p>
-            <p className="text-xs text-gray-500 font-mono">{row.email}</p>
+            <p className="text-xs text-[var(--admin-text-secondary)] font-mono">{row.email}</p>
           </div>
         </div>
       ),
@@ -612,13 +613,13 @@ const AdminCustomersPage = () => {
     {
       header: 'Last Order',
       accessor: (row: UserNode) => (
-        <span className="text-xs text-gray-500">{fmtDate(row.lastOrderDate)}</span>
+        <span className="text-xs text-[var(--admin-text-secondary)]">{fmtDate(row.lastOrderDate)}</span>
       ),
     },
     {
       header: 'Joined',
       accessor: (row: UserNode) => (
-        <span className="text-xs text-gray-500">{fmtDate(row.createdAt)}</span>
+        <span className="text-xs text-[var(--admin-text-secondary)]">{fmtDate(row.createdAt)}</span>
       ),
     },
     {
@@ -641,10 +642,11 @@ const AdminCustomersPage = () => {
       accessor: (row: UserNode) => (
         <button
           onClick={(e) => { e.stopPropagation(); setSelectedCustomerId(row._id); }}
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-white bg-primary-950 rounded-lg hover:bg-primary-800 transition-colors shadow-sm"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-[var(--admin-text-primary)] bg-[var(--admin-card)] border border-[var(--admin-card-border)] rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition-colors shadow-sm"
         >
           <Eye size={13} /> View Details
         </button>
+
       ),
     },
   ], [handleBlockToggle]);
@@ -657,13 +659,13 @@ const AdminCustomersPage = () => {
           <h1 className="text-2xl font-serif text-gray-900 flex items-center gap-3">
             <Users className="w-6 h-6 text-primary-700" /> Customer Management
           </h1>
-          <p className="text-sm text-gray-500 mt-1">
+          <p className="text-sm text-[var(--admin-text-secondary)] mt-1">
             View customer profiles, order history, spending patterns, and account management.
           </p>
         </div>
         <button
           onClick={() => fetchUsers(1)}
-          className="flex items-center gap-2 px-4 py-2 bg-white border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
+          className="flex items-center gap-2 px-4 py-2 bg-[var(--admin-card)] border border-gray-200 rounded-lg text-sm text-gray-700 hover:bg-gray-50 transition-colors shadow-sm"
         >
           <RefreshCw size={15} className={loading ? 'animate-spin' : ''} /> Refresh
         </button>
@@ -678,16 +680,14 @@ const AdminCustomersPage = () => {
       </div>
 
       {/* Search & Filter Bar */}
-      <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-4 flex flex-col sm:flex-row gap-3">
-        <div className="relative flex-1">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-4 h-4" />
-          <input
-            type="text"
+      <div className="bg-[var(--admin-card)] rounded-xl border border-gray-200 shadow-sm p-4 flex flex-col sm:flex-row gap-3">
+        <div className="flex-1">
+          <Input
+            leftIcon={<Search size={18} />}
             placeholder="Search by name, email or mobile..."
             value={searchInput}
             onChange={e => setSearchInput(e.target.value)}
             onKeyDown={e => e.key === 'Enter' && handleSearch()}
-            className="w-full pl-9 pr-4 py-2.5 text-sm border border-gray-200 rounded-lg bg-gray-50 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-all"
           />
         </div>
         <select
@@ -704,10 +704,11 @@ const AdminCustomersPage = () => {
         </select>
         <button
           onClick={handleSearch}
-          className="px-5 py-2.5 bg-primary-950 text-white text-sm font-semibold rounded-lg hover:bg-primary-800 transition-colors flex items-center gap-2 shadow-sm"
+          className="px-5 py-2.5 bg-[var(--admin-card)] text-[var(--admin-text-primary)] border border-[var(--admin-card-border)] text-sm font-semibold rounded-lg hover:bg-gray-50 dark:hover:bg-white/5 transition-colors flex items-center gap-2 shadow-sm"
         >
           <Filter size={15} /> Apply
         </button>
+
         {(search || filterBlocked) && (
           <button
             onClick={() => {
@@ -757,3 +758,5 @@ const AdminCustomersPage = () => {
 };
 
 export default AdminCustomersPage;
+
+

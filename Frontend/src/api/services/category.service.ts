@@ -1,4 +1,4 @@
-import apiClient from '../client';
+import apiClient, { publicClient } from '../client';
 
 export interface Category {
   _id: string;
@@ -27,7 +27,7 @@ export interface CollectionResponse {
 export const categoryService = {
   // Fetch active categories (e.g. Sarees, Lehengas)
   getAllCategories: async () => {
-    return apiClient.get<any, { success: boolean, data: Category[] }>('/categories');
+    return publicClient.get<any, { success: boolean, data: Category[] }>('/categories');
   },
 
   // Admin: fetch full taxonomy (includes inactive)
@@ -37,7 +37,7 @@ export const categoryService = {
 
   // Fetch seasonal collections (e.g. Bridal 2024)
   getAllCollections: async () => {
-    return apiClient.get<any, { success: boolean, data: CollectionResponse[] }>('/collections');
+    return publicClient.get<any, { success: boolean, data: CollectionResponse[] }>('/collections');
   },
 
   createCategory: async (data: Record<string, any>) => {

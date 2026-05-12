@@ -27,9 +27,14 @@ const UserSchema = new Schema<IUser>(
       unique: true,
       lowercase: true,
       trim: true,
-      index: true,
+      match: [/^[^\s@]+@[^\s@]+\.[^\s@]+$/, 'Invalid email address'],
     },
-    mobile: { type: String, sparse: true, trim: true },
+    mobile: { 
+      type: String, 
+      sparse: true, 
+      trim: true,
+      match: [/^\d{10}$/, 'Invalid 10-digit mobile number']
+    },
     passwordHash: { type: String, required: true, select: false },
     isEmailVerified: { type: Boolean, default: false },
     isMobileVerified: { type: Boolean, default: false },

@@ -106,7 +106,7 @@ const AdminShippingPage = () => {
          <div className="flex items-center space-x-3">
            <div>
              <span className="block font-medium tracking-wide text-primary-950">{row.region}</span>
-             <span className="block text-xs text-gray-500 font-mono mt-0.5">{row.method}</span>
+             <span className="block text-xs text-[var(--admin-text-secondary)] font-mono mt-0.5">{row.method}</span>
            </div>
          </div>
        )
@@ -159,12 +159,12 @@ const AdminShippingPage = () => {
           <h1 className="text-2xl font-serif text-gray-900 mb-1 flex items-center">
             <Truck className="w-6 h-6 mr-3 text-primary-700" /> Logistics & Shipping Integrations
           </h1>
-          <p className="text-sm text-gray-500">Configure global delivery boundaries, conditional order margins, and baseline tariffs.</p>
+          <p className="text-sm text-[var(--admin-text-secondary)]">Configure global delivery boundaries, conditional order margins, and baseline tariffs.</p>
         </div>
          <div className="mt-4 sm:mt-0">
             <button 
               onClick={openCreate}
-              className="flex items-center px-4 py-2 bg-primary-950 text-white text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors"
+              className="flex items-center px-4 py-2 bg-primary-950 text-[var(--admin-text-primary)] text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors"
             >
                <Plus size={16} className="mr-2" />
                Add Delivery Tier
@@ -193,3 +193,5 @@ const AdminShippingPage = () => {
 };
 
 export default AdminShippingPage;
+
+

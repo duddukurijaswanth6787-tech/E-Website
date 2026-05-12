@@ -1,4 +1,4 @@
-import { getRedisClient, REDIS_NAMESPACES } from '../../config/redis';
+import { getRedisClient, REDIS_NAMESPACES, isRedisEnabled } from '../../config/redis';
 
 import { logger } from '../../common/logger';
 
@@ -50,6 +50,7 @@ class LockManager {
     };
 
     try {
+      if (!isRedisEnabled()) return this.acquireLocal(params);
       const redis = getRedisClient();
       const key = this.getLockKey(params.workflowId);
       const socketKey = this.getSocketKey(params.socketId);
@@ -89,6 +90,8 @@ class LockManager {
 
   async release(workflowId: string, ownerId: string): Promise<SoftLock | null> {
     try {
+      if (!isRedisEnabled()) return this.releaseLocal(workflowId, ownerId);
+
       const redis = getRedisClient();
       const key = this.getLockKey(workflowId);
 
@@ -119,6 +122,8 @@ class LockManager {
   async releaseAllForSocket(socketId: string): Promise<SoftLock[]> {
     const released: SoftLock[] = [];
     try {
+      if (!isRedisEnabled()) return this.releaseAllForSocketLocal(socketId);
+
       const redis = getRedisClient();
       const socketKey = this.getSocketKey(socketId);
       const workflowIds = await redis.smembers(socketKey);
@@ -144,6 +149,8 @@ class LockManager {
 
   async get(workflowId: string): Promise<SoftLock | null> {
     try {
+      if (!isRedisEnabled()) return this.localLocks.get(workflowId) || null;
+
       const redis = getRedisClient();
       const lockStr = await redis.get(this.getLockKey(workflowId));
       if (!lockStr) return null;

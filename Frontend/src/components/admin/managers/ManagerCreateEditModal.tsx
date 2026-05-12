@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
-import { X, Shield } from 'lucide-react';
+import React, { useEffect } from 'react';
+import { X, Shield, User, Mail, Phone, Lock, Briefcase, Building } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useMutation, useQueryClient } from '@tanstack/react-query';
 import { adminManagerService } from '../../../api/services/adminManager.service';
 import type { ManagerAdmin } from '../../../api/services/adminManager.service';
+import { Input } from '../../common/Input';
+import { useValidation } from '../../../utils/validation/useValidation';
 
 interface Props {
   isOpen: boolean;
@@ -35,7 +37,15 @@ const ManagerCreateEditModal: React.FC<Props> = ({ isOpen, onClose, manager }) =
   const isEdit = !!manager;
   const queryClient = useQueryClient();
 
-  const [formData, setFormData] = useState({
+  const {
+    values,
+    errors,
+    touched,
+    handleChange,
+    handleBlur,
+    validateForm,
+    setValues
+  } = useValidation({
     name: '',
     email: '',
     phone: '',
@@ -48,18 +58,18 @@ const ManagerCreateEditModal: React.FC<Props> = ({ isOpen, onClose, manager }) =
 
   useEffect(() => {
     if (manager) {
-      setFormData({
+      setValues({
         name: manager.name,
         email: manager.email,
         phone: manager.phone,
-        password: '', // Hidden for edit
+        password: '',
         managerType: manager.managerType || 'FLOOR_MANAGER',
         department: manager.department || 'PRODUCTION',
         branchId: manager.branchId || PREDEFINED_BRANCHES[0].id,
         branchName: manager.branchName || PREDEFINED_BRANCHES[0].name,
       });
     } else {
-      setFormData({
+      setValues({
         name: '',
         email: '',
         phone: '',
@@ -70,7 +80,7 @@ const ManagerCreateEditModal: React.FC<Props> = ({ isOpen, onClose, manager }) =
         branchName: PREDEFINED_BRANCHES[0].name,
       });
     }
-  }, [manager, isOpen]);
+  }, [manager, isOpen, setValues]);
 
   const mutation = useMutation({
     mutationFn: (data: any) => isEdit 
@@ -88,137 +98,204 @@ const ManagerCreateEditModal: React.FC<Props> = ({ isOpen, onClose, manager }) =
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isEdit && !formData.password) {
-      toast.error('Password is required for new managers');
+    if (!validateForm()) {
+      toast.error('Please fix validation errors');
       return;
     }
 
-    if (!isEdit && formData.password.length < 8) {
-      toast.error('Password must be at least 8 characters');
-      return;
-    }
-
-    const payload: any = { ...formData };
+    const payload: any = { ...values };
     if (isEdit) {
-      delete payload.password; // Admin uses separate reset flow for existing
-      delete payload.email; // Email typically non-editable
+      delete payload.password;
+      delete payload.email;
     }
 
     mutation.mutate(payload);
   };
 
-  const handleBranchChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const onBranchChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const selected = PREDEFINED_BRANCHES.find(b => b.id === e.target.value);
     if (selected) {
-      setFormData({ ...formData, branchId: selected.id, branchName: selected.name });
+      setValues((prev: any) => ({ ...prev, branchId: selected.id, branchName: selected.name }));
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/60 z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-xl shadow-xl w-full max-w-2xl max-h-[90vh] flex flex-col">
-        <div className="flex justify-between items-center p-6 border-b border-gray-200">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-100 text-blue-700 rounded-lg">
-              <Shield size={20} />
+    <div className="fixed inset-0 bg-stone-900/60 backdrop-blur-md z-[100] flex items-center justify-center p-4">
+      <div className="bg-white rounded-[2.5rem] shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-in fade-in zoom-in duration-300">
+        
+        {/* Header */}
+        <div className="flex justify-between items-center px-10 py-8 border-b border-stone-50 bg-stone-50/50">
+          <div className="flex items-center gap-5">
+            <div className="w-14 h-14 bg-primary-50 text-primary-600 rounded-3xl flex items-center justify-center shadow-inner">
+              <Shield size={28} />
             </div>
-            <h2 className="text-xl font-bold text-gray-900">{isEdit ? 'Edit Manager Account' : 'Create Manager Account'}</h2>
+            <div>
+              <h2 className="text-2xl font-serif text-stone-950">{isEdit ? 'Edit Operational Leader' : 'Enlist New Manager'}</h2>
+              <p className="text-[10px] font-black text-stone-400 uppercase tracking-[0.2em] mt-1">Workforce Authority Console</p>
+            </div>
           </div>
-          <button onClick={onClose} className="text-gray-500 hover:bg-gray-100 p-2 rounded-full transition-colors">
+          <button onClick={onClose} className="p-3 text-stone-400 hover:text-stone-950 rounded-2xl hover:bg-white hover:shadow-sm transition-all">
             <X size={20} />
           </button>
         </div>
 
-        <div className="overflow-y-auto p-6 flex-1">
-          <form id="manager-form" onSubmit={handleSubmit} className="space-y-6">
+        {/* Scrollable Form Body */}
+        <div className="overflow-y-auto p-10 flex-1 custom-scrollbar">
+          <form id="manager-form" onSubmit={handleSubmit} className="space-y-10">
             
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Full Name *</label>
-                <input required type="text" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none" />
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Email Address *</label>
-                <input required disabled={isEdit} type="email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} className={`w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none ${isEdit ? 'bg-gray-100 text-gray-500 cursor-not-allowed' : ''}`} />
-                {isEdit && <p className="text-xs text-gray-400 mt-1">Email cannot be changed after creation.</p>}
-              </div>
-              <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1">Phone Number *</label>
-                <input required type="text" value={formData.phone} onChange={e => setFormData({...formData, phone: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none" />
-              </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <Input
+                label="Full Legal Name"
+                name="name"
+                value={values.name}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={touched.name ? errors.name : ''}
+                success={touched.name && !errors.name}
+                leftIcon={<User size={18} />}
+                placeholder="Manager's Name"
+                required
+              />
+              <Input
+                label="Corporate Email"
+                name="email"
+                type="email"
+                value={values.email}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={touched.email ? errors.email : ''}
+                success={touched.email && !errors.email}
+                disabled={isEdit}
+                leftIcon={<Mail size={18} />}
+                placeholder="staff@vasanthicreations.com"
+                required
+              />
+              <Input
+                label="Phone Number"
+                name="phone"
+                type="tel"
+                value={values.phone}
+                onChange={handleChange}
+                onBlur={handleBlur}
+                error={touched.phone ? errors.phone : ''}
+                success={touched.phone && !errors.phone}
+                leftIcon={<Phone size={18} />}
+                placeholder="10-digit mobile"
+                required
+                maxLength={10}
+              />
               
               {!isEdit && (
-                <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Initial Password *</label>
-                  <input required type="text" value={formData.password} onChange={e => setFormData({...formData, password: e.target.value})} className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none" placeholder="Min 8 characters" />
-                </div>
+                <Input
+                  label="Initial Password"
+                  name="password"
+                  type="text"
+                  value={values.password}
+                  onChange={handleChange}
+                  onBlur={handleBlur}
+                  error={touched.password ? errors.password : ''}
+                  success={touched.password && !errors.password && values.password.length > 0}
+                  leftIcon={<Lock size={18} />}
+                  placeholder="Strong access key"
+                  required
+                />
               )}
             </div>
 
-            <div className="border-t border-gray-200 pt-6">
-              <h3 className="text-sm font-bold text-gray-900 mb-4 uppercase tracking-wider">Role & Assignment</h3>
+            <div className="pt-8 border-t border-stone-100">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="w-8 h-8 rounded-xl bg-stone-100 flex items-center justify-center text-stone-500">
+                  <Briefcase size={16} />
+                </div>
+                <h3 className="text-xs font-black text-stone-500 uppercase tracking-[0.2em]">Assignment & Permissions</h3>
+              </div>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Assigned Branch / Workshop</label>
-                  <select 
-                    value={formData.branchId} 
-                    onChange={handleBranchChange} 
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none bg-white"
-                  >
-                    {PREDEFINED_BRANCHES.map(b => (
-                      <option key={b.id} value={b.id}>{b.name} ({b.code})</option>
-                    ))}
-                  </select>
+                  <label className="block text-xs font-black text-stone-400 uppercase tracking-widest mb-2 ml-1">Workshop Branch</label>
+                  <div className="relative">
+                    <select 
+                      value={values.branchId} 
+                      onChange={onBranchChange} 
+                      className="w-full bg-stone-50/50 border border-stone-200 rounded-2xl px-5 py-4 text-sm outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all appearance-none cursor-pointer"
+                    >
+                      {PREDEFINED_BRANCHES.map(b => (
+                        <option key={b.id} value={b.id}>{b.name} ({b.code})</option>
+                      ))}
+                    </select>
+                    <Building size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-stone-300 pointer-events-none" />
+                  </div>
                 </div>
                 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Manager Type</label>
-                  <select 
-                    value={formData.managerType} 
-                    onChange={e => setFormData({...formData, managerType: e.target.value})} 
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none bg-white"
-                  >
-                    {MANAGER_ROLES.map(r => (
-                      <option key={r.value} value={r.value}>{r.label}</option>
-                    ))}
-                  </select>
+                  <label className="block text-xs font-black text-stone-400 uppercase tracking-widest mb-2 ml-1">Leadership Type</label>
+                  <div className="relative">
+                    <select 
+                      name="managerType"
+                      value={values.managerType} 
+                      onChange={handleChange} 
+                      className="w-full bg-stone-50/50 border border-stone-200 rounded-2xl px-5 py-4 text-sm outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all appearance-none cursor-pointer"
+                    >
+                      {MANAGER_ROLES.map(r => (
+                        <option key={r.value} value={r.value}>{r.label}</option>
+                      ))}
+                    </select>
+                    <Shield size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-stone-300 pointer-events-none" />
+                  </div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1">Department</label>
-                  <select 
-                    value={formData.department} 
-                    onChange={e => setFormData({...formData, department: e.target.value})} 
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-1 focus:ring-blue-500 outline-none bg-white"
-                  >
-                    {DEPARTMENTS.map(d => (
-                      <option key={d.value} value={d.value}>{d.label}</option>
-                    ))}
-                  </select>
+                  <label className="block text-xs font-black text-stone-400 uppercase tracking-widest mb-2 ml-1">Target Department</label>
+                  <div className="relative">
+                    <select 
+                      name="department"
+                      value={values.department} 
+                      onChange={handleChange} 
+                      className="w-full bg-stone-50/50 border border-stone-200 rounded-2xl px-5 py-4 text-sm outline-none focus:ring-4 focus:ring-primary-500/10 focus:border-primary-500 transition-all appearance-none cursor-pointer"
+                    >
+                      {DEPARTMENTS.map(d => (
+                        <option key={d.value} value={d.value}>{d.label}</option>
+                      ))}
+                    </select>
+                    <Briefcase size={16} className="absolute right-5 top-1/2 -translate-y-1/2 text-stone-300 pointer-events-none" />
+                  </div>
                 </div>
               </div>
             </div>
             
             {isEdit && (
-              <div className="bg-blue-50 p-4 rounded-lg flex items-start gap-3 mt-4">
-                <Shield className="text-blue-600 mt-0.5 flex-shrink-0" size={18} />
-                <p className="text-sm text-blue-800">
-                  To reset this manager's password, use the secure <strong>Reset Password</strong> option from the main managers table.
+              <div className="bg-blue-50/50 p-6 rounded-[1.5rem] border border-blue-100 flex items-start gap-4">
+                <div className="p-2 bg-blue-100 rounded-lg text-blue-600">
+                  <Shield size={18} />
+                </div>
+                <p className="text-xs text-blue-800 leading-relaxed font-medium">
+                  Authentication protocols: To reset this leader's access key, please use the secure <strong className="text-blue-900">Reset Password</strong> terminal in the primary management matrix.
                 </p>
               </div>
             )}
           </form>
         </div>
 
-        <div className="p-6 border-t border-gray-200 flex justify-end space-x-3 bg-gray-50">
-          <button onClick={onClose} disabled={mutation.isPending} className="px-4 py-2 font-semibold text-gray-700 border border-gray-300 rounded hover:bg-gray-100 transition-colors">
+        {/* Footer */}
+        <div className="px-10 py-8 border-t border-stone-50 bg-stone-50/50 flex justify-end gap-4">
+          <button 
+            onClick={onClose} 
+            disabled={mutation.isPending} 
+            className="px-8 py-4 border border-stone-200 rounded-2xl font-bold uppercase tracking-widest text-[10px] text-stone-600 hover:bg-white hover:text-stone-950 transition-all shadow-sm"
+          >
             Cancel
           </button>
-          <button form="manager-form" type="submit" disabled={mutation.isPending} className="px-6 py-2 font-semibold text-white bg-blue-700 rounded hover:bg-blue-800 transition-colors disabled:opacity-50">
-            {mutation.isPending ? 'Saving...' : isEdit ? 'Update Manager' : 'Create Manager'}
+          <button 
+            form="manager-form" 
+            type="submit" 
+            disabled={mutation.isPending} 
+            className="px-10 py-4 bg-stone-950 text-white rounded-2xl font-black uppercase tracking-[0.2em] text-[10px] hover:bg-stone-800 disabled:opacity-50 transition-all shadow-xl flex items-center justify-center min-w-[200px]"
+          >
+            {mutation.isPending ? (
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            ) : isEdit ? 'Authorize Update' : 'Initialize Leader'}
           </button>
         </div>
 

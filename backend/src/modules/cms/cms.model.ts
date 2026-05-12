@@ -1,5 +1,18 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
+export interface ICmsHeroSlide {
+  titleLine1: string;
+  titleLine2: string;
+  subtitle: string;
+  badgeText?: string;
+  backgroundImage?: string;
+  mobileBackgroundImage?: string;
+  primaryButtonText?: string;
+  primaryButtonLink?: string;
+  secondaryButtonText?: string;
+  secondaryButtonLink?: string;
+}
+
 export interface ICmsHero extends Document {
   titleLine1: string;
   titleLine2: string;
@@ -15,10 +28,28 @@ export interface ICmsHero extends Document {
   secondaryButtonLink?: string;
   overlayOpacity: number;
   isPublished: boolean;
+  slides?: ICmsHeroSlide[];
+  autoplayInterval?: number;
   updatedBy?: mongoose.Types.ObjectId;
   createdAt: Date;
   updatedAt: Date;
 }
+
+const CmsHeroSlideSchema = new Schema<ICmsHeroSlide>(
+  {
+    titleLine1: { type: String, required: true },
+    titleLine2: { type: String, required: true },
+    subtitle: { type: String, required: true },
+    badgeText: { type: String, default: 'Luxury Indian Ethnic Wear' },
+    backgroundImage: { type: String },
+    mobileBackgroundImage: { type: String },
+    primaryButtonText: { type: String, default: 'Shop Collection' },
+    primaryButtonLink: { type: String, default: '/shop' },
+    secondaryButtonText: { type: String },
+    secondaryButtonLink: { type: String },
+  },
+  { _id: true }
+);
 
 const CmsHeroSchema = new Schema<ICmsHero>(
   {
@@ -36,6 +67,8 @@ const CmsHeroSchema = new Schema<ICmsHero>(
     secondaryButtonLink: { type: String },
     overlayOpacity: { type: Number, min: 0, max: 0.9, default: 0.5 },
     isPublished: { type: Boolean, default: false },
+    slides: { type: [CmsHeroSlideSchema], default: [] },
+    autoplayInterval: { type: Number, default: 5 }, // Default interval 5 seconds
     updatedBy: { type: Schema.Types.ObjectId, ref: 'Admin' },
   },
   { timestamps: true }

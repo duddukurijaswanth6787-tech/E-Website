@@ -14,8 +14,9 @@ import type { WorkflowLockPayload } from '../events/types';
 
 const MAX_WORKFLOW_SUBSCRIPTIONS_PER_SOCKET = 50;
 
-const newEventId = () =>
-  `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+import { randomUUID } from 'crypto';
+
+const newEventId = () => randomUUID();
 
 /**
  * Resolve the rooms a manager/admin should auto-join, based on their

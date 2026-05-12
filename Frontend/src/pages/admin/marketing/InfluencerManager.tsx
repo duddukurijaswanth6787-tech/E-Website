@@ -22,7 +22,7 @@ const InfluencerManager: React.FC = () => {
   if (isLoading) return <MarketingSkeleton />;
 
   return (
-    <div className="min-h-screen bg-neutral-950 p-4 sm:p-8 text-white space-y-8 max-w-[1600px] mx-auto">
+    <div className=" space-y-8 max-w-[1600px] mx-auto">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
@@ -30,22 +30,22 @@ const InfluencerManager: React.FC = () => {
             <Users className="text-pink-500" size={32} />
             Influencer Hub
           </h1>
-          <p className="text-gray-500 mt-2 font-bold uppercase text-[10px] tracking-[0.3em]">
+          <p className="text-[var(--admin-text-secondary)] mt-2 font-bold uppercase text-[10px] tracking-[0.3em]">
             Manage creators, commissions & attribution ROI
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
           <div className="relative flex-grow lg:flex-grow-0 min-w-[200px] sm:min-w-[300px]">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--admin-text-secondary)]" size={18} />
             <input 
               type="text" 
               placeholder="Search creators..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold focus:border-pink-500/50 outline-none transition-all placeholder:text-gray-600"
+              className="w-full bg-[var(--admin-card)] border border-[var(--admin-card-border)] rounded-2xl py-3 pl-12 pr-4 text-sm font-bold focus:border-pink-500/50 outline-none transition-all placeholder:text-gray-600"
             />
           </div>
-          <button className="bg-pink-600 hover:bg-pink-700 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-pink-600/20 flex items-center justify-center gap-2 active:scale-95 w-full sm:w-auto">
+          <button className="bg-pink-600 hover:bg-pink-700 text-[var(--admin-text-primary)] px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-pink-600/20 flex items-center justify-center gap-2 active:scale-95 w-full sm:w-auto">
             <UserPlus size={18} /> Onboard Influencer
           </button>
         </div>
@@ -89,51 +89,51 @@ const InfluencerManager: React.FC = () => {
           <GlassCard key={creator._id} delay={idx * 0.1} className="group/card">
             <div className="flex justify-between items-start mb-6">
               <div className="flex items-center gap-4">
-                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-xl font-black border border-white/10">
+                <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-pink-500 to-purple-600 flex items-center justify-center text-xl font-black border border-[var(--admin-card-border)]">
                   {creator.name.charAt(0)}
                 </div>
                 <div>
-                  <h3 className="font-bold text-lg text-white leading-tight">{creator.name}</h3>
+                  <h3 className="font-bold text-lg text-[var(--admin-text-primary)] leading-tight">{creator.name}</h3>
                   <div className="flex items-center gap-2 mt-1">
                     <LinkIcon size={12} className="text-pink-400" />
-                    <span className="text-[10px] font-black text-gray-500 uppercase tracking-widest">@{creator.handle}</span>
+                    <span className="text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">@{creator.handle}</span>
                   </div>
                 </div>
               </div>
-              <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${creator.status === 'active' ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400' : 'bg-white/5 border-white/10 text-gray-500'}`}>
+              <span className={`px-3 py-1 rounded-full text-[9px] font-black uppercase tracking-widest border ${creator.status === 'active' ? 'bg-emerald-500/20 border-emerald-500/50 text-emerald-400' : 'bg-[var(--admin-card)] border-[var(--admin-card-border)] text-[var(--admin-text-secondary)]'}`}>
                 {creator.status}
               </span>
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-6">
-              <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
-                <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-1">Commission</p>
-                <p className="text-lg font-black text-white">{creator.commissionRate}%</p>
+              <div className="p-4 bg-[var(--admin-card)] rounded-2xl border border-[var(--admin-card-border)]">
+                <p className="text-[9px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest mb-1">Commission</p>
+                <p className="text-lg font-black text-[var(--admin-text-primary)]">{creator.commissionRate}%</p>
               </div>
-              <div className="p-4 bg-white/5 rounded-2xl border border-white/5">
-                <p className="text-[9px] font-black text-gray-500 uppercase tracking-widest mb-1">Referral Code</p>
+              <div className="p-4 bg-[var(--admin-card)] rounded-2xl border border-[var(--admin-card-border)]">
+                <p className="text-[9px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest mb-1">Referral Code</p>
                 <p className="text-lg font-black text-pink-500 uppercase">{creator.referralCode}</p>
               </div>
             </div>
 
-            <div className="space-y-4 border-t border-white/5 pt-6">
+            <div className="space-y-4 border-t border-[var(--admin-card-border)] pt-6">
               <div className="flex justify-between items-center text-[10px] font-black uppercase tracking-widest">
-                <span className="text-gray-500">Attributed Revenue</span>
+                <span className="text-[var(--admin-text-secondary)]">Attributed Revenue</span>
                 <span className="text-emerald-400 font-black">₹{(creator.analytics?.totalRevenue || 0).toLocaleString()}</span>
               </div>
-              <div className="w-full h-1.5 bg-white/5 rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-[var(--admin-card)] rounded-full overflow-hidden">
                 <div className="h-full bg-emerald-500" style={{ width: '65%' }} />
               </div>
               <div className="flex justify-between items-center pt-2">
                 <div className="flex items-center gap-3">
                   <div className="flex flex-col">
                     <span className="text-[9px] font-black text-gray-600 uppercase">Clicks</span>
-                    <span className="text-xs font-bold text-white">{creator.analytics?.totalClicks || 0}</span>
+                    <span className="text-xs font-bold text-[var(--admin-text-primary)]">{creator.analytics?.totalClicks || 0}</span>
                   </div>
-                  <div className="w-[1px] h-4 bg-white/10" />
+                  <div className="w-[1px] h-4 bg-[var(--admin-card)]/10" />
                   <div className="flex flex-col">
                     <span className="text-[9px] font-black text-gray-600 uppercase">Sales</span>
-                    <span className="text-xs font-bold text-white">{creator.analytics?.totalSales || 0}</span>
+                    <span className="text-xs font-bold text-[var(--admin-text-primary)]">{creator.analytics?.totalSales || 0}</span>
                   </div>
                 </div>
                 <button className="text-[10px] font-black uppercase tracking-widest text-pink-500 hover:text-pink-400 transition-all">
@@ -149,3 +149,5 @@ const InfluencerManager: React.FC = () => {
 };
 
 export default InfluencerManager;
+
+

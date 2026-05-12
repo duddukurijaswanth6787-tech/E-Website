@@ -3,10 +3,12 @@ import { addressService } from '../../api/services/address.service';
 import type { Address } from '../../api/services/address.service';
 import { MapPin, Plus, Trash2, Edit2 } from 'lucide-react';
 import toast from 'react-hot-toast';
+import { AddressFormModal } from '../../components/common/AddressFormModal';
 
 const UserAddresses = () => {
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Fallback dev implementation if endpoint is not fully wired
   const fetchAddresses = async () => {
@@ -69,7 +71,10 @@ const UserAddresses = () => {
     <div className="p-6 md:p-8 min-h-screen">
       <div className="flex justify-between items-center mb-8 border-b border-gray-100 pb-4">
          <h1 className="text-2xl font-serif text-primary-950">My Addresses</h1>
-         <button className="flex items-center text-sm font-bold uppercase tracking-widest text-primary-700 bg-primary-50 px-4 py-2 rounded hover:bg-primary-100 transition-colors">
+         <button 
+           onClick={() => setIsModalOpen(true)}
+           className="flex items-center text-sm font-bold uppercase tracking-widest text-primary-700 bg-primary-50 px-4 py-2 rounded hover:bg-primary-100 transition-colors"
+         >
             <Plus className="w-4 h-4 mr-2" /> Add New
          </button>
       </div>
@@ -125,8 +130,15 @@ const UserAddresses = () => {
            </div>
          )}
       </div>
+
+      <AddressFormModal 
+        isOpen={isModalOpen} 
+        onClose={() => setIsModalOpen(false)} 
+        onSuccess={fetchAddresses} 
+      />
     </div>
   );
 };
 
 export default UserAddresses;
+

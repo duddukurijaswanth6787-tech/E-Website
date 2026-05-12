@@ -43,6 +43,11 @@ async function bootstrap() {
       const { initSocketServer, socketMetrics } = await import('./realtime/socketServer');
       const { getRedisStatus } = await import('./config/redis');
       const { verifyMailConnection, getMailStatus } = await import('./config/mail');
+      const { validateS3Connection } = await import('./config/aws');
+      
+      // Phase 2: Enterprise S3 Storage Validation
+      prettyLog.httpItem('STORAGE', 'Validating S3 Bucket...');
+      await validateS3Connection();
       
       const io = await initSocketServer(server);
       const redis = getRedisStatus();
@@ -62,10 +67,19 @@ async function bootstrap() {
       prettyLog.httpItem('HOST', mail.host);
       console.log('');
       const { registerNotificationBridge } = await import('./modules/notifications/notification.bridge');
+      const { CleanupScheduler } = await import('./modules/marketing/retention/cleanup.scheduler');
+      const { startBackgroundWorkers } = await import('./scalability/workers');
+      const { paymentReconciliationWorker } = await import('./workers/paymentReconciliation.worker');
       registerNotificationBridge();
+      CleanupScheduler.init();
+      startBackgroundWorkers();
+      paymentReconciliationWorker.startWorkerLoop();
 
       prettyLog.httpItem('WHATSAPP', 'Cloud API → Connected', prettyLog.colors.green);
       prettyLog.httpItem('NOTIFY', 'Notification Engine Ready', prettyLog.colors.green);
+      prettyLog.httpItem('CLEANUP', 'Retention Engine Active', prettyLog.colors.green);
+      prettyLog.httpItem('RECONCILE', 'Payment Auto-Repair Worker Polling', prettyLog.colors.green);
+      prettyLog.httpItem('SCALING', 'Distributed Task Workers Subscribed', prettyLog.colors.green);
       console.log('');
 
       prettyLog.section('API DOCUMENTATION & HEALTH');
@@ -90,6 +104,42 @@ async function bootstrap() {
       prettyLog.status('Environment', env.nodeEnv.toUpperCase(), prettyLog.colors.magenta);
 
       prettyLog.footer('Vasanthi Creations ERP Backend is LIVE');
+
+      // Process Hardening: Graceful Shutdown Lifecycle Integration
+      const shutdownHandler = async (signal: string) => {
+        prettyLog.section(`[SHUTDOWN] Received ${signal}. Initiating graceful termination sequence...`);
+        try {
+          // Prevent timeout loops during slow network flush
+          setTimeout(() => {
+            console.error('⚠️ Forcefully terminating process due to cleanup timeout (10s)');
+            process.exit(1);
+          }, 10000);
+
+          if (io) {
+            console.log('Disconnecting active socket instances...');
+            io.close();
+          }
+
+          console.log('Halting background Reconciliation workers...');
+          const { paymentReconciliationWorker: cleanupWorker } = await import('./workers/paymentReconciliation.worker');
+          cleanupWorker.stopWorkerLoop();
+
+          console.log('Closing primary HTTP listener...');
+          server.close(async () => {
+            console.log('Flushing MongoDB connection streams...');
+            const { default: mongoose } = await import('mongoose');
+            await mongoose.connection.close(false);
+            console.log('✅ Server dependencies unhooked gracefully');
+            process.exit(0);
+          });
+        } catch (cleanupErr) {
+          console.error('❌ Shutdown encountered unhandled error:', cleanupErr);
+          process.exit(1);
+        }
+      };
+
+      process.on('SIGTERM', () => shutdownHandler('SIGTERM'));
+      process.on('SIGINT', () => shutdownHandler('SIGINT'));
     });
 
   } catch (fatalErr) {

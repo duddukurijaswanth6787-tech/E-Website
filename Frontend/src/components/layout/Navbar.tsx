@@ -74,10 +74,10 @@ const Navbar = () => {
               to="/"
               className="absolute left-1/2 -translate-x-1/2 lg:static lg:translate-x-0 flex-shrink-0 flex flex-col items-center lg:items-start z-10 lg:min-w-[160px]"
             >
-              <span className={`font-display text-lg sm:text-2xl lg:text-3xl font-semibold tracking-[0.12em] uppercase transition-colors ${textLogo}`}>
+              <span className={`font-serif text-lg sm:text-2xl lg:text-3xl font-black tracking-[0.15em] uppercase transition-colors ${textLogo}`}>
                 Vasanthi
               </span>
-              <span className={`text-[0.55rem] sm:text-[0.6rem] lg:text-[0.65rem] tracking-[0.45em] font-medium uppercase mt-0.5 transition-colors ${textSubLogo}`}>
+              <span className={`text-[0.5rem] sm:text-[0.55rem] lg:text-[0.6rem] tracking-[0.6em] font-bold uppercase mt-1 transition-colors ${textSubLogo}`}>
                 Creations
               </span>
             </Link>

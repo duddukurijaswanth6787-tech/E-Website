@@ -14,6 +14,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { MEASUREMENT_SCHEMA, STYLE_OPTIONS, MEASUREMENT_CATEGORIES } from '../../utils/measurementSchema';
 import type { MeasurementProfile } from '../../utils/measurementSchema';
 import { useMeasurementStore } from '../../store/measurementStore';
+import { useAuthStore } from '../../store/authStore';
 import toast from 'react-hot-toast';
 
 interface PremiumMeasurementModalProps {
@@ -31,11 +32,14 @@ const PremiumMeasurementModal: React.FC<PremiumMeasurementModalProps> = ({ isOpe
   const [notes, setNotes] = useState(initialData?.notes || '');
   const [isSavingProfile, setIsSavingProfile] = useState(false);
   
+  const { isAuthenticated } = useAuthStore();
   const { profiles, addProfile, updateProfile, fetchProfiles } = useMeasurementStore();
 
   useEffect(() => {
-    fetchProfiles();
-  }, []);
+    if (isOpen && isAuthenticated) {
+      fetchProfiles();
+    }
+  }, [isOpen, isAuthenticated, fetchProfiles]);
 
   const handleFieldChange = (name: string, value: string | number) => {
     setFormData(prev => ({ ...prev, [name]: value }));

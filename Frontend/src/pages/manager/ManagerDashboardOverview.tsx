@@ -11,13 +11,19 @@ import {
 import { WorkflowStatus } from '../../api/services/tailorWorkflow.service';
 
 const ManagerDashboardOverview = () => {
-  const { data: analyticsRes, isLoading } = useQuery({
+  const { data: analyticsRes, isLoading: loadingAnalytics } = useQuery({
     queryKey: ['managerDashboardAnalytics'],
     queryFn: managerDashboardService.getDashboardAnalytics,
     refetchInterval: 60000, // Poll every minute for live ops
   });
 
-  if (isLoading) {
+  const { data: escalationsRes, isLoading: loadingEscalations } = useQuery({
+    queryKey: ['managerDashboardEscalations'],
+    queryFn: managerDashboardService.getEscalations,
+    refetchInterval: 30000, // Every 30s
+  });
+
+  if (loadingAnalytics) {
     return (
       <div className="p-8 space-y-6">
         <div className="h-8 w-64 bg-stone-200 rounded animate-pulse" />
@@ -31,6 +37,7 @@ const ManagerDashboardOverview = () => {
   }
 
   const analytics = analyticsRes?.data;
+  const escalations = escalationsRes?.data || [];
   
   // Calculate total active tasks (excluding completed/delivered)
   const activeTaskCount = Object.entries(analytics?.statusCounts || {}).reduce((acc, [status, count]) => {
@@ -142,16 +149,53 @@ const ManagerDashboardOverview = () => {
           </div>
         </div>
 
-        {/* Placeholder for Alerts/Escalations which will come from another API later */}
-        <div className="bg-white rounded-xl border border-stone-200 shadow-sm p-6">
-          <h3 className="text-lg font-bold text-stone-900 mb-6 flex items-center gap-2">
-            <AlertTriangle className="w-5 h-5 text-amber-500" />
-            Active Escalations
-          </h3>
-          <div className="flex flex-col items-center justify-center py-12 text-center text-stone-500">
-            <AlertTriangle className="w-12 h-12 text-stone-300 mb-3" />
-            <p>No active escalations detected.</p>
-            <p className="text-sm mt-1">Production floor is running smoothly.</p>
+        {/* Active Escalations */}
+        <div className="bg-white rounded-xl border border-stone-200 shadow-sm flex flex-col">
+          <div className="p-6 border-b border-stone-100">
+             <h3 className="text-lg font-bold text-stone-900 flex items-center gap-2">
+               <AlertTriangle className="w-5 h-5 text-amber-500" />
+               Active Escalations
+             </h3>
+          </div>
+          <div className="flex-1 overflow-y-auto max-h-[400px] p-2">
+            {loadingEscalations ? (
+               <div className="flex flex-col items-center justify-center py-12 text-center text-stone-500 animate-pulse">
+                  <Activity className="w-12 h-12 text-stone-300 mb-3" />
+                  <p>Monitoring floor status...</p>
+               </div>
+            ) : escalations.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-12 text-center text-stone-500">
+                <AlertTriangle className="w-12 h-12 text-stone-300 mb-3" />
+                <p>No active escalations detected.</p>
+                <p className="text-sm mt-1">Production floor is running smoothly.</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {escalations.map((esc: any) => (
+                  <div key={esc._id} className="p-4 bg-stone-50 rounded-lg border border-stone-100 hover:border-amber-200 transition-colors">
+                    <div className="flex justify-between items-start mb-2">
+                      <span className="text-[0.65rem] font-bold uppercase tracking-widest text-stone-400">{esc.taskNumber}</span>
+                      <span className={`text-[0.6rem] font-black uppercase tracking-tighter px-2 py-0.5 rounded ${
+                        esc.escalationSeverity === 'Critical' ? 'bg-red-100 text-red-700' : 
+                        esc.escalationSeverity === 'High Risk' ? 'bg-orange-100 text-orange-700' : 'bg-amber-100 text-amber-700'
+                      }`}>
+                        {esc.escalationSeverity}
+                      </span>
+                    </div>
+                    <h4 className="text-sm font-bold text-stone-900 truncate">{esc.taskDescription}</h4>
+                    <div className="mt-3 flex items-center justify-between text-[0.7rem] text-stone-500">
+                      <div className="flex items-center gap-2">
+                        <div className="w-6 h-6 rounded bg-stone-200 flex items-center justify-center font-bold text-stone-600">
+                           {esc.tailorId?.name.charAt(0)}
+                        </div>
+                        <span className="font-semibold">{esc.tailorId?.name}</span>
+                      </div>
+                      <span className="text-stone-400 font-medium">Due: {new Date(esc.deadline).toLocaleDateString()}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

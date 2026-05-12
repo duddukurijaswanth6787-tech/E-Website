@@ -11,23 +11,38 @@ const ALLOWED_IMAGE_TYPES = ['image/jpeg', 'image/png', 'image/webp'];
 const ALLOWED_DOC_TYPES = ['application/pdf'];
 const MAX_FILE_SIZE = env.upload.maxFileSizeMb * 1024 * 1024;
 
+/**
+ * Enterprise S3 Storage Engine Configuration
+ */
 const s3Storage = (folder: string) =>
   multerS3({
     s3: s3Client,
     bucket: env.aws.s3BucketName,
     contentType: multerS3.AUTO_CONTENT_TYPE,
+    metadata: (req, file, cb) => {
+      cb(null, { 
+        fieldName: file.fieldname, 
+        originalName: file.originalname,
+        uploadedAt: new Date().toISOString()
+      });
+    },
     key: (req, file, cb) => {
       const ext = path.extname(file.originalname).toLowerCase();
-      const uniqueName = `${folder}/${uuidv4()}${ext}`;
+      // Phase 6 Strategy: [folder]/[YYYY-MM]/[UUID][ext]
+      const datePrefix = new Date().toISOString().slice(0, 7); 
+      const uniqueName = `${folder}/${datePrefix}/${uuidv4()}${ext}`;
       cb(null, uniqueName);
     },
   });
 
+/**
+ * Phase 5: Strict Image Validation Block
+ */
 const imageFilter = (_req: Request, file: any, cb: multer.FileFilterCallback) => {
   if (ALLOWED_IMAGE_TYPES.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new BadRequestError(`Invalid file type. Only JPEG, PNG, and WebP are allowed.`));
+    cb(new BadRequestError(`Invalid image type [${file.mimetype}]. Only JPEG, PNG, and WebP are allowed.`));
   }
 };
 
@@ -35,7 +50,7 @@ const documentFilter = (_req: Request, file: any, cb: multer.FileFilterCallback)
   if ([...ALLOWED_IMAGE_TYPES, ...ALLOWED_DOC_TYPES].includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(new BadRequestError('Invalid file type'));
+    cb(new BadRequestError('Invalid file type. Only images and PDF documents are permitted.'));
   }
 };
 

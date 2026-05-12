@@ -14,12 +14,12 @@ import toast from 'react-hot-toast';
 const StatWidget: React.FC<{ label: string, value: string | number, icon: any, iconColor: string, delay: number }> = ({ label, value, icon: Icon, iconColor, delay }) => (
   <GlassCard delay={delay} className="p-6">
     <div className="flex items-center gap-4">
-      <div className={`p-3 rounded-xl bg-white/5 ${iconColor}`}>
+      <div className={`p-3 rounded-xl bg-[var(--admin-card)] ${iconColor}`}>
         <Icon size={24} />
       </div>
       <div>
-        <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{label}</p>
-        <p className="text-2xl font-bold text-white">{value}</p>
+        <p className="text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">{label}</p>
+        <p className="text-2xl font-bold text-[var(--admin-text-primary)]">{value}</p>
       </div>
     </div>
   </GlassCard>
@@ -67,7 +67,7 @@ const CouponManagement: React.FC = () => {
   if (isLoading) return <MarketingSkeleton />;
 
   return (
-    <div className="min-h-screen bg-neutral-950 p-4 sm:p-8 text-white space-y-8 max-w-[1600px] mx-auto">
+    <div className=" space-y-8 max-w-[1600px] mx-auto">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
@@ -75,22 +75,22 @@ const CouponManagement: React.FC = () => {
             <Ticket className="text-purple-500" size={32} />
             Reward Engine
           </h1>
-          <p className="text-gray-500 mt-2 font-bold uppercase text-[10px] tracking-[0.3em]">
+          <p className="text-[var(--admin-text-secondary)] mt-2 font-bold uppercase text-[10px] tracking-[0.3em]">
             Manage promotional codes & attribution revenue
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-4 w-full lg:w-auto">
           <div className="relative flex-grow lg:flex-grow-0 min-w-[200px] sm:min-w-[300px]">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500" size={18} />
+            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-[var(--admin-text-secondary)]" size={18} />
             <input 
               type="text" 
               placeholder="Search rewards..." 
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-3 pl-12 pr-4 text-sm font-bold focus:border-purple-500/50 outline-none transition-all placeholder:text-gray-600"
+              className="w-full bg-[var(--admin-card)] border border-[var(--admin-card-border)] rounded-2xl py-3 pl-12 pr-4 text-sm font-bold focus:border-purple-500/50 outline-none transition-all placeholder:text-gray-600"
             />
           </div>
-          <button className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-purple-600/20 flex items-center justify-center gap-2 active:scale-95 w-full sm:w-auto">
+          <button className="bg-purple-600 hover:bg-purple-700 text-[var(--admin-text-primary)] px-6 py-3 rounded-2xl font-black text-xs uppercase tracking-widest transition-all shadow-xl shadow-purple-600/20 flex items-center justify-center gap-2 active:scale-95 w-full sm:w-auto">
             <Plus size={18} /> New Reward
           </button>
         </div>
@@ -131,12 +131,12 @@ const CouponManagement: React.FC = () => {
           >
             <div className="flex justify-between items-start mb-6">
               <div className="flex items-center gap-4">
-                <div className="p-3 rounded-2xl bg-white/5 border border-white/10 text-purple-400 group-hover/card:scale-110 transition-transform">
+                <div className="p-3 rounded-2xl bg-[var(--admin-card)] border border-[var(--admin-card-border)] text-purple-400 group-hover/card:scale-110 transition-transform">
                   <Ticket size={24} />
                 </div>
                 <div>
-                  <h3 className="font-bold text-xl text-white tracking-tight">{coupon.code}</h3>
-                  <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mt-1">
+                  <h3 className="font-bold text-xl text-[var(--admin-text-primary)] tracking-tight">{coupon.code}</h3>
+                  <p className="text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest mt-1">
                     {coupon.type === 'percentage' ? `${coupon.value}% Discount` : `₹${coupon.value} Flat OFF`}
                   </p>
                 </div>
@@ -144,7 +144,7 @@ const CouponManagement: React.FC = () => {
               <div className="flex gap-2">
                 <button 
                   onClick={() => copyToClipboard(coupon.code)}
-                  className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all text-gray-400 hover:text-white"
+                  className="p-2.5 bg-[var(--admin-card)] hover:bg-[var(--admin-card)]/10 rounded-xl border border-[var(--admin-card-border)] transition-all text-gray-400 hover:text-[var(--admin-text-primary)]"
                 >
                   {copiedCode === coupon.code ? <Check size={16} className="text-emerald-400" /> : <Copy size={16} />}
                 </button>
@@ -155,9 +155,9 @@ const CouponManagement: React.FC = () => {
               <div className="space-y-3">
                 <div className="flex justify-between items-center text-xs font-bold text-gray-400 uppercase tracking-widest">
                   <span>Usage Progress</span>
-                  <span className="text-white">{coupon.usedCount} / {coupon.maxUses || '∞'}</span>
+                  <span className="text-[var(--admin-text-primary)]">{coupon.usedCount} / {coupon.maxUses || '∞'}</span>
                 </div>
-                <div className="w-full h-2.5 bg-white/5 rounded-full overflow-hidden border border-white/5 p-[2px]">
+                <div className="w-full h-2.5 bg-[var(--admin-card)] rounded-full overflow-hidden border border-[var(--admin-card-border)] p-[2px]">
                   <motion.div 
                     initial={{ width: 0 }}
                     whileInView={{ width: `${Math.min((coupon.usedCount / (coupon.maxUses || 100)) * 100, 100)}%` }}
@@ -167,14 +167,14 @@ const CouponManagement: React.FC = () => {
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 border-y border-white/5 py-6">
+              <div className="grid grid-cols-2 gap-4 border-y border-[var(--admin-card-border)] py-6">
                 <div className="space-y-1">
                   <p className="text-[9px] font-black text-gray-600 uppercase tracking-widest">Attributed Sales</p>
                   <p className="text-lg font-black text-emerald-400">₹{(coupon.revenueGenerated || 0).toLocaleString()}</p>
                 </div>
                 <div className="space-y-1">
                   <p className="text-[9px] font-black text-gray-600 uppercase tracking-widest">Min. Order</p>
-                  <p className="text-lg font-black text-white">₹{coupon.minOrderAmount?.toLocaleString() || 0}</p>
+                  <p className="text-lg font-black text-[var(--admin-text-primary)]">₹{coupon.minOrderAmount?.toLocaleString() || 0}</p>
                 </div>
               </div>
 
@@ -182,12 +182,12 @@ const CouponManagement: React.FC = () => {
                 <div className="flex flex-col gap-1">
                   <span className="text-[9px] font-black text-gray-600 uppercase tracking-widest">Validity</span>
                   <div className="flex items-center gap-2 text-[10px] font-bold text-gray-300">
-                    <Clock size={12} className="text-gray-500" />
+                    <Clock size={12} className="text-[var(--admin-text-secondary)]" />
                     <span>Expires {new Date(coupon.validTo).toLocaleDateString()}</span>
                   </div>
                 </div>
                 <div className="flex gap-2">
-                  <button className="p-2.5 bg-white/5 hover:bg-white/10 rounded-xl border border-white/10 transition-all">
+                  <button className="p-2.5 bg-[var(--admin-card)] hover:bg-[var(--admin-card)]/10 rounded-xl border border-[var(--admin-card-border)] transition-all">
                     <Edit2 size={16} className="text-gray-400" />
                   </button>
                   <button 
@@ -204,8 +204,8 @@ const CouponManagement: React.FC = () => {
       </div>
 
       {coupons.length === 0 && (
-        <div className="h-[400px] flex flex-col items-center justify-center text-center space-y-4 bg-white/[0.02] rounded-[2rem] border border-white/5">
-          <div className="p-6 bg-white/5 rounded-full text-gray-700">
+        <div className="h-[400px] flex flex-col items-center justify-center text-center space-y-4 bg-[var(--admin-card)]/[0.02] rounded-[2rem] border border-[var(--admin-card-border)]">
+          <div className="p-6 bg-[var(--admin-card)] rounded-full text-gray-700">
             <Ticket size={48} />
           </div>
           <div>
@@ -219,3 +219,5 @@ const CouponManagement: React.FC = () => {
 };
 
 export default CouponManagement;
+
+

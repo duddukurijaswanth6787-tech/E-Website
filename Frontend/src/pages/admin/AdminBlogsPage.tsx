@@ -139,7 +139,7 @@ const AdminBlogsPage = () => {
            </div>
            <div>
              <span className="block font-medium tracking-wide text-primary-950 truncate max-w-[200px]">{row.title}</span>
-             <span className="block text-xs text-gray-500 font-mono mt-0.5">/{row.slug}</span>
+             <span className="block text-xs text-[var(--admin-text-secondary)] font-mono mt-0.5">/{row.slug}</span>
            </div>
          </div>
        )
@@ -151,7 +151,7 @@ const AdminBlogsPage = () => {
          return (
            <div>
              <span className="block font-medium text-gray-800 text-sm">{authorName}</span>
-             <span className="block text-[0.65rem] tracking-widest uppercase text-gray-500 mt-0.5">
+             <span className="block text-[0.65rem] tracking-widest uppercase text-[var(--admin-text-secondary)] mt-0.5">
                {new Date(row.createdAt || Date.now()).toLocaleDateString()}
              </span>
            </div>
@@ -195,12 +195,12 @@ const AdminBlogsPage = () => {
           <h1 className="text-2xl font-serif text-gray-900 mb-1 flex items-center">
             <FileText className="w-6 h-6 mr-3 text-primary-700" /> Blog CMS Manager
           </h1>
-          <p className="text-sm text-gray-500">Curate styled editorials, styling tips, and SEO content networks.</p>
+          <p className="text-sm text-[var(--admin-text-secondary)]">Curate styled editorials, styling tips, and SEO content networks.</p>
         </div>
          <div className="mt-4 sm:mt-0">
             <button 
               onClick={openCreate}
-              className="flex items-center px-4 py-2 bg-primary-950 text-white text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors"
+              className="flex items-center px-4 py-2 bg-primary-950 text-[var(--admin-text-primary)] text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors"
             >
                <Plus size={16} className="mr-2" />
                Write Editorial
@@ -235,3 +235,5 @@ const AdminBlogsPage = () => {
 };
 
 export default AdminBlogsPage;
+
+

@@ -26,10 +26,10 @@ const TailorTasksList = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">My Tasks</h1>
-          <p className="text-sm text-gray-500 mt-1">Manage your production queue.</p>
+          <p className="text-sm text-[var(--admin-text-secondary)] mt-1">Manage your production queue.</p>
         </div>
 
-        <div className="mt-4 sm:mt-0 flex items-center bg-white border border-gray-200 rounded-lg p-1 shadow-sm">
+        <div className="mt-4 sm:mt-0 flex items-center bg-[var(--admin-card)] border border-gray-200 rounded-lg p-1 shadow-sm">
           <Filter size={16} className="text-gray-400 ml-2 mr-1" />
           <select 
             value={filterStatus}
@@ -76,3 +76,5 @@ const TailorTasksList = () => {
 };
 
 export default TailorTasksList;
+
+

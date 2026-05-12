@@ -121,7 +121,7 @@ const AdminBannersPage = () => {
     { 
        header: 'Status', 
        accessor: (row: Banner) => (
-         <span className={`inline-flex px-2 py-1 rounded text-[0.65rem] font-bold tracking-widest uppercase ${row.isActive ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-gray-100 text-gray-500 border border-gray-200'}`}>
+         <span className={`inline-flex px-2 py-1 rounded text-[0.65rem] font-bold tracking-widest uppercase ${row.isActive ? 'bg-green-50 text-green-700 border border-green-200' : 'bg-gray-100 text-[var(--admin-text-secondary)] border border-gray-200'}`}>
             {row.isActive ? 'LIVE IN UI' : 'HIDDEN'}
          </span>
        )
@@ -160,12 +160,12 @@ const AdminBannersPage = () => {
           <h1 className="text-2xl font-serif text-gray-900 mb-1 flex items-center">
             <ImageIcon className="w-6 h-6 mr-3 text-primary-700" /> Site Imagery Management
           </h1>
-          <p className="text-sm text-gray-500">Inject dynamic marketing visuals across the E-Commerce frontpage.</p>
+          <p className="text-sm text-[var(--admin-text-secondary)]">Inject dynamic marketing visuals across the E-Commerce frontpage.</p>
         </div>
          <div className="mt-4 sm:mt-0">
             <button 
               onClick={openCreate}
-              className="flex items-center px-4 py-2 bg-primary-950 text-white text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors"
+              className="flex items-center px-4 py-2 bg-primary-950 text-[var(--admin-text-primary)] text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors"
             >
                <Plus size={16} className="mr-2" />
                Upload Banner
@@ -194,3 +194,5 @@ const AdminBannersPage = () => {
 };
 
 export default AdminBannersPage;
+
+

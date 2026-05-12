@@ -2,6 +2,7 @@ import { Router } from 'express';
 import * as MarketingController from './marketing.controller';
 import * as IntelligenceController from './marketing.intelligence.controller';
 import * as AutomationController from './marketing.automation.controller';
+import { RetentionController } from './retention/retention.controller';
 import { authenticateAdmin } from '../../common/middlewares';
 import { validateZod } from '../../common/middlewares/zodValidate.middleware';
 import { 
@@ -9,7 +10,10 @@ import {
   getSalesTrendsSchema, 
   createInfluencerSchema, 
   trackBehaviorSchema, 
-  trackFunnelSchema 
+  trackFunnelSchema,
+  createWelcomeBannerSchema,
+  updateWelcomeBannerSchema,
+  saveOnboardingWizardSchema
 } from './marketing.validation';
 import { 
   injectTenantId, 
@@ -19,6 +23,16 @@ import {
 import { MARKETING_PERMISSIONS } from './marketing.constants';
 
 const router = Router();
+
+router.get('/retention/public-activities', RetentionController.getActiveActivities);
+
+// Public Welcome Banners
+router.get('/welcome-banners/active', MarketingController.getActiveWelcomeBanners);
+router.post('/welcome-banners/:id/track', MarketingController.trackWelcomeBannerAction);
+
+// Public Onboarding Wizard
+router.get('/onboarding-wizard/active', MarketingController.getActiveOnboardingWizard);
+
 
 // Global Security & Multi-tenancy
 router.use(authenticateAdmin);
@@ -114,6 +128,67 @@ router.get('/sticky-offers',
 router.get('/festivals', 
   requireMarketingPermission(MARKETING_PERMISSIONS.MANAGE_CAMPAIGNS), 
   MarketingController.getFestivalCampaigns
+);
+
+// --- Retention & Social Activity System ---
+
+// Protected Admin routes
+router.get('/retention/settings', 
+  requireMarketingPermission(MARKETING_PERMISSIONS.VIEW_DASHBOARD), 
+  RetentionController.getSettings
+);
+
+router.post('/retention/settings', 
+  requireMarketingPermission(MARKETING_PERMISSIONS.MANAGE_CAMPAIGNS), 
+  auditMarketingAction('UPDATE_RETENTION_SETTINGS'),
+  RetentionController.updateSettings
+);
+
+router.post('/retention/cleanup', 
+  requireMarketingPermission(MARKETING_PERMISSIONS.MANAGE_CAMPAIGNS), 
+  auditMarketingAction('TRIGGER_MANUAL_CLEANUP'),
+  RetentionController.triggerCleanup
+);
+
+router.post('/retention/emergency-purge', 
+  requireMarketingPermission(MARKETING_PERMISSIONS.MANAGE_CAMPAIGNS), 
+  auditMarketingAction('EMERGENCY_DATA_PURGE'),
+  RetentionController.emergencyPurge
+);
+
+// M-17: Welcome Banners
+router.get('/welcome-banners',
+  requireMarketingPermission(MARKETING_PERMISSIONS.VIEW_DASHBOARD),
+  MarketingController.getWelcomeBanners
+);
+router.post('/welcome-banners',
+  requireMarketingPermission(MARKETING_PERMISSIONS.MANAGE_BANNERS),
+  validateZod(createWelcomeBannerSchema),
+  auditMarketingAction('CREATE_WELCOME_BANNER'),
+  MarketingController.createWelcomeBanner
+);
+router.put('/welcome-banners/:id',
+  requireMarketingPermission(MARKETING_PERMISSIONS.MANAGE_BANNERS),
+  validateZod(updateWelcomeBannerSchema),
+  auditMarketingAction('UPDATE_WELCOME_BANNER'),
+  MarketingController.updateWelcomeBanner
+);
+router.delete('/welcome-banners/:id',
+  requireMarketingPermission(MARKETING_PERMISSIONS.MANAGE_BANNERS),
+  auditMarketingAction('DELETE_WELCOME_BANNER'),
+  MarketingController.deleteWelcomeBanner
+);
+
+// M-18: Onboarding Wizard
+router.get('/onboarding-wizard',
+  requireMarketingPermission(MARKETING_PERMISSIONS.VIEW_DASHBOARD),
+  MarketingController.getOnboardingWizard
+);
+router.put('/onboarding-wizard',
+  requireMarketingPermission(MARKETING_PERMISSIONS.MANAGE_BANNERS),
+  validateZod(saveOnboardingWizardSchema),
+  auditMarketingAction('UPDATE_ONBOARDING_WIZARD'),
+  MarketingController.saveOnboardingWizard
 );
 
 export default router;

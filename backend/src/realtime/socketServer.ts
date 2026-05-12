@@ -35,28 +35,11 @@ export const initSocketServer = async (httpServer: HttpServer): Promise<IOServer
   }
 
   try {
+    const { corsOptions } = await import('../config/cors');
+    
     ioInstance = new IOServer(httpServer, {
       path: '/socket.io',
-      cors: {
-        origin: (origin, callback) => {
-          if (!origin) return callback(null, true);
-          const allowedOrigins = [
-            env.frontendUrl,
-            'http://localhost:5173',
-            'http://127.0.0.1:5173',
-          ];
-          if (
-            allowedOrigins.includes(origin) ||
-            origin.startsWith('http://localhost:') ||
-            origin.startsWith('http://192.168.1.')
-          ) {
-            callback(null, true);
-          } else {
-            callback(new Error('Not allowed by CORS'));
-          }
-        },
-        credentials: true,
-      },
+      cors: corsOptions,
       pingInterval: 20_000,
       pingTimeout: 25_000,
       maxHttpBufferSize: 1e6,

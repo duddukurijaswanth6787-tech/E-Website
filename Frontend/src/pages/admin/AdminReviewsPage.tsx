@@ -62,7 +62,7 @@ const AdminReviewsPage = () => {
        accessor: (row: Review) => (
          <div className="max-w-[150px] truncate">
            <span className="block font-medium tracking-wide text-primary-950 text-sm">{row.product?.name || 'Unknown Product'}</span>
-           <span className="block text-xs text-gray-500 font-mono mt-0.5">#{row.product?._id?.substring(0,8) || 'N/A'}</span>
+           <span className="block text-xs text-[var(--admin-text-secondary)] font-mono mt-0.5">#{row.product?._id?.substring(0,8) || 'N/A'}</span>
          </div>
        )
     },
@@ -74,7 +74,7 @@ const AdminReviewsPage = () => {
              {"★".repeat(row.rating)}{"☆".repeat(5-row.rating)}
            </div>
             <span className="block font-medium text-gray-800 text-sm truncate">{row.title || 'No Subject'}</span>
-            <span className="block text-xs text-gray-500 line-clamp-2 mt-0.5" title={row.body}>{row.body}</span>
+            <span className="block text-xs text-[var(--admin-text-secondary)] line-clamp-2 mt-0.5" title={row.body}>{row.body}</span>
          </div>
        )
     },
@@ -83,7 +83,7 @@ const AdminReviewsPage = () => {
        accessor: (row: Review) => (
          <div>
            <span className="block text-sm text-gray-800">{row.user?.name || 'Anonymous User'}</span>
-           <span className="block text-xs text-gray-500 tracking-wide">{row.user?.email || 'N/A'}</span>
+           <span className="block text-xs text-[var(--admin-text-secondary)] tracking-wide">{row.user?.email || 'N/A'}</span>
          </div>
        )
     },
@@ -125,7 +125,7 @@ const AdminReviewsPage = () => {
           <h1 className="text-2xl font-serif text-gray-900 mb-1 flex items-center">
             <MessageSquare className="w-6 h-6 mr-3 text-primary-700" /> Review & QA Engine
           </h1>
-          <p className="text-sm text-gray-500">Monitor post-purchase quality assurance ratings and sanitize explicit material.</p>
+          <p className="text-sm text-[var(--admin-text-secondary)]">Monitor post-purchase quality assurance ratings and sanitize explicit material.</p>
         </div>
       </div>
 
@@ -146,3 +146,5 @@ const AdminReviewsPage = () => {
 };
 
 export default AdminReviewsPage;
+
+

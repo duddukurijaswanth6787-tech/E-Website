@@ -14,12 +14,12 @@ import toast from 'react-hot-toast';
 const StatWidget: React.FC<{ label: string, value: string | number, icon: any, iconColor: string, delay: number }> = ({ label, value, icon: Icon, iconColor, delay }) => (
   <GlassCard delay={delay} className="p-6">
     <div className="flex items-center gap-4">
-      <div className={`p-3 rounded-xl bg-white/5 ${iconColor}`}>
+      <div className={`p-3 rounded-xl bg-[var(--admin-card)] ${iconColor}`}>
         <Icon size={24} />
       </div>
       <div>
-        <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{label}</p>
-        <p className="text-2xl font-bold text-white">{value}</p>
+        <p className="text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">{label}</p>
+        <p className="text-2xl font-bold text-[var(--admin-text-primary)]">{value}</p>
       </div>
     </div>
   </GlassCard>
@@ -61,7 +61,7 @@ const ReviewModeration: React.FC = () => {
   if (isLoading) return <MarketingSkeleton />;
 
   return (
-    <div className="min-h-screen bg-neutral-950 p-4 sm:p-8 text-white space-y-8 max-w-[1600px] mx-auto">
+    <div className=" space-y-8 max-w-[1600px] mx-auto">
       {/* Header */}
       <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
         <div>
@@ -69,16 +69,16 @@ const ReviewModeration: React.FC = () => {
             <MessageSquare className="text-blue-500" size={32} />
             Social Pulse
           </h1>
-          <p className="text-gray-500 mt-2 font-bold uppercase text-[10px] tracking-[0.3em]">
+          <p className="text-[var(--admin-text-secondary)] mt-2 font-bold uppercase text-[10px] tracking-[0.3em]">
             Moderate customer feedback & social proof
           </p>
         </div>
-        <div className="flex bg-white/5 p-1 rounded-2xl border border-white/10 w-full lg:w-auto">
+        <div className="flex bg-[var(--admin-card)] p-1 rounded-2xl border border-[var(--admin-card-border)] w-full lg:w-auto">
           {['pending', 'approved', 'rejected'].map((s) => (
             <button
               key={s}
               onClick={() => setStatusFilter(s)}
-              className={`flex-grow lg:flex-grow-0 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${statusFilter === s ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/20' : 'text-gray-500 hover:text-gray-300'}`}
+              className={`flex-grow lg:flex-grow-0 px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${statusFilter === s ? 'bg-blue-600 text-[var(--admin-text-primary)] shadow-lg shadow-blue-600/20' : 'text-[var(--admin-text-secondary)] hover:text-gray-300'}`}
             >
               {s}
             </button>
@@ -119,23 +119,23 @@ const ReviewModeration: React.FC = () => {
               {/* Product & User Info */}
               <div className="w-full lg:w-72 flex-shrink-0 space-y-6">
                 <div className="flex items-center gap-4">
-                  <div className="w-12 h-12 rounded-2xl bg-neutral-900 overflow-hidden border border-white/10">
+                  <div className="w-12 h-12 rounded-2xl bg-neutral-900 overflow-hidden border border-[var(--admin-card-border)]">
                     <img src={review.product?.image} alt="" className="w-full h-full object-cover" />
                   </div>
                   <div className="flex-grow min-w-0">
-                    <p className="text-[10px] font-black text-gray-500 uppercase tracking-widest mb-0.5">Product</p>
-                    <p className="text-sm font-bold text-white truncate">{review.product?.name}</p>
+                    <p className="text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest mb-0.5">Product</p>
+                    <p className="text-sm font-bold text-[var(--admin-text-primary)] truncate">{review.product?.name}</p>
                   </div>
                 </div>
 
-                <div className="p-4 rounded-2xl bg-white/5 border border-white/5 space-y-3">
+                <div className="p-4 rounded-2xl bg-[var(--admin-card)] border border-[var(--admin-card-border)] space-y-3">
                   <div className="flex items-center gap-3">
                     <div className="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-xs font-black">
                       {review.user?.name?.charAt(0).toUpperCase()}
                     </div>
                     <div>
-                      <p className="text-xs font-bold text-white truncate max-w-[150px]">{review.user?.name}</p>
-                      <p className="text-[9px] text-gray-500 truncate max-w-[150px]">{review.user?.email}</p>
+                      <p className="text-xs font-bold text-[var(--admin-text-primary)] truncate max-w-[150px]">{review.user?.name}</p>
+                      <p className="text-[9px] text-[var(--admin-text-secondary)] truncate max-w-[150px]">{review.user?.email}</p>
                     </div>
                   </div>
                   {review.isVerifiedPurchase && (
@@ -161,25 +161,25 @@ const ReviewModeration: React.FC = () => {
                 </div>
 
                 <div>
-                  <h4 className="text-lg font-bold text-white mb-2">{review.title}</h4>
+                  <h4 className="text-lg font-bold text-[var(--admin-text-primary)] mb-2">{review.title}</h4>
                   <p className="text-sm text-gray-400 leading-relaxed">{review.body}</p>
                 </div>
 
                 {review.images?.length > 0 && (
                   <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                     {review.images.map((img: string, i: number) => (
-                      <div key={i} className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 border border-white/10">
+                      <div key={i} className="w-24 h-24 rounded-xl overflow-hidden flex-shrink-0 border border-[var(--admin-card-border)]">
                         <img src={img} alt="" className="w-full h-full object-cover" />
                       </div>
                     ))}
                   </div>
                 )}
 
-                <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-white/5">
+                <div className="flex flex-wrap items-center gap-4 pt-4 border-t border-[var(--admin-card-border)]">
                   {review.status !== 'approved' && (
                     <button 
                       onClick={() => updateMutation.mutate({ id: review._id, data: { status: 'approved' } })}
-                      className="flex-grow sm:flex-grow-0 bg-emerald-600 hover:bg-emerald-700 text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2"
+                      className="flex-grow sm:flex-grow-0 bg-emerald-600 hover:bg-emerald-700 text-[var(--admin-text-primary)] px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all shadow-lg shadow-emerald-600/20 flex items-center justify-center gap-2"
                     >
                       <CheckCircle2 size={16} /> Approve
                     </button>
@@ -192,8 +192,8 @@ const ReviewModeration: React.FC = () => {
                       <XCircle size={16} /> Reject
                     </button>
                   )}
-                  <button className="flex-grow sm:flex-grow-0 bg-white/5 hover:bg-white/10 text-white px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-white/10 flex items-center justify-center gap-2">
-                    <Trash2 size={16} className="text-gray-500" /> Remove
+                  <button className="flex-grow sm:flex-grow-0 bg-[var(--admin-card)] hover:bg-[var(--admin-card)]/10 text-[var(--admin-text-primary)] px-6 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all border border-[var(--admin-card-border)] flex items-center justify-center gap-2">
+                    <Trash2 size={16} className="text-[var(--admin-text-secondary)]" /> Remove
                   </button>
                 </div>
               </div>
@@ -203,8 +203,8 @@ const ReviewModeration: React.FC = () => {
       </div>
 
       {reviews.length === 0 && (
-        <div className="h-[400px] flex flex-col items-center justify-center text-center space-y-4 bg-white/[0.02] rounded-[2rem] border border-white/5">
-          <div className="p-6 bg-white/5 rounded-full text-gray-700">
+        <div className="h-[400px] flex flex-col items-center justify-center text-center space-y-4 bg-[var(--admin-card)]/[0.02] rounded-[2rem] border border-[var(--admin-card-border)]">
+          <div className="p-6 bg-[var(--admin-card)] rounded-full text-gray-700">
             <MessageSquare size={48} />
           </div>
           <div>
@@ -218,3 +218,5 @@ const ReviewModeration: React.FC = () => {
 };
 
 export default ReviewModeration;
+
+

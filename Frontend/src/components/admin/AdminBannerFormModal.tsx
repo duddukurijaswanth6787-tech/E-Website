@@ -1,4 +1,5 @@
 import React from 'react';
+import { ImageUploader } from './ImageUploader';
 
 export type BannerFormState = {
   title: string;
@@ -84,18 +85,12 @@ const AdminBannerFormModal: React.FC<AdminBannerFormModalProps> = ({
             </div>
 
             <div className="sm:col-span-2">
-              <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Image URL</label>
-              <input
+              <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Banner Image</label>
+              <ImageUploader
                 value={form.imageUrl}
-                onChange={(e) => setForm((f) => ({ ...f, imageUrl: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none"
-                placeholder="https://..."
+                onChange={url => setForm((f) => ({ ...f, imageUrl: url }))}
+                folder="banners"
               />
-              {form.imageUrl && (
-                <div className="mt-3 aspect-[21/9] rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
-                  <img src={form.imageUrl} alt="Banner Preview" className="w-full h-full object-cover" />
-                </div>
-              )}
             </div>
 
             <div>

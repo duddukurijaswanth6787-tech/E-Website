@@ -18,9 +18,9 @@ const seed = async () => {
   await connectMongoDB();
 
   // ===== 1. Seed Super Admin =====
+  const adminPassword = await hashPassword(env.seed.adminPassword);
   const existing = await Admin.findOne({ email: env.seed.adminEmail });
   if (!existing) {
-    const adminPassword = await hashPassword(env.seed.adminPassword);
     await User.create({
       name: env.seed.adminName,
       email: env.seed.adminEmail.toLowerCase(),
@@ -51,7 +51,9 @@ const seed = async () => {
     });
     console.log(`✅ Super Admin created: ${env.seed.adminEmail}`);
   } else {
-    console.log(`ℹ️  Super Admin already exists: ${env.seed.adminEmail}`);
+    existing.passwordHash = adminPassword;
+    await existing.save();
+    console.log(`ℹ️  Super Admin already exists, forcefully updated password for: ${env.seed.adminEmail}`);
   }
 
   // ===== 2. Seed Categories =====

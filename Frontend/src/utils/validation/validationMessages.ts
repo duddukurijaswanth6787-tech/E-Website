@@ -1,0 +1,15 @@
+export const VALIDATION_MESSAGES = {
+  REQUIRED: (field: string) => `${field} is required.`,
+  PHONE: "Phone number must contain exactly 10 digits.",
+  EMAIL_GMAIL: "Email must end with @gmail.com.",
+  EMAIL_INVALID: "Please enter a valid email address.",
+  PASSWORD: "Password must be at least 8 characters and include uppercase, lowercase, number, and special character.",
+  NAME: "Name must contain only letters and be at least 2 characters.",
+  PINCODE: "Pincode must contain exactly 6 digits.",
+  OTP: "OTP must be numeric (4 or 6 digits).",
+  PRICE: "Please enter a valid positive amount.",
+  QUANTITY: "Quantity must be at least 1.",
+  FILE_SIZE: (max: string) => `File size exceeds the limit of ${max}.`,
+  FILE_TYPE: "Allowed file types are: JPG, JPEG, PNG, WEBP.",
+  GENERIC_INVALID: (field: string) => `Invalid ${field} format.`,
+};

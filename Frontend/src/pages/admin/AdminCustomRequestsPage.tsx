@@ -80,7 +80,7 @@ const AdminCustomRequestsPage = () => {
        accessor: (row: any) => (
          <div>
            <span className="block font-medium tracking-wide text-primary-950 uppercase text-xs">#{row._id?.substring(0,10) || row.id}</span>
-           <span className="block text-xs text-gray-500 mt-1">{new Date(row.createdAt || Date.now()).toLocaleDateString()}</span>
+           <span className="block text-xs text-[var(--admin-text-secondary)] mt-1">{new Date(row.createdAt || Date.now()).toLocaleDateString()}</span>
          </div>
        )
     },
@@ -89,7 +89,7 @@ const AdminCustomRequestsPage = () => {
        accessor: (row: any) => (
          <div>
            <span className="block font-medium text-gray-900">{row.preferredNeckStyle || row.stylePreferences?.neckline || 'Custom'} / {row.preferredSleeveStyle || row.stylePreferences?.sleeves || 'Custom'}</span>
-           <span className="block text-[0.65rem] tracking-widest uppercase text-gray-500 mt-0.5 max-w-[200px] truncate" title={row.notes || row.fabricDetails}>
+           <span className="block text-[0.65rem] tracking-widest uppercase text-[var(--admin-text-secondary)] mt-0.5 max-w-[200px] truncate" title={row.notes || row.fabricDetails}>
              {row.notes || row.fabricDetails || 'No notes'}
            </span>
          </div>
@@ -100,7 +100,7 @@ const AdminCustomRequestsPage = () => {
        accessor: (row: any) => (
          <div>
            <span className="block text-sm text-gray-800">{row.user?.name || row.customerName || 'Anonymous Link'}</span>
-           <span className="block text-[0.65rem] font-mono text-gray-500 mt-0.5">{row.user?.email || 'N/A'}</span>
+           <span className="block text-[0.65rem] font-mono text-[var(--admin-text-secondary)] mt-0.5">{row.user?.email || 'N/A'}</span>
          </div>
        )
     },
@@ -155,7 +155,7 @@ const AdminCustomRequestsPage = () => {
           <h1 className="text-2xl font-serif text-gray-900 mb-1 flex items-center">
             <Scissors className="w-6 h-6 mr-3 text-primary-700" /> Bespoke CRM Dashboard
           </h1>
-          <p className="text-sm text-gray-500">Track and fulfill unique customer blouse customization pipelines.</p>
+          <p className="text-sm text-[var(--admin-text-secondary)]">Track and fulfill unique customer blouse customization pipelines.</p>
         </div>
       </div>
 
@@ -176,3 +176,5 @@ const AdminCustomRequestsPage = () => {
 };
 
 export default AdminCustomRequestsPage;
+
+

@@ -1,10 +1,8 @@
-/**
- * Marketing ERP Production Configuration
- */
+import { config } from './env.config';
 
 export const MARKETING_CONFIG = {
-  API_BASE_URL: import.meta.env.VITE_API_URL || 'http://localhost:5000/api',
-  WS_URL: import.meta.env.VITE_WS_URL || 'ws://localhost:5000',
+  API_BASE_URL: config.apiUrl,
+  WS_URL: config.socketUrl,
   
   CACHE_STRATEGY: 'stale-while-revalidate',
   REFETCH_INTERVALS: {

@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { Plus, Shield, Edit2, Ban, CheckCircle, Key, Eye, Search, Filter } from 'lucide-react';
+import { Plus, Shield, Edit2, Ban, CheckCircle, Key, Eye, Search, Filter, Trash2 } from 'lucide-react';
 import { adminManagerService } from '../../api/services/adminManager.service';
 import type { ManagerAdmin } from '../../api/services/adminManager.service';
 import ManagerCreateEditModal from '../../components/admin/managers/ManagerCreateEditModal';
@@ -50,6 +50,23 @@ const AdminManagersPage = () => {
     onError: () => toast.error('Failed to update manager status')
   });
 
+  const deleteMutation = useMutation({
+    mutationFn: (id: string) => adminManagerService.deleteManager(id),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['adminManagers'] });
+      toast.success('Manager account deleted successfully');
+    },
+    onError: (err: any) => {
+      toast.error(err.response?.data?.message || 'Failed to delete manager');
+    }
+  });
+
+  const handleDelete = (id: string, name: string) => {
+    if (window.confirm(`Are you sure you want to PERMANENTLY delete manager "${name}"? This action cannot be undone.`)) {
+      deleteMutation.mutate(id);
+    }
+  };
+
   const managers = response?.data?.managers || [];
   const activeCount = managers.filter(m => m.isActive).length;
 
@@ -85,12 +102,12 @@ const AdminManagersPage = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-8">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Manager Accounts</h1>
-          <p className="text-sm text-gray-500 mt-1 font-medium">Enterprise command center for workshop operational leaders.</p>
+          <p className="text-sm text-[var(--admin-text-secondary)] mt-1 font-medium">Enterprise command center for workshop operational leaders.</p>
         </div>
         {isSuperAdmin && (
           <button 
             onClick={handleCreate}
-            className="mt-4 sm:mt-0 bg-blue-700 text-white px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-800 transition-all shadow-sm flex items-center"
+            className="mt-4 sm:mt-0 bg-blue-700 text-[var(--admin-text-primary)] px-4 py-2 rounded-lg font-bold text-sm hover:bg-blue-800 transition-all shadow-sm flex items-center"
           >
             <Plus size={18} className="mr-2" /> Add New Manager
           </button>
@@ -99,15 +116,15 @@ const AdminManagersPage = () => {
 
       {/* Stats & Search */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-        <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex items-center">
+        <div className="bg-[var(--admin-card)] p-5 rounded-xl border border-gray-200 shadow-sm flex items-center">
           <div className="bg-blue-50 p-3 rounded-lg text-blue-600 mr-4"><Shield size={20} /></div>
           <div><p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Total Leaders</p><p className="text-2xl font-bold text-gray-900">{managers.length}</p></div>
         </div>
-        <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm flex items-center">
+        <div className="bg-[var(--admin-card)] p-5 rounded-xl border border-gray-200 shadow-sm flex items-center">
           <div className="bg-emerald-50 p-3 rounded-lg text-emerald-600 mr-4"><CheckCircle size={20} /></div>
           <div><p className="text-xs font-bold text-gray-400 uppercase tracking-wider">Active Status</p><p className="text-2xl font-bold text-gray-900">{activeCount}</p></div>
         </div>
-        <div className="md:col-span-2 bg-white p-4 rounded-xl border border-gray-200 shadow-sm flex items-center space-x-3">
+        <div className="md:col-span-2 bg-[var(--admin-card)] p-4 rounded-xl border border-gray-200 shadow-sm flex items-center space-x-3">
           <div className="flex-1 relative">
             <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
             <input 
@@ -132,7 +149,7 @@ const AdminManagersPage = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-[var(--admin-card)] rounded-2xl shadow-sm border border-gray-200 overflow-hidden">
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50/80">
@@ -144,7 +161,7 @@ const AdminManagersPage = () => {
                 <th className="px-6 py-4 text-right text-xs font-black text-gray-400 uppercase tracking-widest">Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-100">
+            <tbody className="bg-[var(--admin-card)] divide-y divide-gray-100">
               {isLoading ? (
                 <tr><td colSpan={5} className="px-6 py-12 text-center text-gray-400">Loading managers...</td></tr>
               ) : managers.length === 0 ? (
@@ -155,7 +172,7 @@ const AdminManagersPage = () => {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center">
                         <div className="relative">
-                          <div className="h-10 w-10 rounded-xl bg-blue-600 text-white flex items-center justify-center font-bold text-sm shadow-sm">
+                          <div className="h-10 w-10 rounded-xl bg-blue-600 text-[var(--admin-text-primary)] flex items-center justify-center font-bold text-sm shadow-sm">
                             {manager.name.charAt(0)}
                           </div>
                           {isOnline(manager.lastLoginAt) && (
@@ -164,7 +181,7 @@ const AdminManagersPage = () => {
                         </div>
                         <div className="ml-4">
                           <div className="text-sm font-bold text-gray-900">{manager.name}</div>
-                          <div className="text-xs text-gray-500 font-medium flex items-center">
+                          <div className="text-xs text-[var(--admin-text-secondary)] font-medium flex items-center">
                             {manager.managerCode} • {manager.email}
                           </div>
                         </div>
@@ -196,14 +213,21 @@ const AdminManagersPage = () => {
                             <button onClick={() => handleEdit(manager)} className="text-blue-600 hover:text-blue-900 bg-blue-50 p-2 rounded-lg transition-all" title="Edit Profile">
                               <Edit2 size={16} />
                             </button>
-                            <button 
-                              onClick={() => toggleStatusMutation.mutate({ id: manager._id, isActive: !manager.isActive })} 
-                              className={`${manager.isActive ? 'text-red-600 hover:text-red-900 bg-red-50' : 'text-emerald-600 hover:text-emerald-900 bg-emerald-50'} p-2 rounded-lg transition-all`}
-                              title={manager.isActive ? 'Suspend' : 'Activate'}
-                            >
-                              {manager.isActive ? <Ban size={16} /> : <CheckCircle size={16} />}
-                            </button>
-                          </div>
+                             <button 
+                               onClick={() => toggleStatusMutation.mutate({ id: manager._id, isActive: !manager.isActive })} 
+                               className={`${manager.isActive ? 'text-amber-600 hover:text-amber-900 bg-amber-50' : 'text-emerald-600 hover:text-emerald-900 bg-emerald-50'} p-2 rounded-lg transition-all`}
+                               title={manager.isActive ? 'Suspend' : 'Activate'}
+                             >
+                               {manager.isActive ? <Ban size={16} /> : <CheckCircle size={16} />}
+                             </button>
+                             <button 
+                               onClick={() => handleDelete(manager._id, manager.name)} 
+                               className="text-red-600 hover:text-red-900 bg-red-50 p-2 rounded-lg transition-all" 
+                               title="Delete Permanently"
+                             >
+                               <Trash2 size={16} />
+                             </button>
+                           </div>
                        ) : (
                           <button onClick={() => handleViewDetails(manager)} className="text-gray-400 hover:text-blue-600 flex items-center ml-auto font-black text-[10px] uppercase tracking-widest">
                             <Eye size={14} className="mr-1" /> View Audit
@@ -246,3 +270,5 @@ const AdminManagersPage = () => {
 };
 
 export default AdminManagersPage;
+
+

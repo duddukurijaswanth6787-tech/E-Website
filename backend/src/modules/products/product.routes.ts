@@ -3,6 +3,8 @@ import { productController } from './product.controller';
 import { authenticateAdmin, requirePermission } from '../../common/middlewares';
 import { PERMISSIONS, UPLOAD_FOLDER } from '../../common/constants';
 import { uploadMultipleImages } from '../../common/middlewares/upload.middleware';
+import { validateZod } from '../../common/middlewares/zodValidate.middleware';
+import { createProductSchema, updateProductSchema } from '../../common/validation/enterprise.schemas';
 
 const router = Router();
 
@@ -36,6 +38,7 @@ router.post('/',
   authenticateAdmin,
   requirePermission(PERMISSIONS.MANAGE_PRODUCTS),
   uploadMultipleImages(UPLOAD_FOLDER.PRODUCTS, 'images', 10),
+  validateZod(createProductSchema),
   productController.create.bind(productController),
 );
 
@@ -43,6 +46,7 @@ router.put('/:id',
   authenticateAdmin,
   requirePermission(PERMISSIONS.MANAGE_PRODUCTS),
   uploadMultipleImages(UPLOAD_FOLDER.PRODUCTS, 'images', 10),
+  validateZod(updateProductSchema),
   productController.update.bind(productController),
 );
 

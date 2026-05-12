@@ -174,14 +174,8 @@ export const updateManagerStatus = async (req: Request, res: Response) => {
 
 export const deleteManager = async (req: Request, res: Response) => {
   const { id } = req.params;
-  const adminId = req.admin!.adminId;
 
-  const manager = await Manager.findByIdAndUpdate(id, { 
-    isActive: false, 
-    disabledBy: adminId, 
-    disabledAt: new Date(),
-    refreshTokens: [] // Revoke sessions
-  }, { new: true });
+  const manager = await Manager.findByIdAndDelete(id);
   
   if (!manager) {
     throw new NotFoundError('Manager not found');
@@ -189,7 +183,7 @@ export const deleteManager = async (req: Request, res: Response) => {
 
   res.status(200).json({
     status: 'success',
-    message: 'Manager deactivated successfully',
+    message: 'Manager permanently deleted successfully',
   });
 };
 

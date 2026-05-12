@@ -5,6 +5,9 @@ import { categoryService } from '../../api/services/category.service';
 import { settingsService } from '../../api/services/settings.service';
 import type { Category } from '../../api/services/category.service';
 
+import { IMAGES } from '../../constants/assets';
+import { SafeImage } from '../common/SafeImage';
+
 function extractCategories(res: unknown): Category[] {
   const r = res as Record<string, unknown> | Category[] | null | undefined;
   if (Array.isArray(r)) return r as Category[];
@@ -24,11 +27,11 @@ function isMainCategory(c: Category): boolean {
 }
 
 const FALLBACK_CATEGORIES = [
-  { name: 'Bridal Sarees', image: 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=2000&auto=format&fit=crop', path: '/shop', featured: true },
-  { name: 'Kanchipuram Silk', image: 'https://images.unsplash.com/photo-1610030469614-118bd245781a?q=80&w=2000&auto=format&fit=crop', path: '/shop', featured: false },
-  { name: 'Cotton Silk', image: 'https://images.unsplash.com/photo-1583391733958-d15f3a53d10e?q=80&w=2000&auto=format&fit=crop', path: '/shop', featured: false },
-  { name: 'Designer Concept', image: 'https://images.unsplash.com/photo-1605701389814-11003f56ce73?q=80&w=2000&auto=format&fit=crop', path: '/shop', featured: false },
-  { name: 'Festive Wear', image: 'https://images.unsplash.com/photo-1550420790-264627bbcbdf?q=80&w=2000&auto=format&fit=crop', path: '/shop', featured: false },
+  { name: 'Bridal Sarees', image: IMAGES.categories.bridal, path: '/shop', featured: true },
+  { name: 'Kanchipuram Silk', image: IMAGES.categories.kanchipuram, path: '/shop', featured: false },
+  { name: 'Cotton Silk', image: IMAGES.categories.cotton, path: '/shop', featured: false },
+  { name: 'Designer Concept', image: IMAGES.categories.designer, path: '/shop', featured: false },
+  { name: 'Festive Wear', image: IMAGES.categories.festive, path: '/shop', featured: false },
 ];
 
 const FeaturedCategories = () => {
@@ -37,9 +40,13 @@ const FeaturedCategories = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchCats = async () => {
+    const abortController = new AbortController();
+
+    const fetchCategories = async () => {
       try {
         const settingsRes = await settingsService.getPublicSettings();
+        if (abortController.signal.aborted) return;
+
         const settingsData = settingsRes.data?.data || settingsRes.data;
         if (settingsData && settingsData.homepage_featured_categories) {
            const custom = settingsData.homepage_featured_categories;
@@ -52,6 +59,8 @@ const FeaturedCategories = () => {
         }
 
         const res = await categoryService.getAllCategories();
+        if (abortController.signal.aborted) return;
+
         let list = extractCategories(res).filter((c) => c?.slug && c?.name);
 
         const mains = list.filter(isMainCategory);
@@ -59,7 +68,7 @@ const FeaturedCategories = () => {
 
         const mapped = list.slice(0, 5).map((cat: Category, index: number) => ({
           name: cat.name,
-          image: cat.banner || 'https://images.unsplash.com/photo-1583391733958-d15f3a53d10e?q=80&w=2000&auto=format&fit=crop',
+          image: cat.banner || IMAGES.placeholder,
           path: `/category/${cat.slug}`,
           featured: index === 0,
         }));
@@ -69,18 +78,25 @@ const FeaturedCategories = () => {
         } else {
           setCategories(FALLBACK_CATEGORIES);
         }
-      } catch (err) {
-        console.warn('Featured categories: using fallback (API unavailable or empty)', err);
+      } catch (err: any) {
+        if (err.name === 'AbortError') return;
+        if (import.meta.env.DEV) {
+          console.warn('Featured categories: using fallback', err.message);
+        }
         setCategories(FALLBACK_CATEGORIES);
       } finally {
-        setLoading(false);
+        if (!abortController.signal.aborted) {
+          setLoading(false);
+        }
       }
     };
-    fetchCats();
+    fetchCategories();
+
+    return () => abortController.abort();
   }, []);
 
   return (
-    <section className="py-20 bg-premium-ivory/60">
+    <section className="py-20 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
@@ -112,9 +128,11 @@ const FeaturedCategories = () => {
                   ${cat.featured ? 'md:col-span-2 md:row-span-2' : ''}
                 `}
               >
-                <div 
-                  className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-transform duration-700 group-hover:scale-105"
-                  style={{ backgroundImage: `url('${cat.image}')` }}
+                <SafeImage 
+                  src={cat.image}
+                  alt={cat.name}
+                  className="absolute inset-0 w-full h-full transition-transform duration-700 group-hover:scale-105"
+                  fallback={IMAGES.placeholder}
                 />
                 <div className="absolute inset-0 bg-gradient-to-t from-primary-950/80 via-primary-950/20 to-transparent opacity-90 transition-opacity duration-300 group-hover:opacity-100" />
                 

@@ -21,7 +21,7 @@ const ManagerAnalyticsPage = () => {
     return (
       <div className="p-8 flex items-center justify-center min-h-[60vh]">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-10 h-10 border-4 border-stone-200 border-t-amber-500 rounded-full animate-spin"></div>
+          <div className="w-10 h-10 border-4 border-[var(--admin-card-border)] border-t-amber-500 rounded-full animate-spin"></div>
           <p className="text-stone-500 font-bold uppercase tracking-widest text-xs font-bold">Aggregating Production Intelligence...</p>
         </div>
       </div>
@@ -33,13 +33,13 @@ const ManagerAnalyticsPage = () => {
       <div className="mb-10">
         <div className="flex items-center gap-3 mb-1">
           <LineChartIcon className="w-6 h-6 text-amber-500" />
-          <h1 className="text-2xl font-black text-stone-900 tracking-tight uppercase">Operational Intelligence</h1>
+          <h1 className="text-2xl font-black text-[var(--admin-text-primary)] tracking-tight uppercase">Operational Intelligence</h1>
         </div>
         <p className="text-stone-500 text-sm font-medium">Production performance metrics, quality ratios, and SLA adherence trends.</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-10">
-        <div className="bg-white border border-stone-200 rounded-3xl p-8 shadow-sm">
+        <div className="bg-[var(--admin-card)] border border-[var(--admin-card-border)] rounded-3xl p-8 shadow-sm">
            <h3 className="text-xs font-black text-stone-400 uppercase tracking-widest mb-6 flex items-center gap-2">
              <Activity className="w-4 h-4" /> Production Throughput
            </h3>
@@ -50,7 +50,7 @@ const ManagerAnalyticsPage = () => {
                     className="w-full bg-stone-100 rounded-t-lg group-hover:bg-amber-500 transition-all duration-300 relative"
                     style={{ height: `${h}%` }}
                   >
-                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-stone-900 text-white text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 bg-[var(--admin-card)] text-[var(--admin-text-primary)] text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity">
                       {h} Units
                     </div>
                   </div>
@@ -58,9 +58,9 @@ const ManagerAnalyticsPage = () => {
                 </div>
               ))}
            </div>
-           <div className="flex justify-between items-center pt-6 border-t border-stone-100">
+           <div className="flex justify-between items-center pt-6 border-t border-[var(--admin-card-border)]">
               <div>
-                <p className="text-2xl font-black text-stone-900">480</p>
+                <p className="text-2xl font-black text-[var(--admin-text-primary)]">480</p>
                 <p className="text-[10px] font-bold text-stone-400 uppercase">Weekly Output</p>
               </div>
               <div className="text-right">
@@ -72,7 +72,7 @@ const ManagerAnalyticsPage = () => {
            </div>
         </div>
 
-        <div className="bg-stone-900 border border-stone-800 rounded-3xl p-8 shadow-xl text-white">
+        <div className="bg-[var(--admin-card)] border border-stone-800 rounded-3xl p-8 shadow-xl text-[var(--admin-text-primary)]">
            <h3 className="text-xs font-black text-stone-500 uppercase tracking-widest mb-6 flex items-center gap-2">
              <CheckCircle2 className="w-4 h-4 text-emerald-500" /> Quality Control Ratios
            </h3>
@@ -100,18 +100,18 @@ const ManagerAnalyticsPage = () => {
 
               <div className="grid grid-cols-2 gap-4 pt-4">
                  <div className="bg-stone-800/50 p-4 rounded-2xl border border-stone-800">
-                    <p className="text-xl font-black text-white">{analytics?.reworkCount || 0}</p>
+                    <p className="text-xl font-black text-[var(--admin-text-primary)]">{analytics?.reworkCount || 0}</p>
                     <p className="text-[9px] font-bold text-stone-500 uppercase tracking-widest">Items in Rework</p>
                  </div>
                  <div className="bg-stone-800/50 p-4 rounded-2xl border border-stone-800">
-                    <p className="text-xl font-black text-white">12h</p>
+                    <p className="text-xl font-black text-[var(--admin-text-primary)]">12h</p>
                     <p className="text-[9px] font-bold text-stone-500 uppercase tracking-widest">Avg. Repair Time</p>
                  </div>
               </div>
            </div>
         </div>
 
-        <div className="bg-white border border-stone-200 rounded-3xl p-8 shadow-sm">
+        <div className="bg-[var(--admin-card)] border border-[var(--admin-card-border)] rounded-3xl p-8 shadow-sm">
            <h3 className="text-xs font-black text-stone-400 uppercase tracking-widest mb-6 flex items-center gap-2">
              <Clock className="w-4 h-4" /> SLA Adherence Trend
            </h3>
@@ -122,7 +122,7 @@ const ManagerAnalyticsPage = () => {
                   <circle cx="18" cy="18" r="16" fill="none" className="stroke-amber-500" strokeWidth="4" strokeDasharray="85, 100" strokeLinecap="round" />
                 </svg>
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
-                  <span className="text-3xl font-black text-stone-900">85%</span>
+                  <span className="text-3xl font-black text-[var(--admin-text-primary)]">85%</span>
                   <span className="text-[9px] font-bold text-stone-400 uppercase">On-Time</span>
                 </div>
               </div>
@@ -139,7 +139,7 @@ const ManagerAnalyticsPage = () => {
            </div>
         </div>
 
-        <div className="bg-white border border-stone-200 rounded-3xl p-8 shadow-sm">
+        <div className="bg-[var(--admin-card)] border border-[var(--admin-card-border)] rounded-3xl p-8 shadow-sm">
            <h3 className="text-xs font-black text-stone-400 uppercase tracking-widest mb-6 flex items-center gap-2">
              <AlertTriangle className="w-4 h-4 text-red-500" /> Production Bottlenecks
            </h3>
@@ -167,3 +167,5 @@ const ManagerAnalyticsPage = () => {
 };
 
 export default ManagerAnalyticsPage;
+
+

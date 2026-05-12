@@ -121,9 +121,9 @@ const AdminAdminsPage = () => {
           <h1 className="text-2xl font-serif text-gray-900 mb-1 flex items-center gap-3">
             <Shield className="w-6 h-6 text-primary-700" /> Administrative Directory
           </h1>
-          <p className="text-sm text-gray-500">Manage internal staff authorizations, security roles, and system access boundaries.</p>
+          <p className="text-sm text-[var(--admin-text-secondary)]">Manage internal staff authorizations, security roles, and system access boundaries.</p>
         </div>
-        <button className="mt-4 sm:mt-0 flex items-center px-4 py-2 bg-primary-950 text-white text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors">
+        <button className="mt-4 sm:mt-0 flex items-center px-4 py-2 bg-primary-950 text-[var(--admin-text-primary)] text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors">
           <Plus size={16} className="mr-2" />
           Provision Admin
         </button>
@@ -146,3 +146,5 @@ const AdminAdminsPage = () => {
 };
 
 export default AdminAdminsPage;
+
+

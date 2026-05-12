@@ -120,6 +120,16 @@ const OtpVerificationPage = () => {
     }
   };
 
+  const handleResend = async () => {
+    if (!email) return;
+    try {
+      await authService.resendOtp(email, type as any);
+      toast.success('New OTP sent to your email');
+    } catch (err: any) {
+      toast.error(err.message || 'Failed to resend OTP');
+    }
+  };
+
   return (
     <div className="w-full">
       <div className="text-center mb-8">
@@ -148,7 +158,7 @@ const OtpVerificationPage = () => {
               value={digit}
               onChange={(e) => handleChange(index, e.target.value)}
               onKeyDown={(e) => handleKeyDown(index, e)}
-              className="w-10 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-bold bg-white border border-gray-300 rounded focus:border-primary-600 focus:ring-1 focus:ring-primary-600 transition-colors"
+              className="w-10 h-12 sm:w-12 sm:h-14 text-center text-lg sm:text-xl font-bold bg-white border border-gray-300 rounded text-gray-900 focus:border-primary-600 focus:ring-1 focus:ring-primary-600 transition-colors"
             />
           ))}
         </div>
@@ -170,9 +180,14 @@ const OtpVerificationPage = () => {
         <p className="text-sm text-gray-600 mb-2">
           Didn't receive the code?
         </p>
-        <button className="text-primary-700 font-semibold text-sm hover:underline">
+        <button 
+          type="button"
+          onClick={handleResend}
+          className="text-primary-700 font-semibold text-sm hover:underline"
+        >
           Resend OTP
         </button>
+
         <div className="mt-4">
           <Link to={`/login?redirect=${encodeURIComponent(redirect)}`} className="text-xs text-gray-400 hover:text-gray-600 underline">
             Return to Login

@@ -1,29 +1,47 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { cmsService } from '../../api/services/cms.service';
-import { uploadService } from '../../api/services/upload.service';
-import { Save, Image as ImageIcon, RotateCcw, X } from 'lucide-react';
+import { IMAGES } from '../../constants/assets';
+import { ImageUploader } from '../../components/admin/ImageUploader';
+import { Save, RotateCcw, Plus, Trash2, ChevronLeft, ChevronRight, Clock } from 'lucide-react';
 import toast from 'react-hot-toast';
+
+export interface HeroSlideData {
+  titleLine1: string;
+  titleLine2: string;
+  subtitle: string;
+  badgeText?: string;
+  backgroundImage?: string;
+  mobileBackgroundImage?: string;
+  primaryButtonText?: string;
+  primaryButtonLink?: string;
+  secondaryButtonText?: string;
+  secondaryButtonLink?: string;
+}
 
 export default function AdminHeroSectionPage() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [previewMode, setPreviewMode] = useState<'desktop' | 'mobile'>('desktop');
-  
-  const [formData, setFormData] = useState({
+  const [activeSlideIndex, setActiveSlideIndex] = useState(0);
+
+  const defaultSlide: HeroSlideData = {
     titleLine1: 'Elegance in Every',
     titleLine2: 'Thread',
     subtitle: 'Discover our curated collection of handwoven sarees, bespoke designer blouses, and bridal masterpieces.',
     badgeText: 'Luxury Indian Ethnic Wear',
     backgroundImage: '',
-    desktopImageAlt: 'Vasanthi Creations Hero Desktop',
     mobileBackgroundImage: '',
-    mobileImageAlt: 'Vasanthi Creations Hero Mobile',
     primaryButtonText: 'Shop Collection',
     primaryButtonLink: '/shop',
     secondaryButtonText: 'Custom Blouse',
     secondaryButtonLink: '/custom-blouse',
+  };
+
+  const [formData, setFormData] = useState({
     overlayOpacity: 0.5,
     isPublished: false,
+    autoplayInterval: 5,
+    slides: [defaultSlide]
   });
 
   useEffect(() => {
@@ -35,7 +53,25 @@ export default function AdminHeroSectionPage() {
       setLoading(true);
       const res = await cmsService.getAdminHeroSection();
       if (res.data) {
-        setFormData(res.data);
+        const fetched = res.data;
+        const slides = (fetched.slides && fetched.slides.length > 0) ? fetched.slides : [{
+          titleLine1: fetched.titleLine1 || 'Elegance in Every',
+          titleLine2: fetched.titleLine2 || 'Thread',
+          subtitle: fetched.subtitle || 'Discover our curated collection.',
+          badgeText: fetched.badgeText || 'Luxury Indian Ethnic Wear',
+          backgroundImage: fetched.backgroundImage || '',
+          mobileBackgroundImage: fetched.mobileBackgroundImage || '',
+          primaryButtonText: fetched.primaryButtonText || 'Shop Collection',
+          primaryButtonLink: fetched.primaryButtonLink || '/shop',
+          secondaryButtonText: fetched.secondaryButtonText || '',
+          secondaryButtonLink: fetched.secondaryButtonLink || '',
+        }];
+        setFormData({
+          overlayOpacity: fetched.overlayOpacity ?? 0.5,
+          isPublished: fetched.isPublished ?? false,
+          autoplayInterval: fetched.autoplayInterval ?? 5,
+          slides
+        });
       }
     } catch (error) {
       toast.error('Failed to load Hero section data');
@@ -44,47 +80,80 @@ export default function AdminHeroSectionPage() {
     }
   };
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { name, value, type } = e.target;
+  const handleGlobalChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? (e.target as HTMLInputElement).checked : value
+      [name]: type === 'checkbox' ? checked : Number(value)
     }));
   };
 
-  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: 'backgroundImage' | 'mobileBackgroundImage') => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    
-    try {
-      const toastId = toast.loading('Uploading image...');
-      const res = await uploadService.uploadSingle(file, 'hero');
-      const url = res.data?.url || res.data?.data?.url;
-      if (url) {
-        setFormData(prev => ({ ...prev, [field]: url }));
-        toast.success('Image uploaded', { id: toastId });
-      } else {
-        throw new Error('No URL returned');
-      }
-    } catch (error) {
-      toast.error('Failed to upload image');
-    }
+  const handleSlideChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => {
+      const updatedSlides = [...prev.slides];
+      updatedSlides[activeSlideIndex] = {
+        ...updatedSlides[activeSlideIndex],
+        [name]: value
+      };
+      return { ...prev, slides: updatedSlides };
+    });
   };
 
-  const handleRemoveImage = (field: 'backgroundImage' | 'mobileBackgroundImage') => {
-    setFormData(prev => ({ ...prev, [field]: '' }));
+  const handleSlideImageChange = (field: 'backgroundImage' | 'mobileBackgroundImage', url: string) => {
+    setFormData(prev => {
+      const updatedSlides = [...prev.slides];
+      updatedSlides[activeSlideIndex] = {
+        ...updatedSlides[activeSlideIndex],
+        [field]: url
+      };
+      return { ...prev, slides: updatedSlides };
+    });
+  };
+
+  const addNewSlide = () => {
+    setFormData(prev => ({
+      ...prev,
+      slides: [...prev.slides, { ...defaultSlide, titleLine1: 'New Creative', titleLine2: 'Concept' }]
+    }));
+    setActiveSlideIndex(formData.slides.length);
+    toast.success('Added new slide layout');
+  };
+
+  const removeSlide = (index: number) => {
+    if (formData.slides.length <= 1) {
+      toast.error('You must keep at least one live slide.');
+      return;
+    }
+    setFormData(prev => ({
+      ...prev,
+      slides: prev.slides.filter((_, idx) => idx !== index)
+    }));
+    setActiveSlideIndex(Math.max(0, index - 1));
+    toast.success('Slide removed');
   };
 
   const handleSave = async () => {
-    if (!formData.titleLine1 || !formData.titleLine2 || !formData.subtitle || !formData.primaryButtonText || !formData.primaryButtonLink) {
-      toast.error('Please fill in all required fields.');
-      return;
+    // Validate current slides
+    for (let i = 0; i < formData.slides.length; i++) {
+      const s = formData.slides[i];
+      if (!s.titleLine1 || !s.titleLine2 || !s.subtitle) {
+        toast.error(`Slide ${i + 1} is missing required headline or subtitle text.`);
+        setActiveSlideIndex(i);
+        return;
+      }
     }
 
     try {
       setSaving(true);
-      await cmsService.updateHeroSection(formData);
-      toast.success('Hero section updated successfully');
+      // To preserve root level getters safely on older server handlers, copy first slide to base props
+      const payload = {
+        ...formData,
+        ...formData.slides[0]
+      };
+      await cmsService.updateHeroSection(payload);
+      toast.success('Hero section layout saved & published');
+      await fetchHero();
     } catch (error) {
       toast.error('Failed to update Hero section');
     } finally {
@@ -93,213 +162,327 @@ export default function AdminHeroSectionPage() {
   };
 
   const handleReset = () => {
-    if (confirm('Are you sure you want to reset to default values? Unsaved changes will be lost.')) {
+    if (confirm('Reset to standard template layout? Unsaved entries will be erased.')) {
       setFormData({
-        titleLine1: 'Elegance in Every',
-        titleLine2: 'Thread',
-        subtitle: 'Discover our curated collection of handwoven sarees, bespoke designer blouses, and bridal masterpieces.',
-        badgeText: 'Luxury Indian Ethnic Wear',
-        backgroundImage: '',
-        desktopImageAlt: 'Vasanthi Creations Hero Desktop',
-        mobileBackgroundImage: '',
-        mobileImageAlt: 'Vasanthi Creations Hero Mobile',
-        primaryButtonText: 'Shop Collection',
-        primaryButtonLink: '/shop',
-        secondaryButtonText: 'Custom Blouse',
-        secondaryButtonLink: '/custom-blouse',
         overlayOpacity: 0.5,
         isPublished: false,
+        autoplayInterval: 5,
+        slides: [defaultSlide]
       });
+      setActiveSlideIndex(0);
     }
   };
 
-  if (loading) return <div className="p-8 text-center">Loading...</div>;
+  // Manual Preview controls are provided to prevent interrupting admin text/asset inputs.
+
+  if (loading) return <div className="p-8 text-center text-gray-500 font-bold tracking-widest uppercase">Loading Inventory Engine...</div>;
+
+  const currentSlide = formData.slides[activeSlideIndex] || formData.slides[0];
 
   return (
-    <div className="space-y-6 pb-20">
-      <div className="flex justify-between items-center">
+    <div className="space-y-6 pb-20 max-w-[1600px] mx-auto">
+      {/* Page Title */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-2xl font-serif text-gray-900">Home Page Hero</h1>
-          <p className="text-sm text-gray-500">Manage the main hero banner of the public website.</p>
+          <h1 className="text-2xl sm:text-3xl font-black text-[var(--admin-text-primary)] tracking-tight">Multi-Slide Hero Carousel Engine</h1>
+          <p className="text-xs text-[var(--admin-text-secondary)] uppercase tracking-[0.2em] font-bold mt-1">Configure side-by-side automated storefront banner sets</p>
         </div>
-        <div className="flex gap-3">
-          <button onClick={handleReset} className="flex items-center px-4 py-2 text-sm text-gray-600 bg-white border border-gray-300 rounded hover:bg-gray-50">
-            <RotateCcw className="w-4 h-4 mr-2" /> Reset
+        <div className="flex items-center gap-3 w-full sm:w-auto">
+          <button onClick={handleReset} className="flex-1 sm:flex-none flex items-center justify-center px-5 py-2.5 text-xs font-black uppercase tracking-widest text-gray-600 dark:text-gray-400 bg-[var(--admin-card)] hover:bg-black/5 rounded-xl border border-[var(--admin-card-border)] transition-all">
+            <RotateCcw className="w-3.5 h-3.5 mr-2" /> Reset
           </button>
-          <button onClick={handleSave} disabled={saving} className="flex items-center px-4 py-2 text-sm text-white bg-primary-800 rounded hover:bg-primary-900">
-            <Save className="w-4 h-4 mr-2" /> {saving ? 'Saving...' : 'Save & Publish'}
+          <button onClick={handleSave} disabled={saving} className="flex-1 sm:flex-none flex items-center justify-center px-6 py-2.5 text-xs font-black uppercase tracking-widest text-white bg-blue-600 hover:bg-blue-700 rounded-xl shadow-lg shadow-blue-600/20 transition-all active:scale-95">
+            <Save className="w-3.5 h-3.5 mr-2" /> {saving ? 'Saving...' : 'Save & Publish'}
           </button>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        {/* Settings Form */}
-        <div className="lg:col-span-5 space-y-6">
+        {/* Carousel Flow Configurator */}
+        <div className="lg:col-span-6 space-y-6">
           
-          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-4">
-            <h2 className="font-semibold text-gray-800 border-b pb-2">Status & Overlay</h2>
-            <div className="flex items-center justify-between">
-              <label className="text-sm font-medium text-gray-700">Publish Hero Section</label>
+          {/* Global Parameters */}
+          <div className="bg-[var(--admin-card)] p-6 rounded-2xl border border-[var(--admin-card-border)] shadow-sm space-y-5">
+            <div className="flex items-center justify-between border-b border-[var(--admin-card-border)] pb-4">
+              <div>
+                <h2 className="text-sm font-black uppercase tracking-wider text-[var(--admin-text-primary)]">Storefront Broadcast Engine</h2>
+                <p className="text-[10px] text-[var(--admin-text-secondary)] mt-0.5">Toggle live storefront visibility globally</p>
+              </div>
               <label className="relative inline-flex items-center cursor-pointer">
-                <input type="checkbox" name="isPublished" checked={formData.isPublished} onChange={handleInputChange} className="sr-only peer" />
-                <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-green-600"></div>
+                <input type="checkbox" name="isPublished" checked={formData.isPublished} onChange={handleGlobalChange} className="sr-only peer" />
+                <div className="w-11 h-6 bg-gray-200 dark:bg-white/10 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-500"></div>
               </label>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Overlay Opacity: {formData.overlayOpacity}</label>
-              <input type="range" name="overlayOpacity" min="0" max="0.9" step="0.1" value={formData.overlayOpacity} onChange={handleInputChange} className="w-full" />
-            </div>
-          </div>
 
-          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-4">
-            <h2 className="font-semibold text-gray-800 border-b pb-2">Text Content</h2>
-            <div>
-              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Badge Text</label>
-              <input type="text" name="badgeText" value={formData.badgeText} onChange={handleInputChange} className="w-full px-3 py-2 border rounded text-sm focus:ring-1 focus:ring-primary-500" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Title Line 1 *</label>
-              <input type="text" name="titleLine1" value={formData.titleLine1} onChange={handleInputChange} required className="w-full px-3 py-2 border rounded text-sm focus:ring-1 focus:ring-primary-500" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Title Line 2 (Italic) *</label>
-              <input type="text" name="titleLine2" value={formData.titleLine2} onChange={handleInputChange} required className="w-full px-3 py-2 border rounded text-sm focus:ring-1 focus:ring-primary-500" />
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Subtitle *</label>
-              <textarea name="subtitle" value={formData.subtitle} onChange={handleInputChange} required rows={3} className="w-full px-3 py-2 border rounded text-sm focus:ring-1 focus:ring-primary-500" />
-            </div>
-          </div>
-
-          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-4">
-            <h2 className="font-semibold text-gray-800 border-b pb-2">Call to Actions</h2>
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
-                <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Primary Btn Text *</label>
-                <input type="text" name="primaryButtonText" value={formData.primaryButtonText} onChange={handleInputChange} required className="w-full px-3 py-2 border rounded text-sm" />
+                <label className="block text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-wider mb-2">
+                  Overlay Shade Tint ({formData.overlayOpacity})
+                </label>
+                <input type="range" name="overlayOpacity" min="0" max="0.9" step="0.05" value={formData.overlayOpacity} onChange={handleGlobalChange} className="w-full accent-blue-600" />
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Primary Btn Link *</label>
-                <input type="text" name="primaryButtonLink" value={formData.primaryButtonLink} onChange={handleInputChange} required className="w-full px-3 py-2 border rounded text-sm" />
-              </div>
-            </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Secondary Btn Text</label>
-                <input type="text" name="secondaryButtonText" value={formData.secondaryButtonText} onChange={handleInputChange} className="w-full px-3 py-2 border rounded text-sm" />
-              </div>
-              <div>
-                <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-1">Secondary Btn Link</label>
-                <input type="text" name="secondaryButtonLink" value={formData.secondaryButtonLink} onChange={handleInputChange} className="w-full px-3 py-2 border rounded text-sm" />
+                <label className="flex items-center gap-1.5 text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-wider mb-2">
+                  <Clock size={12} className="text-blue-500" /> Autoplay Timer Interval
+                </label>
+                <div className="flex items-center gap-2">
+                  <input 
+                    type="number" 
+                    name="autoplayInterval" 
+                    min="2" 
+                    max="20" 
+                    value={formData.autoplayInterval} 
+                    onChange={handleGlobalChange} 
+                    className="w-20 bg-[var(--admin-bg)] border border-[var(--admin-card-border)] rounded-xl px-3 py-2 text-sm font-bold text-[var(--admin-text-primary)] outline-none focus:border-blue-500 text-center" 
+                  />
+                  <span className="text-xs text-[var(--admin-text-secondary)] font-medium">seconds / slide</span>
+                </div>
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-5 rounded-xl border border-gray-200 shadow-sm space-y-4">
-            <h2 className="font-semibold text-gray-800 border-b pb-2">Background Images</h2>
-            <div>
-              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Desktop Image (1920x1080)</label>
-              {formData.backgroundImage ? (
-                <div className="relative w-full h-32 rounded overflow-hidden border">
-                  <img src={formData.backgroundImage} className="w-full h-full object-cover" alt="Desktop Preview" />
-                  <button onClick={() => handleRemoveImage('backgroundImage')} className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full"><X size={14} /></button>
+          {/* Dynamic Tabs list */}
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 border-b border-[var(--admin-card-border)]">
+            {formData.slides.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setActiveSlideIndex(idx)}
+                className={`group flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider transition-all flex-shrink-0 ${
+                  idx === activeSlideIndex 
+                    ? 'bg-blue-600 text-white shadow-md shadow-blue-600/20' 
+                    : 'bg-[var(--admin-card)] text-[var(--admin-text-secondary)] hover:text-[var(--admin-text-primary)] border border-[var(--admin-card-border)]'
+                }`}
+              >
+                <span>Slide #{idx + 1}</span>
+                {formData.slides.length > 1 && (
+                  <Trash2 
+                    size={13} 
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeSlide(idx);
+                    }}
+                    className={`transition-colors ${idx === activeSlideIndex ? 'text-white/70 hover:text-white' : 'text-gray-400 hover:text-rose-500'}`} 
+                  />
+                )}
+              </button>
+            ))}
+
+            <button
+              onClick={addNewSlide}
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-black uppercase tracking-wider bg-emerald-500/10 text-emerald-500 hover:bg-emerald-500/20 border border-emerald-500/20 transition-all flex-shrink-0"
+            >
+              <Plus size={14} /> Add Slide
+            </button>
+          </div>
+
+          {/* Active Slide Form Attributes */}
+          <div className="bg-[var(--admin-card)] p-6 rounded-2xl border border-[var(--admin-card-border)] shadow-sm space-y-5 animate-fadeIn">
+            <h3 className="text-xs font-black uppercase tracking-widest text-blue-500 border-b border-[var(--admin-card-border)] pb-3">
+              Configuring Creative Target &mdash; Slide #{activeSlideIndex + 1}
+            </h3>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-wider mb-1">Badge Micro-Banner</label>
+                <input 
+                  type="text" 
+                  name="badgeText" 
+                  value={currentSlide.badgeText || ''} 
+                  onChange={handleSlideChange} 
+                  placeholder="e.g., Luxury Collection Launch"
+                  className="w-full bg-[var(--admin-bg)] border border-[var(--admin-card-border)] rounded-xl px-4 py-2.5 text-sm font-bold text-[var(--admin-text-primary)] outline-none focus:border-blue-500 transition-colors" 
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-wider mb-1">Headline Accent (Line 1) *</label>
+                  <input 
+                    type="text" 
+                    name="titleLine1" 
+                    value={currentSlide.titleLine1 || ''} 
+                    onChange={handleSlideChange} 
+                    required
+                    placeholder="Elegance in Every"
+                    className="w-full bg-[var(--admin-bg)] border border-[var(--admin-card-border)] rounded-xl px-4 py-2.5 text-sm font-bold text-[var(--admin-text-primary)] outline-none focus:border-blue-500 transition-colors" 
+                  />
                 </div>
-              ) : (
-                <div className="relative border-2 border-dashed border-gray-300 rounded p-4 text-center hover:bg-gray-50 cursor-pointer">
-                  <ImageIcon className="w-6 h-6 mx-auto text-gray-400 mb-2" />
-                  <span className="text-sm text-gray-500">Click to upload</span>
-                  <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'backgroundImage')} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                <div>
+                  <label className="block text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-wider mb-1">Headline Italic (Line 2) *</label>
+                  <input 
+                    type="text" 
+                    name="titleLine2" 
+                    value={currentSlide.titleLine2 || ''} 
+                    onChange={handleSlideChange} 
+                    required
+                    placeholder="Thread"
+                    className="w-full bg-[var(--admin-bg)] border border-[var(--admin-card-border)] rounded-xl px-4 py-2.5 text-sm font-bold text-[var(--admin-text-primary)] outline-none focus:border-blue-500 transition-colors" 
+                  />
                 </div>
-              )}
-            </div>
-            <div>
-              <label className="block text-xs font-medium text-gray-500 uppercase tracking-wider mb-2">Mobile Image (1080x1920) - Optional</label>
-              {formData.mobileBackgroundImage ? (
-                <div className="relative w-full h-32 rounded overflow-hidden border max-w-[150px] mx-auto">
-                  <img src={formData.mobileBackgroundImage} className="w-full h-full object-cover" alt="Mobile Preview" />
-                  <button onClick={() => handleRemoveImage('mobileBackgroundImage')} className="absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full"><X size={14} /></button>
+              </div>
+
+              <div>
+                <label className="block text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-wider mb-1">Slide Subtitle Paragraph *</label>
+                <textarea 
+                  name="subtitle" 
+                  value={currentSlide.subtitle || ''} 
+                  onChange={handleSlideChange} 
+                  required 
+                  rows={2} 
+                  className="w-full bg-[var(--admin-bg)] border border-[var(--admin-card-border)] rounded-xl px-4 py-2.5 text-sm font-medium text-[var(--admin-text-primary)] outline-none focus:border-blue-500 transition-colors resize-none" 
+                />
+              </div>
+
+              {/* Actions fields */}
+              <div className="border-t border-[var(--admin-card-border)] pt-4 space-y-4">
+                <p className="text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">Call-To-Action Bindings</p>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[9px] font-bold text-gray-400 uppercase mb-1">Primary Button Label</label>
+                    <input type="text" name="primaryButtonText" value={currentSlide.primaryButtonText || ''} onChange={handleSlideChange} className="w-full bg-[var(--admin-bg)] border border-[var(--admin-card-border)] rounded-xl px-3 py-2 text-xs font-bold" />
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold text-gray-400 uppercase mb-1">Primary Route Path</label>
+                    <input type="text" name="primaryButtonLink" value={currentSlide.primaryButtonLink || ''} onChange={handleSlideChange} className="w-full bg-[var(--admin-bg)] border border-[var(--admin-card-border)] rounded-xl px-3 py-2 text-xs font-bold text-blue-500" />
+                  </div>
                 </div>
-              ) : (
-                <div className="relative border-2 border-dashed border-gray-300 rounded p-4 text-center hover:bg-gray-50 cursor-pointer max-w-[200px]">
-                  <ImageIcon className="w-6 h-6 mx-auto text-gray-400 mb-2" />
-                  <span className="text-sm text-gray-500">Upload Mobile Fallback</span>
-                  <input type="file" accept="image/*" onChange={(e) => handleImageUpload(e, 'mobileBackgroundImage')} className="absolute inset-0 w-full h-full opacity-0 cursor-pointer" />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-[9px] font-bold text-gray-400 uppercase mb-1">Secondary Option Label</label>
+                    <input type="text" name="secondaryButtonText" value={currentSlide.secondaryButtonText || ''} onChange={handleSlideChange} className="w-full bg-[var(--admin-bg)] border border-[var(--admin-card-border)] rounded-xl px-3 py-2 text-xs font-bold" />
+                  </div>
+                  <div>
+                    <label className="block text-[9px] font-bold text-gray-400 uppercase mb-1">Secondary Route Path</label>
+                    <input type="text" name="secondaryButtonLink" value={currentSlide.secondaryButtonLink || ''} onChange={handleSlideChange} className="w-full bg-[var(--admin-bg)] border border-[var(--admin-card-border)] rounded-xl px-3 py-2 text-xs font-bold text-blue-500" />
+                  </div>
                 </div>
-              )}
+              </div>
+
+              {/* Image upload arrays */}
+              <div className="border-t border-[var(--admin-card-border)] pt-4 space-y-4">
+                <p className="text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-widest">Slide Creative Assets (S3 Storage)</p>
+                <div className="space-y-4">
+                  <ImageUploader 
+                    label="Desktop Wide Landscape View (1920x1080)"
+                    value={currentSlide.backgroundImage || ''}
+                    onChange={(url) => handleSlideImageChange('backgroundImage', url)}
+                    folder="hero"
+                  />
+                  <ImageUploader 
+                    label="Mobile Vertical Story Mode (1080x1920) - Optional"
+                    value={currentSlide.mobileBackgroundImage || ''}
+                    onChange={(url) => handleSlideImageChange('mobileBackgroundImage', url)}
+                    folder="hero"
+                  />
+                </div>
+              </div>
+
             </div>
           </div>
-          
+
         </div>
 
-        {/* Live Preview */}
-        <div className="lg:col-span-7">
-          <div className="sticky top-6">
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="font-semibold text-gray-800">Live Preview</h2>
-              <div className="flex bg-gray-100 p-1 rounded-lg">
-                <button onClick={() => setPreviewMode('desktop')} className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${previewMode === 'desktop' ? 'bg-white shadow text-gray-900' : 'text-gray-500'}`}>Desktop</button>
-                <button onClick={() => setPreviewMode('mobile')} className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${previewMode === 'mobile' ? 'bg-white shadow text-gray-900' : 'text-gray-500'}`}>Mobile</button>
+        {/* Live Simulator Viewport */}
+        <div className="lg:col-span-6">
+          <div className="sticky top-6 space-y-4">
+            <div className="flex justify-between items-center bg-[var(--admin-card)] px-5 py-3 rounded-2xl border border-[var(--admin-card-border)]">
+              <div className="flex items-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-blue-500 animate-pulse" />
+                <h2 className="text-xs font-black uppercase tracking-widest text-[var(--admin-text-primary)]">Emulation Canvas</h2>
+                <span className="text-[10px] font-black text-gray-400">(Slide {activeSlideIndex + 1}/{formData.slides.length})</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <button 
+                  onClick={() => setActiveSlideIndex(prev => (prev - 1 + formData.slides.length) % formData.slides.length)} 
+                  className="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                  title="Previous Slide"
+                >
+                  <ChevronLeft size={16} />
+                </button>
+                <button 
+                  onClick={() => setActiveSlideIndex(prev => (prev + 1) % formData.slides.length)} 
+                  className="p-1 rounded-lg hover:bg-black/5 dark:hover:bg-white/5 transition-colors"
+                  title="Next Slide"
+                >
+                  <ChevronRight size={16} />
+                </button>
+                <div className="h-4 w-[1px] bg-[var(--admin-card-border)] mx-1" />
+                <div className="flex bg-[var(--admin-bg)] p-1 rounded-xl border border-[var(--admin-card-border)]">
+                  <button onClick={() => setPreviewMode('desktop')} className={`px-2.5 py-1 text-[10px] font-black rounded-lg transition-all ${previewMode === 'desktop' ? 'bg-[var(--admin-card)] text-[var(--admin-text-primary)] shadow-sm' : 'text-gray-400'}`}>Desktop</button>
+                  <button onClick={() => setPreviewMode('mobile')} className={`px-2.5 py-1 text-[10px] font-black rounded-lg transition-all ${previewMode === 'mobile' ? 'bg-[var(--admin-card)] text-[var(--admin-text-primary)] shadow-sm' : 'text-gray-400'}`}>Mobile</button>
+                </div>
               </div>
             </div>
 
-            <div className={`border-[8px] border-gray-800 rounded-3xl overflow-hidden bg-black mx-auto transition-all duration-300 shadow-2xl ${previewMode === 'mobile' ? 'w-[375px] h-[667px]' : 'w-full h-[600px]'}`}>
-              <div className="relative w-full h-full flex flex-col justify-center overflow-hidden bg-neutral-black">
+            <div className={`border-[8px] border-gray-900 rounded-[32px] overflow-hidden bg-black mx-auto transition-all duration-300 shadow-2xl relative ${previewMode === 'mobile' ? 'w-[375px] h-[667px]' : 'w-full h-[540px]'}`}>
+              <div className="absolute inset-0 flex flex-col justify-center overflow-hidden bg-neutral-black">
                 
-                {/* Background rendering logic */}
+                {/* Background image output layer */}
                 <div className="absolute inset-0">
                   <div
-                    className="absolute inset-0 bg-cover bg-[center_20%] bg-no-repeat transition-all duration-500"
+                    className="absolute inset-0 bg-cover bg-center bg-no-repeat transition-all duration-700 ease-out"
                     style={{
-                      backgroundImage: `url('${(previewMode === 'mobile' && formData.mobileBackgroundImage) ? formData.mobileBackgroundImage : (formData.backgroundImage || 'https://images.unsplash.com/photo-1595777457583-95e059d581b8?q=80&w=2400&auto=format&fit=crop')}')`,
+                      backgroundImage: `url('${(previewMode === 'mobile' && currentSlide.mobileBackgroundImage) ? currentSlide.mobileBackgroundImage : (currentSlide.backgroundImage || IMAGES.hero.desktop)}')`,
                     }}
                   />
                   <div className="absolute inset-0 bg-black transition-opacity duration-300" style={{ opacity: formData.overlayOpacity }} />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-black/30" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/30" />
                 </div>
 
-                <div className={`relative z-10 w-full mx-auto px-6 ${previewMode === 'desktop' ? 'max-w-4xl' : ''}`}>
-                  <p className="text-accent-bright/95 font-sans text-xs font-semibold tracking-[0.35em] uppercase mb-4">
-                    {formData.badgeText || 'Badge Text'}
+                {/* Simulated foreground output layer */}
+                <div className={`relative z-10 w-full mx-auto px-6 transition-all duration-500 animate-fadeIn ${previewMode === 'desktop' ? 'max-w-3xl' : ''}`}>
+                  <p className="text-amber-400 font-sans text-[10px] font-black tracking-[0.3em] uppercase mb-3 drop-shadow">
+                    {currentSlide.badgeText || 'Badge Announcement'}
                   </p>
 
-                  <div className="mb-5">
+                  <div className="mb-4">
                     <h1 className="font-display text-white font-medium leading-[1.05]">
-                      <span className={`block tracking-tight ${previewMode === 'desktop' ? 'text-5xl' : 'text-4xl'}`}>
-                        {formData.titleLine1 || 'Title Line 1'}
+                      <span className={`block tracking-tight font-bold ${previewMode === 'desktop' ? 'text-4xl' : 'text-3xl'}`}>
+                        {currentSlide.titleLine1 || 'Headline Accent'}
                       </span>
-                      <span className={`block mt-1 italic font-medium text-accent-light drop-shadow-sm ${previewMode === 'desktop' ? 'text-6xl' : 'text-5xl'}`}>
-                        {formData.titleLine2 || 'Title Line 2'}
+                      <span className={`block italic font-medium text-amber-200/90 drop-shadow-sm ${previewMode === 'desktop' ? 'text-5xl' : 'text-4xl'}`}>
+                        {currentSlide.titleLine2 || 'Italic Line'}
                       </span>
                     </h1>
                   </div>
 
-                  <p className={`font-sans text-white/85 font-normal leading-relaxed mb-8 ${previewMode === 'desktop' ? 'text-lg max-w-md' : 'text-sm'}`}>
-                    {formData.subtitle || 'Your description goes here.'}
+                  <p className={`font-sans text-white/90 font-medium leading-relaxed mb-6 ${previewMode === 'desktop' ? 'text-sm max-w-md' : 'text-xs max-w-xs'}`}>
+                    {currentSlide.subtitle || 'Creative descriptive content flow preview rendering block.'}
                   </p>
 
-                  <div className={`flex gap-4 ${previewMode === 'mobile' ? 'flex-col' : 'flex-row'}`}>
-                    {formData.primaryButtonText && (
-                      <button className="px-8 py-3.5 rounded-full text-sm font-semibold tracking-[0.15em] uppercase text-white bg-primary-800 border border-primary-700/40 shadow-lift">
-                        {formData.primaryButtonText}
-                      </button>
+                  <div className={`flex gap-3 ${previewMode === 'mobile' ? 'flex-col' : 'flex-row'}`}>
+                    {currentSlide.primaryButtonText && (
+                      <span className="px-6 py-2.5 rounded-full text-[10px] font-black tracking-widest uppercase text-white bg-blue-600 border border-blue-500/40 text-center shadow-lg">
+                        {currentSlide.primaryButtonText}
+                      </span>
                     )}
-                    {formData.secondaryButtonText && (
-                      <button className="px-8 py-3.5 rounded-full text-sm font-semibold tracking-[0.15em] uppercase text-white border-2 border-white/85 bg-white/10 backdrop-blur-sm">
-                        {formData.secondaryButtonText}
-                      </button>
+                    {currentSlide.secondaryButtonText && (
+                      <span className="px-6 py-2.5 rounded-full text-[10px] font-black tracking-widest uppercase text-white border border-white/60 bg-white/10 backdrop-blur-sm text-center">
+                        {currentSlide.secondaryButtonText}
+                      </span>
                     )}
                   </div>
+                </div>
+
+                {/* Bottom interactive carousel indicator bars */}
+                <div className="absolute bottom-4 inset-x-0 flex justify-center items-center gap-1.5 z-20">
+                  {formData.slides.map((_, idx) => (
+                    <span 
+                      key={idx} 
+                      className={`h-1 rounded-full transition-all duration-500 ${idx === activeSlideIndex ? 'w-6 bg-blue-500' : 'w-1.5 bg-white/30'}`} 
+                    />
+                  ))}
                 </div>
 
               </div>
             </div>
 
             {!formData.isPublished && (
-              <div className="mt-4 p-3 bg-amber-50 border border-amber-200 text-amber-700 text-sm rounded-lg text-center flex items-center justify-center gap-2">
-                <span className="w-2 h-2 rounded-full bg-amber-500 animate-pulse" /> This Hero section is currently drafted and not live.
+              <div className="p-3 bg-rose-500/10 border border-rose-500/20 text-rose-500 text-xs font-black tracking-wider uppercase rounded-xl text-center flex items-center justify-center gap-2">
+                <span className="w-2 h-2 rounded-full bg-rose-500 animate-pulse" /> Offline mode: Carousel broadcast drafted locally.
               </div>
             )}
-            
+
           </div>
         </div>
       </div>

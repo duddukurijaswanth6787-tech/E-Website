@@ -88,7 +88,7 @@ const AdminWishlistInsightsPage = () => {
         <h1 className="text-2xl font-serif text-gray-900 mb-1 flex items-center gap-3">
           <Heart className="w-6 h-6 text-primary-700" /> Wishlist Desirability Matrix
         </h1>
-        <p className="text-sm text-gray-500">Isolate high-conversion intent products by evaluating global customer saving behaviors.</p>
+        <p className="text-sm text-[var(--admin-text-secondary)]">Isolate high-conversion intent products by evaluating global customer saving behaviors.</p>
       </div>
 
       <DataTable 
@@ -102,3 +102,5 @@ const AdminWishlistInsightsPage = () => {
 };
 
 export default AdminWishlistInsightsPage;
+
+

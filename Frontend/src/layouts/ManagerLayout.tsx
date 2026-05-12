@@ -18,6 +18,7 @@ import {
 import NotificationBell from '../components/notifications/NotificationBell';
 import NotificationDrawer from '../components/notifications/NotificationDrawer';
 import ManagerSecurityGuard from '../components/manager/ManagerSecurityGuard';
+import AttendanceControls from '../components/workforce/AttendanceControls';
 
 const ManagerLayout = () => {
   const location = useLocation();
@@ -134,6 +135,7 @@ const ManagerLayout = () => {
               </div>
             </div>
             <div className="flex items-center gap-4">
+              <AttendanceControls />
               <NotificationBell />
               <button className="p-2 text-stone-500 hover:bg-stone-100 rounded-full transition-colors">
                 <Settings className="w-5 h-5" />

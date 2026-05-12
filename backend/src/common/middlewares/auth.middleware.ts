@@ -245,3 +245,20 @@ export const protect = async (req: Request, _res: Response, next: NextFunction):
     next(error);
   }
 };
+
+/**
+ * Enforce specific role requirements for enterprise routes.
+ */
+export const requireRole = (...roles: string[]) => {
+  return (req: Request, _res: Response, next: NextFunction): void => {
+    if (!req.user) {
+      next(new UnauthorizedError('Authentication required'));
+      return;
+    }
+    if (!roles.includes(req.user.role)) {
+      next(new ForbiddenError(`Access denied. Roles required: ${roles.join(', ')}`));
+      return;
+    }
+    next();
+  };
+};

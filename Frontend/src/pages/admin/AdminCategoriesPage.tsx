@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { DataTable } from '../../components/admin/DataTable';
+import { Input } from '../../components/common/Input';
 import { categoryService } from '../../api/services/category.service';
 import type { Category } from '../../api/services/category.service';
-import { Network, Plus, Edit2, Trash2, HelpCircle } from 'lucide-react';
+import { Network, Plus, Edit2, Trash2, HelpCircle, Globe } from 'lucide-react';
+import { ImageUploader } from '../../components/admin/ImageUploader';
 import toast from 'react-hot-toast';
 import { Link } from 'react-router-dom';
 
@@ -32,6 +34,8 @@ type CategoryFormState = {
   weaveType: '' | 'handloom' | 'powerloom' | 'mixed' | 'other';
   occasions: string[];
   customOccasion: string;
+  seoTitle?: string;
+  seoDescription?: string;
 };
 
 const emptyForm = (): CategoryFormState => ({
@@ -47,6 +51,8 @@ const emptyForm = (): CategoryFormState => ({
   weaveType: '',
   occasions: [],
   customOccasion: '',
+  seoTitle: '',
+  seoDescription: '',
 });
 
 const AdminCategoriesPage = () => {
@@ -112,6 +118,8 @@ const AdminCategoriesPage = () => {
       weaveType: (c as any).metadata?.weaveType ?? '',
       occasions: Array.isArray((c as any).metadata?.occasions) ? (c as any).metadata.occasions : [],
       customOccasion: '',
+      seoTitle: (c as any).seo?.title || '',
+      seoDescription: (c as any).seo?.description || '',
     });
     setModalOpen(true);
   };
@@ -141,6 +149,10 @@ const AdminCategoriesPage = () => {
           origin: form.origin || undefined,
           weaveType: form.weaveType || undefined,
           occasions: occasions.length ? occasions : undefined,
+        },
+        seo: {
+          title: form.seoTitle || undefined,
+          description: form.seoDescription || undefined,
         },
       };
 
@@ -209,7 +221,7 @@ const AdminCategoriesPage = () => {
                )}
                <span className="block font-medium tracking-wide text-primary-950 truncate">{row.name}</span>
              </div>
-             <span className="block text-xs text-gray-500 font-mono mt-0.5">/{row.slug}</span>
+             <span className="block text-xs text-[var(--admin-text-secondary)] font-mono mt-0.5">/{row.slug}</span>
            </div>
          </div>
        )
@@ -327,7 +339,7 @@ const AdminCategoriesPage = () => {
           <h1 className="text-2xl font-serif text-gray-900 mb-1 flex items-center">
             <Network className="w-6 h-6 mr-3 text-primary-700" /> Category Taxonomy Hub
           </h1>
-          <p className="text-sm text-gray-500">Configure global shop filter logic by organizing core inventory nodes.</p>
+          <p className="text-sm text-[var(--admin-text-secondary)]">Configure global shop filter logic by organizing core inventory nodes.</p>
           <div className="mt-3">
             <Link
               to="/admin/categories/subcategory-support"
@@ -343,7 +355,7 @@ const AdminCategoriesPage = () => {
             <button
               type="button"
               onClick={openCreate}
-              className="flex items-center justify-center px-4 py-2 bg-primary-950 text-white text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors"
+              className="flex items-center justify-center px-4 py-2 bg-primary-950 text-[var(--admin-text-primary)] text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors"
             >
               <Plus size={16} className="mr-2" />
               Add Category
@@ -351,7 +363,7 @@ const AdminCategoriesPage = () => {
             <button
               type="button"
               onClick={openCreateSubcategory}
-              className="flex items-center justify-center px-4 py-2 bg-white border border-primary-950 text-primary-950 text-sm font-bold tracking-widest uppercase rounded shadow-sm hover:bg-primary-50 transition-colors"
+              className="flex items-center justify-center px-4 py-2 bg-[var(--admin-card)] border border-primary-950 text-primary-950 text-sm font-bold tracking-widest uppercase rounded shadow-sm hover:bg-primary-50 transition-colors"
             >
               <Plus size={16} className="mr-2" />
               Add Subcategory
@@ -370,15 +382,15 @@ const AdminCategoriesPage = () => {
       {modalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onMouseDown={closeModal}>
           <div
-            className="w-full max-w-2xl max-h-[85vh] rounded-2xl bg-white shadow-2xl border border-gray-100 flex flex-col overflow-hidden"
+            className="w-full max-w-2xl max-h-[85vh] rounded-2xl bg-[var(--admin-card)] shadow-2xl border border-gray-100 flex flex-col overflow-hidden"
             onMouseDown={(e) => e.stopPropagation()}
           >
-            <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between flex-shrink-0 bg-white">
+            <div className="px-6 py-5 border-b border-gray-100 flex items-center justify-between flex-shrink-0 bg-[var(--admin-card)]">
               <div>
                 <h2 className="text-lg font-bold text-gray-900">
                   {modalMode === 'create' ? 'Add Category' : 'Edit Category'}
                 </h2>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-[var(--admin-text-secondary)] mt-1">
                   Categories power shop filters and product grouping.
                 </p>
               </div>
@@ -390,15 +402,15 @@ const AdminCategoriesPage = () => {
             <div className="px-6 py-6 grid grid-cols-1 sm:grid-cols-2 gap-4 overflow-y-auto">
               {modalMode === 'create' && (
                 <div className="sm:col-span-2">
-                  <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Type</label>
+                  <label className="block text-xs font-black uppercase tracking-widest text-[var(--admin-text-secondary)] mb-2">Type</label>
                   <div className="flex gap-2">
                     <button
                       type="button"
                       onClick={() => setForm((f) => ({ ...f, type: 'category', parent: '' }))}
                       className={`px-4 py-2 rounded-lg border text-xs font-black uppercase tracking-widest transition-colors ${
                         form.type === 'category'
-                          ? 'bg-primary-950 text-white border-primary-950'
-                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                          ? 'bg-primary-950 text-[var(--admin-text-primary)] border-primary-950'
+                          : 'bg-[var(--admin-card)] text-gray-700 border-gray-300 hover:bg-gray-50'
                       }`}
                     >
                       Main Category
@@ -408,8 +420,8 @@ const AdminCategoriesPage = () => {
                       onClick={() => setForm((f) => ({ ...f, type: 'subcategory' }))}
                       className={`px-4 py-2 rounded-lg border text-xs font-black uppercase tracking-widest transition-colors ${
                         form.type === 'subcategory'
-                          ? 'bg-primary-950 text-white border-primary-950'
-                          : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                          ? 'bg-primary-950 text-[var(--admin-text-primary)] border-primary-950'
+                          : 'bg-[var(--admin-card)] text-gray-700 border-gray-300 hover:bg-gray-50'
                       }`}
                     >
                       Subcategory
@@ -419,66 +431,64 @@ const AdminCategoriesPage = () => {
               )}
 
               <div className="sm:col-span-2">
-                <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Name</label>
-                <input
+                <Input
+                  label="Name"
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                   placeholder="e.g. Sarees"
+                  required
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Description (optional)</label>
-                <textarea
+                <Input
+                  label="Description (optional)"
+                  multiline
+                  rows={3}
                   value={form.description}
                   onChange={(e) => setForm((f) => ({ ...f, description: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm min-h-[110px]"
                   placeholder="Short description for admins/SEO…"
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Banner URL (optional)</label>
-                <input
+                <ImageUploader
+                  label="Category Banner"
                   value={form.banner}
-                  onChange={(e) => setForm((f) => ({ ...f, banner: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
-                  placeholder="https://.../banner.jpg"
+                  onChange={url => setForm(f => ({ ...f, banner: url }))}
+                  folder="categories"
                 />
               </div>
 
               <div className="sm:col-span-2">
-                <p className="text-xs font-black uppercase tracking-widest text-gray-500">Metadata (optional)</p>
+                <p className="text-xs font-black uppercase tracking-widest text-[var(--admin-text-secondary)]">Metadata (optional)</p>
                 <p className="text-xs text-gray-400 mt-1">Example: fabric=silk, origin=TN, weaveType=handloom, occasions=wedding, festive</p>
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Fabric</label>
-                <input
+                <Input
+                  label="Fabric"
                   value={form.fabric}
                   onChange={(e) => setForm((f) => ({ ...f, fabric: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                   placeholder="silk"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Origin</label>
-                <input
+                <Input
+                  label="Origin"
                   value={form.origin}
                   onChange={(e) => setForm((f) => ({ ...f, origin: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                   placeholder="TN / UP / Gujarat"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Weave Type</label>
+                <label className="block text-xs font-black uppercase tracking-widest text-[var(--admin-text-secondary)] mb-1">Weave Type</label>
                 <select
                   value={form.weaveType}
                   onChange={(e) => setForm((f) => ({ ...f, weaveType: e.target.value as any }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-[var(--admin-card)]"
                 >
                   <option value="">Select…</option>
                   <option value="handloom">handloom</option>
@@ -489,7 +499,7 @@ const AdminCategoriesPage = () => {
               </div>
 
               <div className="sm:col-span-2">
-                <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-2">Occasions</label>
+                <label className="block text-xs font-black uppercase tracking-widest text-[var(--admin-text-secondary)] mb-2">Occasions</label>
                 <div className="flex flex-wrap gap-2">
                   {OCCASION_OPTIONS.map((o) => {
                     const selected = form.occasions.includes(o);
@@ -500,8 +510,8 @@ const AdminCategoriesPage = () => {
                         onClick={() => toggleOccasion(o)}
                         className={`px-3 py-1.5 rounded-full text-xs font-black uppercase tracking-widest border transition-colors ${
                           selected
-                            ? 'bg-primary-950 text-white border-primary-950'
-                            : 'bg-white text-gray-700 border-gray-300 hover:bg-gray-50'
+                            ? 'bg-primary-950 text-[var(--admin-text-primary)] border-primary-950'
+                            : 'bg-[var(--admin-card)] text-gray-700 border-gray-300 hover:bg-gray-50'
                         }`}
                       >
                         {o}
@@ -511,35 +521,34 @@ const AdminCategoriesPage = () => {
                 </div>
 
                 <div className="mt-3 flex gap-2">
-                  <input
+                  <Input
                     value={form.customOccasion}
                     onChange={(e) => setForm((f) => ({ ...f, customOccasion: e.target.value }))}
-                    className="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm"
                     placeholder="Add custom occasion…"
                     onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); addCustomOccasion(); } }}
                   />
                   <button
                     type="button"
                     onClick={addCustomOccasion}
-                    className="px-4 py-2 rounded-lg bg-primary-950 text-white text-sm font-bold tracking-widest uppercase hover:bg-primary-800"
+                    className="px-6 py-3.5 rounded-2xl bg-primary-950 text-[var(--admin-text-primary)] text-[10px] font-black uppercase tracking-widest hover:bg-primary-800 shadow-lg shadow-primary-900/20 active:scale-95 transition-all"
                   >
                     Add
                   </button>
                 </div>
 
                 {form.occasions.length > 0 && (
-                  <div className="mt-3 text-xs text-gray-500">
+                  <div className="mt-3 text-xs text-[var(--admin-text-secondary)]">
                     Selected: <span className="font-medium text-gray-700">{form.occasions.join(', ')}</span>
                   </div>
                 )}
               </div>
 
               <div className={`${form.type === 'subcategory' ? '' : 'sm:col-span-2'}`}>
-                <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Parent (optional)</label>
+                <label className="block text-xs font-black uppercase tracking-widest text-[var(--admin-text-secondary)] mb-1">Parent (optional)</label>
                 <select
                   value={form.parent || ''}
                   onChange={(e) => setForm((f) => ({ ...f, parent: e.target.value }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-white"
+                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm bg-[var(--admin-card)]"
                   disabled={form.type !== 'subcategory'}
                 >
                   <option value="">{form.type === 'subcategory' ? 'Select parent…' : 'No parent'}</option>
@@ -552,12 +561,11 @@ const AdminCategoriesPage = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Order</label>
-                <input
+                <Input
+                  label="Order"
                   type="number"
                   value={form.order ?? 1}
                   onChange={(e) => setForm((f) => ({ ...f, order: Number(e.target.value) }))}
-                  className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                   min={1}
                 />
               </div>
@@ -573,9 +581,39 @@ const AdminCategoriesPage = () => {
                   Active (visible in shop filters)
                 </label>
               </div>
+
+              <div className="sm:col-span-2 pt-4 border-t border-gray-100">
+                <p className="text-xs font-black uppercase tracking-widest text-blue-600 mb-4 flex items-center gap-2">
+                  <Globe size={14} /> Search Engine Optimization
+                </p>
+                <div className="space-y-4">
+                  <div>
+                    <Input
+                      label="SEO Title"
+                      value={form.seoTitle}
+                      onChange={(e) => setForm((f) => ({ ...f, seoTitle: e.target.value }))}
+                      placeholder="Custom SEO Title (defaults to Category Name)"
+                      showCharCount
+                      maxLength={60}
+                    />
+                  </div>
+                  <div>
+                    <Input
+                      label="SEO Meta Description"
+                      multiline
+                      rows={3}
+                      value={form.seoDescription}
+                      onChange={(e) => setForm((f) => ({ ...f, seoDescription: e.target.value }))}
+                      placeholder="Brief summary for search engine results…"
+                      showCharCount
+                      maxLength={160}
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
 
-            <div className="px-6 py-5 border-t border-gray-100 flex items-center justify-end gap-3 flex-shrink-0 bg-white">
+            <div className="px-6 py-5 border-t border-gray-100 flex items-center justify-end gap-3 flex-shrink-0 bg-[var(--admin-card)]">
               <button
                 type="button"
                 onClick={closeModal}
@@ -588,7 +626,7 @@ const AdminCategoriesPage = () => {
                 type="button"
                 onClick={handleSave}
                 disabled={saving}
-                className="px-4 py-2 rounded-lg bg-primary-950 text-white text-sm font-bold tracking-widest uppercase hover:bg-primary-800 disabled:opacity-60"
+                className="px-4 py-2 rounded-lg bg-primary-950 text-[var(--admin-text-primary)] text-sm font-bold tracking-widest uppercase hover:bg-primary-800 disabled:opacity-60"
               >
                 {saving ? 'Saving…' : modalMode === 'create' ? 'Create' : 'Save'}
               </button>
@@ -599,14 +637,14 @@ const AdminCategoriesPage = () => {
 
       {deleteConfirm && (
         <div className="fixed inset-0 z-[70] flex items-center justify-center bg-black/60 p-4">
-          <div className="w-full max-w-md rounded-2xl bg-white shadow-2xl border border-gray-100 overflow-hidden">
+          <div className="w-full max-w-md rounded-2xl bg-[var(--admin-card)] shadow-2xl border border-gray-100 overflow-hidden">
             <div className="px-6 py-5 border-b border-gray-100">
               <h3 className="text-lg font-bold text-gray-900">Delete category?</h3>
               <p className="text-sm text-gray-600 mt-2 leading-relaxed">
                 This will delete <span className="font-semibold text-gray-900">{deleteConfirm.name}</span>. Products mapped to it may become uncategorized.
               </p>
             </div>
-            <div className="px-6 py-5 flex items-center justify-end gap-3 bg-white">
+            <div className="px-6 py-5 flex items-center justify-end gap-3 bg-[var(--admin-card)]">
               <button
                 type="button"
                 onClick={() => setDeleteConfirm(null)}
@@ -617,7 +655,7 @@ const AdminCategoriesPage = () => {
               <button
                 type="button"
                 onClick={performDelete}
-                className="px-4 py-2 rounded-lg bg-red-600 text-white text-sm font-bold tracking-widest uppercase hover:bg-red-700"
+                className="px-4 py-2 rounded-lg bg-red-600 text-[var(--admin-text-primary)] text-sm font-bold tracking-widest uppercase hover:bg-red-700"
               >
                 Delete
               </button>
@@ -630,3 +668,5 @@ const AdminCategoriesPage = () => {
 };
 
 export default AdminCategoriesPage;
+
+

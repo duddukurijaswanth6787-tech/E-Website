@@ -9,8 +9,9 @@ import {
   ERP_EVENT_VERSION,
 } from '../events/erpEvents';
 
-const newEventId = () =>
-  `${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+import { randomUUID } from 'crypto';
+
+const newEventId = () => randomUUID();
 
 export const registerTailorNamespace = (nsp: Namespace): void => {
   nsp.use(socketAuthMiddleware(['tailor']));

@@ -9,11 +9,13 @@ import { NotFoundError, BadRequestError, ForbiddenError } from '../../common/err
 import { generateOrderNumber } from '../../common/utils/helpers';
 import { parsePagination, buildPaginationMeta } from '../../common/utils/pagination';
 import { Request } from 'express';
+import { logger } from '../../common/logger';
 
 import { getRazorpayInstance } from '../../config/razorpay';
 import crypto from 'crypto';
 import { env } from '../../config/env';
 import { paise } from '../../common/utils/helpers';
+import { CleanupService } from '../marketing/retention/cleanup.service';
 
 export class OrderService {
   async createOrder(userId: string, data: {
@@ -126,6 +128,16 @@ export class OrderService {
     const user = await User.findById(userId);
     if (user) {
       sendOrderConfirmationEmail(user.email, user.name, orderNumber, total).catch(() => {});
+      
+      // Record Social Activity
+      CleanupService.recordActivity({
+        type: 'order',
+        title: `Purchased ${orderItems.length} items`,
+        customerName: user.name,
+        location: (data.address as any)?.city || 'Hyderabad',
+        module: 'recentOrders',
+        metadata: { orderId: order._id, amount: total }
+      }).catch(err => logger.error(`[SocialProof] Failed to record order activity: ${err.message}`));
     }
 
     return order;

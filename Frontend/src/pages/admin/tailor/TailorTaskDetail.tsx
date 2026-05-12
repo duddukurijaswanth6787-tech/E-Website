@@ -50,7 +50,7 @@ const TailorTaskDetail = () => {
         <AlertTriangle size={48} className="mx-auto text-stone-300 mb-4" />
         <h2 className="text-xl font-bold text-stone-800 mb-2">Task Not Found</h2>
         <p className="text-stone-500 mb-6">This task might have been re-assigned or completed.</p>
-        <button onClick={() => navigate('/tailor/tasks')} className="bg-stone-900 text-white px-6 py-2 rounded-lg font-bold">Go Back</button>
+        <button onClick={() => navigate('/tailor/tasks')} className="bg-[var(--admin-card)] text-[var(--admin-text-primary)] px-6 py-2 rounded-lg font-bold">Go Back</button>
       </div>
     );
   }
@@ -64,13 +64,13 @@ const TailorTaskDetail = () => {
     <div className="max-w-4xl mx-auto pb-20">
       <button 
         onClick={() => navigate('/tailor/tasks')}
-        className="flex items-center text-stone-400 hover:text-stone-900 mb-8 font-black text-[10px] uppercase tracking-widest transition-colors group"
+        className="flex items-center text-stone-400 hover:text-[var(--admin-text-primary)] mb-8 font-black text-[10px] uppercase tracking-widest transition-colors group"
       >
         <ArrowLeft size={14} className="mr-2 group-hover:-translate-x-1 transition-transform" /> Back to Task List
       </button>
 
       {/* Hero Header */}
-      <div className="bg-white rounded-3xl border border-stone-200 shadow-sm overflow-hidden mb-8">
+      <div className="bg-[var(--admin-card)] rounded-3xl border border-[var(--admin-card-border)] shadow-sm overflow-hidden mb-8">
         <div className="p-8 md:p-12">
           <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-8">
             <div>
@@ -80,7 +80,7 @@ const TailorTaskDetail = () => {
                     {task.priority}
                  </div>
               </div>
-              <h1 className="text-3xl font-serif font-bold text-stone-900">{task.taskDescription}</h1>
+              <h1 className="text-3xl font-serif font-bold text-[var(--admin-text-primary)]">{task.taskDescription}</h1>
             </div>
             
             <div className="flex flex-col gap-2 w-full md:w-auto">
@@ -99,29 +99,29 @@ const TailorTaskDetail = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-8 border-t border-stone-100">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 pt-8 border-t border-[var(--admin-card-border)]">
              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-stone-50 flex items-center justify-center text-stone-400">
+                <div className="w-12 h-12 rounded-2xl bg-[var(--admin-card)] flex items-center justify-center text-stone-400">
                    <Calendar size={20} />
                 </div>
                 <div>
                    <p className="text-[9px] font-black text-stone-400 uppercase tracking-widest">Deadline</p>
-                   <p className={`text-sm font-bold ${isOverdue ? 'text-red-600' : 'text-stone-900'}`}>
+                   <p className={`text-sm font-bold ${isOverdue ? 'text-red-600' : 'text-[var(--admin-text-primary)]'}`}>
                      {format(new Date(task.deadline), 'MMM d, HH:mm')}
                    </p>
                 </div>
              </div>
              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-stone-50 flex items-center justify-center text-stone-400">
+                <div className="w-12 h-12 rounded-2xl bg-[var(--admin-card)] flex items-center justify-center text-stone-400">
                    <Phone size={20} />
                 </div>
                 <div>
                    <p className="text-[9px] font-black text-stone-400 uppercase tracking-widest">Customer</p>
-                   <p className="text-sm font-bold text-stone-900">Verified Client</p>
+                   <p className="text-sm font-bold text-[var(--admin-text-primary)]">Verified Client</p>
                 </div>
              </div>
              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 rounded-2xl bg-stone-50 flex items-center justify-center text-stone-400">
+                <div className="w-12 h-12 rounded-2xl bg-[var(--admin-card)] flex items-center justify-center text-stone-400">
                    <Activity size={20} />
                 </div>
                 <div>
@@ -135,8 +135,8 @@ const TailorTaskDetail = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
         {/* Measurements Card */}
-        <div className="bg-white rounded-3xl border border-stone-200 shadow-sm p-8">
-          <h2 className="text-sm font-black text-stone-900 flex items-center gap-3 mb-8 uppercase tracking-widest">
+        <div className="bg-[var(--admin-card)] rounded-3xl border border-[var(--admin-card-border)] shadow-sm p-8">
+          <h2 className="text-sm font-black text-[var(--admin-text-primary)] flex items-center gap-3 mb-8 uppercase tracking-widest">
             <Scissors size={18} className="text-primary-600" /> Specifications
           </h2>
           {task.measurementsSnapshot ? (
@@ -153,7 +153,7 @@ const TailorTaskDetail = () => {
                         {sectionFields.map(field => (
                           <div key={field.name} className="flex justify-between items-center border-b border-stone-50 pb-2">
                             <span className="text-xs text-stone-500 font-medium">{field.label}</span>
-                            <span className="text-xs font-black text-stone-900">{task.measurementsSnapshot[field.name]}"</span>
+                            <span className="text-xs font-black text-[var(--admin-text-primary)]">{task.measurementsSnapshot[field.name]}"</span>
                           </div>
                         ))}
                      </div>
@@ -186,8 +186,8 @@ const TailorTaskDetail = () => {
         </div>
 
         {/* Timeline/History Card */}
-        <div className="bg-white rounded-3xl border border-stone-200 shadow-sm p-8">
-          <h2 className="text-sm font-black text-stone-900 flex items-center gap-3 mb-8 uppercase tracking-widest">
+        <div className="bg-[var(--admin-card)] rounded-3xl border border-[var(--admin-card-border)] shadow-sm p-8">
+          <h2 className="text-sm font-black text-[var(--admin-text-primary)] flex items-center gap-3 mb-8 uppercase tracking-widest">
             <History size={18} className="text-primary-600" /> Production Log
           </h2>
           <div className="space-y-6 max-h-[400px] overflow-y-auto pr-4 custom-scrollbar">
@@ -204,14 +204,14 @@ const TailorTaskDetail = () => {
       </div>
 
       {/* Production Notes */}
-      <div className="bg-stone-950 rounded-3xl shadow-xl overflow-hidden">
-        <div className="p-8 border-b border-white/5">
-           <h2 className="text-sm font-black text-white flex items-center gap-3 uppercase tracking-[0.2em]">
+      <div className="bg-[var(--admin-card)] rounded-3xl shadow-xl overflow-hidden">
+        <div className="p-8 border-b border-[var(--admin-card-border)]">
+           <h2 className="text-sm font-black text-[var(--admin-text-primary)] flex items-center gap-3 uppercase tracking-[0.2em]">
               <MessageSquare size={18} className="text-primary-400" /> Production Briefing
            </h2>
         </div>
 
-        <div className="p-8 border-b border-white/5 bg-amber-500/5">
+        <div className="p-8 border-b border-[var(--admin-card-border)] bg-amber-500/5">
            <h3 className="text-[10px] font-black text-amber-500 uppercase tracking-widest mb-4">Manager Instructions</h3>
            <div className="space-y-4">
              {task.adminNotes?.map((n: any, idx: number) => (
@@ -232,8 +232,8 @@ const TailorTaskDetail = () => {
            <h3 className="text-[10px] font-black text-stone-400 uppercase tracking-widest mb-4">Your Production Notes</h3>
           <div className="space-y-6 mb-8">
             {task.tailorNotes.map((n: any, idx: number) => (
-              <div key={idx} className="bg-white/5 border border-white/10 rounded-2xl p-6 ml-4 relative">
-                <div className="absolute -left-10 top-6 w-8 h-8 bg-primary-900 text-white rounded-xl flex items-center justify-center font-black text-[10px] shadow-lg">
+              <div key={idx} className="bg-[var(--admin-card)] border border-[var(--admin-card-border)] rounded-2xl p-6 ml-4 relative">
+                <div className="absolute -left-10 top-6 w-8 h-8 bg-primary-900 text-[var(--admin-text-primary)] rounded-xl flex items-center justify-center font-black text-[10px] shadow-lg">
                    YOU
                 </div>
                 <p className="text-stone-200 text-sm leading-relaxed">{n.note}</p>
@@ -245,19 +245,19 @@ const TailorTaskDetail = () => {
             )}
           </div>
 
-          <form onSubmit={handleAddNote} className="flex gap-4 items-center bg-white/5 p-2 rounded-2xl border border-white/10">
+          <form onSubmit={handleAddNote} className="flex gap-4 items-center bg-[var(--admin-card)] p-2 rounded-2xl border border-[var(--admin-card-border)]">
             <input 
               type="text" 
               value={note}
               onChange={(e) => setNote(e.target.value)}
               placeholder="Report progress or issues..."
-              className="flex-1 bg-transparent border-none text-white px-4 py-3 text-sm focus:outline-none placeholder:text-stone-600"
+              className="flex-1 bg-transparent border-none text-[var(--admin-text-primary)] px-4 py-3 text-sm focus:outline-none placeholder:text-stone-600"
               disabled={addNoteMutation.isPending}
             />
             <button 
               type="submit"
               disabled={!note.trim() || addNoteMutation.isPending}
-              className="bg-white text-stone-950 px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-primary-400 transition-colors disabled:opacity-50"
+              className="bg-[var(--admin-card)] text-[var(--admin-text-primary)] px-6 py-3 rounded-xl font-black text-[10px] uppercase tracking-widest hover:bg-primary-400 transition-colors disabled:opacity-50"
             >
               Post Note
             </button>
@@ -269,3 +269,5 @@ const TailorTaskDetail = () => {
 };
 
 export default TailorTaskDetail;
+
+

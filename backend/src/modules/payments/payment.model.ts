@@ -6,7 +6,9 @@ export interface IPayment extends Document {
   provider: string;
   method: string;
   razorpayOrderId?: string;
+  razorpay_order_id?: string;
   razorpayPaymentId?: string;
+  razorpay_payment_id?: string;
   razorpaySignature?: string;
   amount: number;
   currency: string;
@@ -17,6 +19,7 @@ export interface IPayment extends Document {
   refundStatus?: string;
   refundedAt?: Date;
   metadata?: Record<string, unknown>;
+  notes?: string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -28,7 +31,9 @@ const PaymentSchema = new Schema<IPayment>(
     provider: { type: String, enum: ['razorpay', 'cod', 'manual'], required: true },
     method: { type: String },
     razorpayOrderId: { type: String },
+    razorpay_order_id: { type: String },
     razorpayPaymentId: { type: String },
+    razorpay_payment_id: { type: String },
     razorpaySignature: { type: String },
     amount: { type: Number, required: true },
     currency: { type: String, default: 'INR' },
@@ -43,12 +48,19 @@ const PaymentSchema = new Schema<IPayment>(
     refundStatus: { type: String },
     refundedAt: { type: Date },
     metadata: { type: Schema.Types.Mixed },
+    notes: { type: String },
   },
   { timestamps: true },
 );
 
 PaymentSchema.index({ order: 1 });
 PaymentSchema.index({ user: 1 });
+PaymentSchema.index({ status: 1 });
+PaymentSchema.index({ provider: 1 });
+PaymentSchema.index({ createdAt: -1 });
 PaymentSchema.index({ razorpayPaymentId: 1 });
+PaymentSchema.index({ razorpay_payment_id: 1 });
+PaymentSchema.index({ razorpayOrderId: 1 });
+PaymentSchema.index({ razorpay_order_id: 1 });
 
 export const Payment = mongoose.model<IPayment>('Payment', PaymentSchema);

@@ -5,6 +5,8 @@ import { sendSuccess, sendCreated, sendNoContent, sendPaginated } from '../../co
 import { PERMISSIONS } from '../../common/constants';
 import { parsePagination, buildPaginationMeta } from '../../common/utils/pagination';
 import { NotFoundError } from '../../common/errors';
+import { validateZod } from '../../common/middlewares/zodValidate.middleware';
+import { couponSchema } from '../../common/validation/enterprise.schemas';
 
 const router = Router();
 
@@ -47,6 +49,7 @@ router.get('/', authenticateAdmin, requirePermission(PERMISSIONS.MANAGE_COUPONS)
 );
 
 router.post('/', authenticateAdmin, requirePermission(PERMISSIONS.MANAGE_COUPONS),
+  validateZod(couponSchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const coupon = await Coupon.create({ ...req.body, code: req.body.code?.toUpperCase(), createdBy: req.admin!.adminId });
@@ -56,6 +59,7 @@ router.post('/', authenticateAdmin, requirePermission(PERMISSIONS.MANAGE_COUPONS
 );
 
 router.put('/:id', authenticateAdmin, requirePermission(PERMISSIONS.MANAGE_COUPONS),
+  validateZod(couponSchema.deepPartial()),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const coupon = await Coupon.findByIdAndUpdate(req.params.id, { ...req.body, updatedBy: req.admin!.adminId }, { new: true });

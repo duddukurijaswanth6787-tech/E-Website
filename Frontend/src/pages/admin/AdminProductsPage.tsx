@@ -122,6 +122,8 @@ function productToForm(p: Product, categories: Category[]): ProductFormState {
     rewardPoints: Number((p as any).rewardPoints ?? 0),
     averageRating: p.ratings?.average ?? '',
     ratingCount: p.ratings?.count ?? '',
+    seoTitle: p.seo?.title || '',
+    seoDescription: p.seo?.description || '',
   };
 }
 
@@ -190,6 +192,10 @@ function buildPayload(form: ProductFormState): Record<string, unknown> | FormDat
     ratings: {
       average: form.averageRating === '' ? 0 : Number(form.averageRating),
       count: form.ratingCount === '' ? 0 : Number(form.ratingCount),
+    },
+    seo: {
+      title: form.seoTitle?.trim() || undefined,
+      description: form.seoDescription?.trim() || undefined,
     },
   };
 
@@ -357,7 +363,7 @@ const AdminProductsPage = () => {
           </div>
           <div>
             <span className="block font-medium text-gray-900">{row.name}</span>
-            <span className="block text-xs text-gray-500 font-mono mt-0.5">{row.slug}</span>
+            <span className="block text-xs text-[var(--admin-text-secondary)] font-mono mt-0.5">{row.slug}</span>
           </div>
         </div>
       ),
@@ -445,17 +451,18 @@ const AdminProductsPage = () => {
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center">
         <div>
           <h1 className="text-2xl font-serif text-gray-900 mb-1">Product Catalog</h1>
-          <p className="text-sm text-gray-500">Manage your inventory, pricing, and active listings.</p>
+          <p className="text-sm text-[var(--admin-text-secondary)]">Manage your inventory, pricing, and active listings.</p>
         </div>
         <div className="mt-4 sm:mt-0">
           <button
             type="button"
             onClick={openCreate}
-            className="flex items-center px-4 py-2 bg-primary-950 text-white text-sm font-bold tracking-widest uppercase rounded shadow hover:bg-primary-800 transition-colors"
+            className="flex items-center px-4 py-2 bg-[var(--admin-card)] text-[var(--admin-text-primary)] border border-[var(--admin-card-border)] text-sm font-bold tracking-widest uppercase rounded shadow-sm hover:bg-gray-50 dark:hover:bg-white/5 transition-colors"
           >
             <Plus size={16} className="mr-2" />
             Add Product
           </button>
+
         </div>
       </div>
 
@@ -488,3 +495,5 @@ const AdminProductsPage = () => {
 };
 
 export default AdminProductsPage;
+
+

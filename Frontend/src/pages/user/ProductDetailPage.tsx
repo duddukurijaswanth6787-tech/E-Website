@@ -3,7 +3,6 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { ProductCard } from '../../components/common/ProductCard';
 import { useCartStore } from '../../store/cartStore';
-import SEO from '../../components/common/SEO';
 import { productService } from '../../api/services/product.service';
 import { extractPaginatedList } from '../../utils/extractPaginatedList';
 import { Loader } from '../../components/common/Loader';
@@ -15,8 +14,13 @@ import {
   ChevronDown, 
   Sparkles, 
   CheckCircle2,
-  Search
+  Search,
+  MessageCircle
 } from 'lucide-react';
+import { TrustBadges } from '../../components/common/TrustBadges';
+import { useEventTracker } from '../../hooks/useEventTracker';
+import { useSEO } from '../../context/SEOContext';
+import { getProductSchema, getBreadcrumbSchema } from '../../utils/seoSchemas';
 
 const Accordion = ({ title, children, defaultOpen = false }: { title: string, children: React.ReactNode, defaultOpen?: boolean }) => {
   const [isOpen, setIsOpen] = useState(defaultOpen);
@@ -37,7 +41,10 @@ const Accordion = ({ title, children, defaultOpen = false }: { title: string, ch
   );
 };
 
+
 const ProductDetailPage = () => {
+  const { setMetadata } = useSEO();
+  const { trackEvent } = useEventTracker();
   const { slug } = useParams();
   const navigate = useNavigate();
   const [product, setProduct] = useState<any>(null);
@@ -50,6 +57,18 @@ const ProductDetailPage = () => {
   const [showMeasurementModal, setShowMeasurementModal] = useState(false);
   const [measurements, setMeasurements] = useState<any>(null);
   const { addItem } = useCartStore();
+
+  useEffect(() => {
+    if (product) {
+      setMetadata({
+        title: product.seo?.title || product.name,
+        description: product.seo?.description || product.shortDescription || product.description.substring(0, 160),
+        ogImage: product.seo?.ogImage || product.images?.[0]?.url,
+        ogType: 'product',
+        schemaData: getProductSchema(product)
+      });
+    }
+  }, [product, setMetadata]);
 
   const handleBuyNow = () => {
     if (!product || !inStock) return;
@@ -80,6 +99,26 @@ const ProductDetailPage = () => {
         const res = await productService.getProductBySlug(slug);
         const p = res.data;
         setProduct(p);
+        
+        // Enhance SEO with Structured Data
+        setMetadata({
+          title: `${p.name} | Vasanthi Creations`,
+          description: p.shortDescription || p.description.substring(0, 160),
+          ogImage: p.images?.[0],
+          schemaData: [
+            getProductSchema(p),
+            getBreadcrumbSchema([
+              { name: 'Home', item: '/' },
+              { name: 'Shop', item: '/shop' },
+              { name: p.category?.name || 'Collection', item: `/category/${p.category?.slug || ''}` },
+              { name: p.name, item: `/product/${p.slug}` }
+            ])
+          ]
+        });
+
+        trackEvent('product_view', { 
+          metadata: { productId: p._id, name: p.name, category: p.category?.name } 
+        });
         const categoryId = p?.category && typeof p.category === 'object' ? (p.category as { _id?: string })._id : p?.category;
         try {
           const relatedRes = await productService.getRelatedProducts(p._id, categoryId);
@@ -110,7 +149,6 @@ const ProductDetailPage = () => {
 
   return (
     <div className="min-h-screen bg-neutral-cream flex flex-col">
-      <SEO title={product.name} />
       <div className="max-w-7xl mx-auto px-4 py-8 lg:py-16 w-full">
         <div className="flex flex-col lg:flex-row gap-10">
           <div className="w-full lg:w-[55%]">
@@ -185,6 +223,14 @@ const ProductDetailPage = () => {
                     measurements
                   }
                 });
+                trackEvent('add_to_cart', { 
+                  metadata: {
+                    productId: product._id, 
+                    name: product.name, 
+                    price: stitchingRequired ? product.price + 500 : product.price 
+                  }
+                });
+                toast.success('Added to your collection');
               }} className="flex-1 bg-primary-950 text-white py-4 rounded font-bold uppercase tracking-widest">Add to Cart</button>
               <button onClick={() => {
                 const hasMeasurements = measurements && Object.values(measurements).some(v => v !== '');
@@ -196,10 +242,22 @@ const ProductDetailPage = () => {
                 handleBuyNow();
               }} className="flex-1 bg-accent text-primary-950 py-4 rounded font-bold uppercase tracking-widest">Buy Now</button>
             </div>
-            <div className="space-y-1">
+
+            <button 
+              onClick={() => {
+                const url = `https://wa.me/919876543210?text=${encodeURIComponent(`Hello, I'm interested in the "${product.name}". Can you help me with more details?`)}`;
+                window.open(url, '_blank');
+              }}
+              className="w-full mb-8 py-4 bg-white border border-stone-200 rounded-xl font-bold uppercase tracking-widest text-[11px] flex items-center justify-center gap-3 hover:bg-stone-50 transition-all text-primary-950"
+            >
+              <MessageCircle size={18} className="text-emerald-500" /> WhatsApp Inquiry
+            </button>
+            <div className="space-y-1 mb-8">
               <Accordion title="Description" defaultOpen={true}>{product.description}</Accordion>
               <Accordion title="Details">{product.fabric && `Fabric: ${product.fabric}`}</Accordion>
             </div>
+            
+            <TrustBadges variant="minimal" />
           </div>
         </div>
       </div>

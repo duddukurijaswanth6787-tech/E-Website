@@ -15,6 +15,8 @@ const maskSensitiveData = (obj: any): any => {
   return masked;
 };
 
+const lastRequestLog: Record<string, number> = {};
+
 export const requestLogger = (req: Request, res: Response, next: NextFunction): void => {
   const start = Date.now();
   const requestId = generateRequestId();
@@ -31,8 +33,25 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction): 
 
   res.on('finish', () => {
     const duration = Date.now() - start;
-    let parsedResBody = responseBody;
+    
+    // Noise Reduction: Skip logging repetitive public GET requests if they happen within 5 seconds
+    const logKey = `${req.method}:${req.originalUrl}:${res.statusCode}`;
+    const isPublicGet = req.method === 'GET' && (
+      req.originalUrl.includes('/public') || 
+      req.originalUrl.includes('/hero') ||
+      req.originalUrl.includes('/trending')
+    );
 
+    const now = Date.now();
+    
+    if (res.statusCode === 304 && isPublicGet) {
+      if (lastRequestLog[logKey] && now - lastRequestLog[logKey] < 5000) {
+        return; // Skip noisy repetitive log
+      }
+      lastRequestLog[logKey] = now;
+    }
+
+    let parsedResBody = responseBody;
     if (typeof responseBody === 'string') {
       try {
         parsedResBody = JSON.parse(responseBody);
@@ -48,10 +67,16 @@ export const requestLogger = (req: Request, res: Response, next: NextFunction): 
       status: res.statusCode,
       duration: `${duration}ms`,
       ip: req.ip,
-      body: maskSensitiveData(req.body),
+      request: {
+        params: req.params,
+        query: req.query,
+        body: maskSensitiveData(req.body),
+      },
+      response: maskSensitiveData(parsedResBody),
       userId: (req as any).user?.userId || (req as any).admin?.role || 'anonymous',
     });
   });
 
   next();
 };
+

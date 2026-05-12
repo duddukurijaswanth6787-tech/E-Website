@@ -2,6 +2,7 @@ import type { Dispatch, SetStateAction } from 'react';
 import type { Category } from '../../api/services/category.service';
 import { previewSemanticSku } from '../../utils/productSkuPreview';
 import { X, UploadCloud } from 'lucide-react';
+import { Input } from '../common/Input';
 
 export type ProductFormState = {
   name: string;
@@ -53,6 +54,8 @@ export type ProductFormState = {
   rewardPoints: number;
   averageRating: number | '';
   ratingCount: number | '';
+  seoTitle?: string;
+  seoDescription?: string;
 };
 
 export const emptyProductForm = (): ProductFormState => ({
@@ -105,6 +108,8 @@ export const emptyProductForm = (): ProductFormState => ({
   rewardPoints: 0,
   averageRating: '',
   ratingCount: '',
+  seoTitle: '',
+  seoDescription: '',
 });
 
 type Props = {
@@ -220,17 +225,17 @@ const AdminProductFormModal = ({
           </button>
         </div>
 
-        <div className="px-6 py-6 overflow-y-auto flex-1 space-y-8">
+        <div className="px-6 py-6 overflow-y-auto flex-1 space-y-8 sidebar-scrollbar">
           <section>
             <h3 className={sectionTitle}>1. Basic product info</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="sm:col-span-2">
-                <label className={labelCls}>Product name</label>
-                <input
+                <Input
+                  label="Product name"
                   value={form.name}
                   onChange={(e) => setForm((f) => ({ ...f, name: e.target.value }))}
-                  className={inputCls}
                   placeholder="Banarasi Silk Saree with Zari Border"
+                  required
                 />
               </div>
               <div>
@@ -271,29 +276,26 @@ const AdminProductFormModal = ({
                 </select>
               </div>
               <div className="sm:col-span-2">
-                <label className={labelCls}>Short title</label>
-                <input
+                <Input
+                  label="Short title"
                   value={form.shortDescription}
                   onChange={(e) => setForm((f) => ({ ...f, shortDescription: e.target.value }))}
-                  className={inputCls}
                   placeholder="Red Banarasi Silk Saree"
                 />
               </div>
               <div>
-                <label className={labelCls}>Color</label>
-                <input
+                <Input
+                  label="Color"
                   value={form.color}
                   onChange={(e) => setForm((f) => ({ ...f, color: e.target.value }))}
-                  className={inputCls}
                   placeholder="light green"
                 />
               </div>
               <div>
-                <label className={labelCls}>Occasions (comma-separated)</label>
-                <input
+                <Input
+                  label="Occasions (comma-separated)"
                   value={form.occasionsCsv}
                   onChange={(e) => setForm((f) => ({ ...f, occasionsCsv: e.target.value }))}
-                  className={inputCls}
                   placeholder="Wedding, Festive"
                 />
               </div>
@@ -595,31 +597,7 @@ const AdminProductFormModal = ({
                 )}
               </div>
               
-              <div className="relative py-4">
-                 <div className="absolute inset-0 flex items-center"><div className="w-full border-t border-gray-100"></div></div>
-                 <div className="relative flex justify-center text-[10px] uppercase tracking-widest font-black"><span className="px-3 bg-white text-gray-400 font-serif italic capitalize">Advanced Source Management</span></div>
-              </div>
 
-              <div className="bg-gray-50/50 p-4 rounded-xl border border-gray-100 space-y-4">
-                <div>
-                  <label className={labelCls}>Main Remote URL (Legacy)</label>
-                  <input
-                    value={form.mainImageUrl}
-                    onChange={(e) => setForm((f) => ({ ...f, mainImageUrl: e.target.value }))}
-                    className={inputCls}
-                    placeholder="https://…"
-                  />
-                </div>
-                <div>
-                  <label className={labelCls}>Additional Gallery URLs (Comma separated)</label>
-                  <textarea
-                    value={form.galleryImagesCsv}
-                    onChange={(e) => setForm((f) => ({ ...f, galleryImagesCsv: e.target.value }))}
-                    className={`${inputCls} min-h-[60px]`}
-                    placeholder="https://…/1.jpg, https://…/2.jpg"
-                  />
-                </div>
-              </div>
             </div>
           </section>
 
@@ -789,14 +767,41 @@ const AdminProductFormModal = ({
           </section>
 
           <section>
-            <h3 className={sectionTitle}>8. Tags & return policy</h3>
+            <h3 className={sectionTitle}>8. Search Intelligence & Meta Controls</h3>
+            <div className="grid grid-cols-1 gap-4">
+              <div>
+                <Input
+                  label="SEO Title Override"
+                  value={form.seoTitle}
+                  onChange={(e) => setForm((f) => ({ ...f, seoTitle: e.target.value }))}
+                  placeholder="Custom SEO Title (defaults to product name)"
+                  showCharCount
+                  maxLength={60}
+                />
+              </div>
+              <div>
+                <Input
+                  label="SEO Meta Description"
+                  multiline
+                  rows={3}
+                  value={form.seoDescription}
+                  onChange={(e) => setForm((f) => ({ ...f, seoDescription: e.target.value }))}
+                  placeholder="High-converting summary for Google search results…"
+                  showCharCount
+                  maxLength={160}
+                />
+              </div>
+            </div>
+          </section>
+
+          <section>
+            <h3 className={sectionTitle}>9. Tags & return policy</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="sm:col-span-2">
-                <label className={labelCls}>Tags (comma-separated)</label>
-                <input
+                <Input
+                  label="Tags (comma-separated)"
                   value={form.tagsCsv}
                   onChange={(e) => setForm((f) => ({ ...f, tagsCsv: e.target.value }))}
-                  className={inputCls}
                   placeholder="Bridal, Handloom"
                 />
               </div>

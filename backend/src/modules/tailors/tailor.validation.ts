@@ -5,7 +5,7 @@ export const createTailorSchema = z.object({
   body: z.object({
     name: z.string().min(2, 'Name must be at least 2 characters'),
     email: z.string().email('Invalid email address'),
-    phone: z.string().min(10, 'Phone must be at least 10 characters'),
+    phone: z.string().min(8, 'Phone must be at least 8 characters'),
     password: z.string().min(8, 'Password must be at least 8 characters'),
     specialization: z.array(z.nativeEnum(TailorSpecialization)).optional(),
     experienceYears: z.number().min(0).optional(),
@@ -18,7 +18,7 @@ export const updateTailorSchema = z.object({
   body: z.object({
     name: z.string().min(2).optional(),
     email: z.string().email().optional(),
-    phone: z.string().min(10).optional(),
+    phone: z.string().min(8).optional(),
     specialization: z.array(z.nativeEnum(TailorSpecialization)).optional(),
     experienceYears: z.number().min(0).optional(),
     isAvailable: z.boolean().optional(),

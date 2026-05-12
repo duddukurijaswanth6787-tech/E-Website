@@ -21,17 +21,24 @@ const SalesAnalytics: React.FC = () => {
     queryFn: () => marketingService.getSalesTrends(period)
   });
 
+  const { data: topProductsRes, isLoading: loadingTopProducts } = useQuery({
+    queryKey: ['topProducts'],
+    queryFn: marketingService.getTopProducts
+  });
+  
+  const topProducts = useMemo(() => {
+    const raw = topProductsRes?.data || [];
+    // Map backend response fields to the expected chart format
+    return raw.map((item: any) => ({
+      name: item.name || 'Unknown Product',
+      sales: item.totalSold || 0,
+      revenue: item.totalRevenue || 0
+    }));
+  }, [topProductsRes]);
+
   const trends = useMemo(() => trendsRes?.data || [], [trendsRes]);
 
-  if (isLoading) return <MarketingSkeleton />;
-
-  const mockProductPerformance = [
-    { name: 'Kanchipuram Silk Saree', sales: 420, revenue: 1250000 },
-    { name: 'Designer Bridal Lehenga', sales: 180, revenue: 3400000 },
-    { name: 'Embroidered Salwar Suit', sales: 840, revenue: 840000 },
-    { name: 'Silk Dupatta Collection', sales: 1200, revenue: 360000 },
-    { name: 'Custom Stitching Service', sales: 2400, revenue: 1200000 },
-  ];
+  if (isLoading || loadingTopProducts) return <MarketingSkeleton />;
 
   const mockBranchData = [
     { name: 'Main Boutique', value: 45 },
@@ -41,7 +48,7 @@ const SalesAnalytics: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-neutral-950 p-4 sm:p-8 text-white space-y-8 max-w-[1600px] mx-auto">
+    <div className=" space-y-8 max-w-[1600px] mx-auto">
       {/* Header */}
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
         <div>
@@ -49,23 +56,23 @@ const SalesAnalytics: React.FC = () => {
             <BarChart className="text-emerald-500" size={32} />
             Financial Intel
           </h1>
-          <p className="text-gray-500 mt-2 font-bold uppercase text-[10px] tracking-[0.3em]">
+          <p className="text-[var(--admin-text-secondary)] mt-2 font-bold uppercase text-[10px] tracking-[0.3em]">
             Deep-dive into revenue streams and product performance
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-4 w-full md:w-auto">
-          <div className="bg-white/5 border border-white/10 p-1 rounded-2xl flex-grow md:flex-grow-0">
+          <div className="bg-[var(--admin-card)] border border-[var(--admin-card-border)] p-1 rounded-2xl flex-grow md:flex-grow-0">
             {['7days', '30days', '90days'].map((p) => (
               <button
                 key={p}
                 onClick={() => setPeriod(p)}
-                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${period === p ? 'bg-emerald-600 text-white shadow-lg' : 'text-gray-500 hover:text-gray-300'}`}
+                className={`px-4 py-2 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${period === p ? 'bg-emerald-600 text-[var(--admin-text-primary)] shadow-lg' : 'text-[var(--admin-text-secondary)] hover:text-gray-300'}`}
               >
                 {p}
               </button>
             ))}
           </div>
-          <button className="bg-white/5 border border-white/10 hover:bg-white/10 text-white px-6 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 flex-grow md:flex-grow-0">
+          <button className="bg-[var(--admin-card)] border border-[var(--admin-card-border)] hover:bg-[var(--admin-card)]/10 text-[var(--admin-text-primary)] px-6 py-2.5 rounded-2xl font-black text-xs uppercase tracking-widest transition-all flex items-center justify-center gap-2 flex-grow md:flex-grow-0">
             <Download size={18} /> Export
           </button>
         </div>
@@ -80,7 +87,7 @@ const SalesAnalytics: React.FC = () => {
         headerAction={
           <div className="text-right">
             <p className="text-2xl font-black text-emerald-400">₹{(trends.reduce((acc: number, curr: any) => acc + curr.revenue, 0)).toLocaleString()}</p>
-            <p className="text-[10px] text-gray-500 font-black uppercase tracking-widest">Period Revenue</p>
+            <p className="text-[10px] text-[var(--admin-text-secondary)] font-black uppercase tracking-widest">Period Revenue</p>
           </div>
         }
       >
@@ -121,26 +128,28 @@ const SalesAnalytics: React.FC = () => {
         >
           <div className="overflow-x-auto">
             <table className="w-full text-left border-collapse">
-              <thead className="bg-white/[0.02]">
+              <thead className="bg-[var(--admin-card)]/[0.02]">
                 <tr>
-                  <th className="px-8 py-5 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em]">Product / Collection</th>
-                  <th className="px-8 py-5 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] text-center">Sales</th>
-                  <th className="px-8 py-5 text-[10px] font-black text-gray-500 uppercase tracking-[0.2em] text-right">Revenue</th>
+                  <th className="px-8 py-5 text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-[0.2em]">Product / Collection</th>
+                  <th className="px-8 py-5 text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-[0.2em] text-center">Sales</th>
+                  <th className="px-8 py-5 text-[10px] font-black text-[var(--admin-text-secondary)] uppercase tracking-[0.2em] text-right">Revenue</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-white/5">
-                {mockProductPerformance.map((product, idx) => (
-                  <tr key={idx} className="hover:bg-white/[0.03] transition-colors group/row">
+                {topProducts.length === 0 ? (
+                  <tr><td colSpan={3} className="px-8 py-10 text-center text-[var(--admin-text-secondary)] text-xs font-bold uppercase">No data available</td></tr>
+                ) : topProducts.map((product: any, idx: number) => (
+                  <tr key={idx} className="hover:bg-[var(--admin-card)]/[0.03] transition-colors group/row">
                     <td className="px-8 py-5">
                       <div className="flex items-center gap-4">
-                        <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-white/5 flex items-center justify-center text-blue-400 font-black text-xs group-hover/row:scale-110 transition-transform">
+                        <div className="w-10 h-10 rounded-xl bg-blue-500/10 border border-[var(--admin-card-border)] flex items-center justify-center text-blue-400 font-black text-xs group-hover/row:scale-110 transition-transform">
                           {idx + 1}
                         </div>
                         <span className="text-sm font-bold text-gray-200">{product.name}</span>
                       </div>
                     </td>
                     <td className="px-8 py-5 text-center">
-                      <span className="text-sm font-black text-white">{product.sales}</span>
+                      <span className="text-sm font-black text-[var(--admin-text-primary)]">{product.sales}</span>
                     </td>
                     <td className="px-8 py-5 text-right">
                       <span className="text-sm font-black text-emerald-400">₹{product.revenue.toLocaleString()}</span>
@@ -151,6 +160,7 @@ const SalesAnalytics: React.FC = () => {
             </table>
           </div>
         </GlassCard>
+
 
         {/* Branch Distribution */}
         <GlassCard 
@@ -164,9 +174,9 @@ const SalesAnalytics: React.FC = () => {
               <div key={branch.name} className="space-y-3">
                 <div className="flex justify-between items-center">
                   <span className="text-xs font-black text-gray-400 uppercase tracking-widest">{branch.name}</span>
-                  <span className="text-sm font-black text-white">{branch.value}%</span>
+                  <span className="text-sm font-black text-[var(--admin-text-primary)]">{branch.value}%</span>
                 </div>
-                  <div className="w-full h-3 bg-white/5 rounded-full overflow-hidden border border-white/5 p-[2px]">
+                  <div className="w-full h-3 bg-[var(--admin-card)] rounded-full overflow-hidden border border-[var(--admin-card-border)] p-[2px]">
                     <div 
                       style={{ width: `${branch.value}%` }}
                       className="h-full bg-gradient-to-r from-purple-600 via-blue-500 to-emerald-400 rounded-full transition-all duration-1000" 
@@ -175,7 +185,7 @@ const SalesAnalytics: React.FC = () => {
               </div>
             ))}
           </div>
-          <div className="mt-12 pt-8 border-t border-white/5 flex justify-between items-center text-[9px] font-black text-gray-600 uppercase tracking-[0.3em]">
+          <div className="mt-12 pt-8 border-t border-[var(--admin-card-border)] flex justify-between items-center text-[9px] font-black text-gray-600 uppercase tracking-[0.3em]">
             <span>Last Audit: 2 Hours Ago</span>
             <span className="flex items-center gap-2 text-emerald-500">
               <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
@@ -189,3 +199,5 @@ const SalesAnalytics: React.FC = () => {
 };
 
 export default SalesAnalytics;
+
+

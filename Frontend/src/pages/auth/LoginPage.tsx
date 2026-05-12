@@ -1,28 +1,42 @@
 import { useState } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, LogIn, Mail, Lock, ShieldCheck, User } from 'lucide-react';
 import { useAuthStore } from '../../store/authStore';
 import { authService } from '../../api/services/auth.service';
+import { Input } from '../../components/common/Input';
+import { useValidation } from '../../utils/validation/useValidation';
 import toast from 'react-hot-toast';
 
 const LoginPage = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { setAuth } = useAuthStore();
 
+  const {
+    values,
+    errors,
+    touched,
+    handleChange,
+    handleBlur,
+    validateForm
+  } = useValidation({ email: '', password: '' });
+
   const redirect = searchParams.get('redirect') || '/my/profile';
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    if (!validateForm()) {
+      toast.error('Please enter valid credentials');
+      return;
+    }
+
     setLoading(true);
     
     try {
-      if (email.toLowerCase() === 'admin@vasanthicreations.com') {
-        const res = await authService.adminLogin({ email, password });
+      if (values.email.toLowerCase() === 'admin@vasanthicreations.com' || values.email.toLowerCase() === 'admin@gmail.com') {
+        const res = await authService.adminLogin(values);
         const { admin, accessToken, refreshToken } = (res as any).data;
         setAuth(admin, accessToken, refreshToken);
         toast.success('Admin Session Established');
@@ -30,11 +44,11 @@ const LoginPage = () => {
         return;
       }
 
-      const res = await authService.login({ email, password });
+      const res = await authService.login(values);
       
       if (res.data?.requiresOtp) {
         toast.success('Security Verification Required');
-        navigate(`/otp-verification?email=${email}&type=login&redirect=${encodeURIComponent(redirect)}`);
+        navigate(`/otp-verification?email=${values.email}&type=login&redirect=${encodeURIComponent(redirect)}`);
         return;
       }
       
@@ -63,128 +77,134 @@ const LoginPage = () => {
     }
   };
 
-  const handleAdminQuickLogin = async () => {
+  const handleQuickLogin = async (role: 'admin' | 'customer') => {
     setLoading(true);
     try {
-      const res = await authService.adminLogin({ email: 'admin@vasanthicreations.com', password: 'Admin@12345!' });
-      const { admin, accessToken, refreshToken } = (res as any).data;
-      setAuth(admin, accessToken, refreshToken);
-      toast.success('Admin Session Established');
-      navigate('/admin');
-    } catch (err: any) {
-      toast.error('Admin quick login failed. Ensure database is seeded.');
-    } finally {
-       setLoading(false);
-    }
-  };
-
-  const handleCustomerQuickLogin = async () => {
-    setLoading(true);
-    try {
-      const res = await authService.login({ email: 'customer@test.com', password: 'Customer@123' });
-      setAuth(res.data.user, res.data.accessToken, res.data.refreshToken);
+      const credentials = role === 'admin' 
+        ? { email: 'admin@gmail.com', password: 'Admin@123' }
+        : { email: 'customer@test.com', password: 'Customer@123' };
+        
+      const res = role === 'admin' 
+        ? await authService.adminLogin(credentials)
+        : await authService.login(credentials);
+        
+      const payload = (res as any).data || res.data;
+      setAuth(payload.admin || payload.user, payload.accessToken, payload.refreshToken);
       
-      try {
-         const { cartService } = await import('../../api/services/cart.service');
-         await cartService.mergeCart();
-         const { useCartStore } = await import('../../store/cartStore');
-         await useCartStore.getState().syncBackendCart();
-      } catch (e) {
-         console.error("Cart merge skipped", e);
+      if (role === 'customer') {
+        try {
+           const { cartService } = await import('../../api/services/cart.service');
+           await cartService.mergeCart();
+           const { useCartStore } = await import('../../store/cartStore');
+           await useCartStore.getState().syncBackendCart();
+        } catch (e) {}
       }
 
-      toast.success('Customer Session Established');
-      navigate(redirect);
-    } catch (err: any) {
-      toast.error('Customer quick login failed. Ensure database is seeded.');
+      toast.success(`${role.charAt(0).toUpperCase() + role.slice(1)} Session Established`);
+      navigate(role === 'admin' ? '/admin' : redirect);
+    } catch (err) {
+      toast.error('Quick login failed. Ensure database is seeded.');
     } finally {
-       setLoading(false);
+      setLoading(false);
     }
   };
 
   return (
-    <div className="w-full">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl font-serif text-primary-950 mb-2">Welcome Back</h1>
-        <p className="text-gray-600">Sign in to access your bespoke orders and saved wishlist.</p>
+    <div className="w-full max-w-md mx-auto">
+      <div className="text-center mb-10">
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-3xl bg-primary-50 text-primary-600 mb-6">
+          <LogIn size={32} />
+        </div>
+        <h1 className="text-4xl font-serif text-stone-950 mb-3 tracking-tight">Welcome Back</h1>
+        <p className="text-stone-500 text-sm">Sign in to your private bespoke vault.</p>
       </div>
 
       <form onSubmit={handleLogin} className="space-y-6">
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1.5">Email Address *</label>
-          <input 
-            type="email" 
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-white border border-gray-300 rounded px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-            placeholder="Enter your email"
-            required
-          />
-        </div>
+        <Input
+          label="Email Address"
+          name="email"
+          type="email"
+          value={values.email}
+          onChange={handleChange}
+          onBlur={handleBlur}
+          error={touched.email ? errors.email : ''}
+          success={touched.email && !errors.email}
+          leftIcon={<Mail size={18} />}
+          placeholder="example@gmail.com"
+          required
+        />
         
         <div>
-          <div className="flex justify-between items-center mb-1.5">
-            <label className="block text-sm font-medium text-gray-700">Password *</label>
-            <Link to="/forgot-password" className="text-xs text-primary-600 hover:text-primary-800">Forgot Password?</Link>
+          <div className="flex justify-end mb-1">
+            <Link to="/forgot-password" className="text-[10px] font-bold uppercase tracking-wider text-primary-600 hover:text-primary-800 transition-colors">Forgot Password?</Link>
           </div>
-          <div className="relative">
-            <input 
-              type={showPassword ? "text" : "password"} 
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-white border border-gray-300 rounded px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-1 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-              placeholder="Enter your password"
-              required
-            />
-            <button
-              type="button"
-              onClick={() => setShowPassword(!showPassword)}
-              className="absolute inset-y-0 right-0 px-4 flex items-center justify-center text-gray-400 hover:text-primary-700 focus:outline-none"
-            >
-              {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-            </button>
-          </div>
+          <Input
+            label="Password"
+            name="password"
+            type={showPassword ? "text" : "password"}
+            value={values.password}
+            onChange={handleChange}
+            onBlur={handleBlur}
+            error={touched.password ? errors.password : ''}
+            success={touched.password && !errors.password && values.password.length > 0}
+            leftIcon={<Lock size={18} />}
+            placeholder="Enter your password"
+            required
+            rightIcon={
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="hover:text-primary-600 transition-colors focus:outline-none"
+              >
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+              </button>
+            }
+          />
         </div>
 
         <button 
           type="submit" 
           disabled={loading}
-          className="w-full bg-primary-950 text-white font-bold uppercase tracking-widest py-4 rounded hover:bg-primary-800 transition-colors shadow-soft disabled:opacity-70 flex justify-center items-center mb-4"
+          className="w-full bg-stone-950 text-white font-black uppercase tracking-[0.2em] py-5 rounded-2xl hover:bg-stone-800 transition-all shadow-xl disabled:opacity-50 flex justify-center items-center mt-2 group"
         >
           {loading ? (
             <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
           ) : (
-            'Sign In'
+            <span className="flex items-center gap-2">
+              Enter Boutique
+            </span>
           )}
         </button>
 
-        <div className="relative flex py-4 items-center">
-            <div className="flex-grow border-t border-gray-200"></div>
-            <span className="flex-shrink-0 mx-4 text-gray-400 text-xs uppercase tracking-widest">Or for testing</span>
-            <div className="flex-grow border-t border-gray-200"></div>
+        <div className="relative flex py-6 items-center">
+            <div className="flex-grow border-t border-stone-100"></div>
+            <span className="flex-shrink-0 mx-4 text-stone-400 text-[10px] font-bold uppercase tracking-widest">Rapid Access (Dev)</span>
+            <div className="flex-grow border-t border-stone-100"></div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <div className="grid grid-cols-2 gap-4">
           <button 
-            onClick={handleAdminQuickLogin}
+            onClick={() => handleQuickLogin('admin')}
             type="button" 
-            className="bg-white border-2 border-accent text-primary-950 font-bold uppercase tracking-widest py-4 rounded hover:bg-accent-light transition-colors shadow-sm flex justify-center items-center text-xs"
+            className="group relative overflow-hidden bg-white border border-stone-200 text-stone-950 font-bold uppercase tracking-wider py-4 rounded-xl hover:border-accent transition-all text-[10px] shadow-sm flex items-center justify-center gap-2"
           >
-             [Dev] QA Admin
+             <ShieldCheck size={14} className="text-stone-400 group-hover:text-accent transition-colors" />
+             QA Admin
           </button>
           <button 
-            onClick={handleCustomerQuickLogin}
+            onClick={() => handleQuickLogin('customer')}
             type="button" 
-            className="bg-white border-2 border-primary-800 text-primary-950 font-bold uppercase tracking-widest py-4 rounded hover:bg-primary-50 transition-colors shadow-sm flex justify-center items-center text-xs"
+            className="group relative overflow-hidden bg-white border border-stone-200 text-stone-950 font-bold uppercase tracking-wider py-4 rounded-xl hover:border-primary-600 transition-all text-[10px] shadow-sm flex items-center justify-center gap-2"
           >
-             [Dev] QA Customer
+             <User size={14} className="text-stone-400 group-hover:text-primary-600 transition-colors" />
+             QA Member
           </button>
         </div>
       </form>
 
-      <div className="mt-8 pt-6 border-t border-gray-100 text-center flex flex-col space-y-4">
-        <p className="text-sm text-gray-600">
-          New to Vasanthi Creations? <Link to="/register" className="text-primary-700 font-semibold hover:underline">Create an account</Link>
+      <div className="mt-10 pt-8 border-t border-stone-100 text-center">
+        <p className="text-sm text-stone-500">
+          Not a member? <Link to="/register" className="text-primary-700 font-bold hover:text-primary-800 transition-colors">Join the House</Link>
         </p>
       </div>
     </div>

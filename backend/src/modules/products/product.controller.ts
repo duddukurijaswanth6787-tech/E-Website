@@ -1,6 +1,8 @@
 import { Request, Response, NextFunction } from 'express';
 import { productService } from './product.service';
 import { sendSuccess, sendCreated, sendNoContent, sendPaginated } from '../../common/responses';
+import { CleanupService } from '../marketing/retention/cleanup.service';
+
 export interface MulterS3File {
   fieldname: string;
   originalname: string;
@@ -82,6 +84,29 @@ export class ProductController {
   async getBySlug(req: Request, res: Response, next: NextFunction): Promise<void> {
     try {
       const product = await productService.getBySlug(req.params.slug as string);
+      
+      // Record Live Activity (Social Proof)
+      if (product) {
+        const { Event } = await import('../analytics/event.model');
+        const fifteenMinutesAgo = new Date(Date.now() - 15 * 60 * 1000);
+        
+        const realViewerCount = await Event.countDocuments({
+          type: 'product_view',
+          'metadata.productId': product._id,
+          createdAt: { $gte: fifteenMinutesAgo }
+        });
+
+        const viewerCount = Math.max(realViewerCount, 1); // Minimum 1 if it's being viewed now
+        
+        CleanupService.recordActivity({
+          type: 'visitor',
+          title: `${viewerCount} people viewing this`,
+          customerName: 'Anonymous Visitor',
+          module: 'liveVisitors',
+          metadata: { productId: product._id }
+        }).catch(() => {});
+      }
+
       sendSuccess(res, product);
     } catch (err) { next(err); }
   }

@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { WorkflowTask, WorkflowStatus } from './workflow.model';
+import { WorkflowTask, WorkflowStatus, EscalationSeverity } from './workflow.model';
 import { Tailor } from '../tailors/tailor.model';
 import mongoose from 'mongoose';
 
@@ -66,3 +66,24 @@ export const getTailorProductivity = async (req: Request, res: Response) => {
     data: tailorStats
   });
 };
+
+export const getEscalations = async (req: Request, res: Response) => {
+  const escalations = await WorkflowTask.find({
+    $or: [
+      { escalationSeverity: { $ne: EscalationSeverity.NORMAL } },
+      { escalationFlags: { $not: { $size: 0 } } },
+      { isSlaViolated: true }
+    ],
+    status: { $nin: [WorkflowStatus.COMPLETED, WorkflowStatus.DELIVERED] }
+  })
+  .populate('tailorId', 'name tailorCode')
+  .populate('orderId', 'orderNumber')
+  .sort({ updatedAt: -1 })
+  .limit(20);
+
+  res.status(200).json({
+    status: 'success',
+    data: escalations
+  });
+};
+

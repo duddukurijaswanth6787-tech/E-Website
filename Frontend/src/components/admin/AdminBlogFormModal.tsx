@@ -1,4 +1,6 @@
 import React from 'react';
+import { Input } from '../common/Input';
+import { ImageUploader } from './ImageUploader';
 
 export type BlogFormState = {
   title: string;
@@ -62,23 +64,22 @@ const AdminBlogFormModal: React.FC<AdminBlogFormModalProps> = ({
         <div className="px-6 py-6 space-y-4 overflow-y-auto max-h-[75vh] sidebar-scrollbar">
           <div className="grid grid-cols-1 gap-4">
             <div>
-              <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Article Title</label>
-              <input
+              <Input
+                label="Article Title"
                 value={form.title}
                 onChange={(e) => setForm((f) => ({ ...f, title: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm font-serif text-lg focus:ring-2 focus:ring-primary-500 outline-none"
                 placeholder="The Art of Draping Kanjivaram…"
+                required
               />
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                <div>
-                  <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Cover Image URL</label>
-                  <input
+                  <ImageUploader
+                    label="Cover Image"
                     value={form.coverImage}
-                    onChange={(e) => setForm((f) => ({ ...f, coverImage: e.target.value }))}
-                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-primary-500 outline-none"
-                    placeholder="https://..."
+                    onChange={url => setForm(f => ({ ...f, coverImage: url }))}
+                    folder="blogs"
                   />
                </div>
                <div>
@@ -94,38 +95,38 @@ const AdminBlogFormModal: React.FC<AdminBlogFormModalProps> = ({
                </div>
             </div>
 
-            {form.coverImage && (
-              <div className="h-40 rounded-lg overflow-hidden border border-gray-200 bg-gray-50">
-                <img src={form.coverImage} alt="Cover Preview" className="w-full h-full object-cover" />
-              </div>
-            )}
+            {/* ... image preview */}
 
             <div>
-              <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Excerpt / Summary</label>
-              <textarea
+              <Input
+                label="Excerpt / Summary"
+                multiline
+                rows={3}
                 value={form.excerpt}
                 onChange={(e) => setForm((f) => ({ ...f, excerpt: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm min-h-[60px]"
                 placeholder="A short summary for the blog listing page…"
+                showCharCount
+                maxLength={200}
               />
             </div>
 
             <div>
-              <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Full Article Content (Markdown/HTML Support)</label>
-              <textarea
+              <Input
+                label="Full Article Content (Markdown/HTML Support)"
+                multiline
+                rows={12}
                 value={form.content}
                 onChange={(e) => setForm((f) => ({ ...f, content: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm min-h-[300px] font-mono"
+                className="font-mono"
                 placeholder="Write your story here…"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-black uppercase tracking-widest text-gray-500 mb-1">Tags (Comma separated)</label>
-              <input
+              <Input
+                label="Tags (Comma separated)"
                 value={form.tagsCsv}
                 onChange={(e) => setForm((f) => ({ ...f, tagsCsv: e.target.value }))}
-                className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm"
                 placeholder="silk, styling, wedding, kanjivaram"
               />
             </div>

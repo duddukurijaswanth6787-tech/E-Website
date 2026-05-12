@@ -1,37 +1,52 @@
-import { getMailTransporter } from '../../config/mail';
 import { env } from '../../config/env';
 import { logger } from '../logger';
+import { queues } from '../../scalability/queues';
 
 interface SendMailOptions {
   to: string;
   subject: string;
   html: string;
   text?: string;
+  priority?: 'high' | 'normal' | 'low';
 }
 
+/**
+ * Phase 4: Async-Safe Email Dispatch
+ * Decouples SMTP IO from the API request lifecycle via BullMQ.
+ */
 export const sendMail = async (options: SendMailOptions): Promise<void> => {
   if (!env.mail.user || !env.mail.pass) {
-    logger.warn(`[Email DISABLED] Would send to ${options.to}: ${options.subject}`);
+    logger.warn(`[Email DISABLED] Would queue for ${options.to}: ${options.subject}`);
     return;
   }
 
   try {
-    const transporter = getMailTransporter();
-    await transporter.sendMail({
-      from: env.mail.from,
-      to: options.to,
-      subject: options.subject,
-      html: options.html,
-      text: options.text,
-    });
-    logger.info(`Email sent to ${options.to}: ${options.subject}`);
-  } catch (error) {
-    logger.error(`Failed to send email to ${options.to}:`, error);
-    if (env.nodeEnv === 'production') {
-      throw new Error('Failed to send email. Please try again later.');
+    // Priority mapping for BullMQ
+    const priorityValue = options.priority === 'high' ? 1 : options.priority === 'low' ? 5 : 3;
+
+    if (queues.email) {
+      await queues.email.add('transactional-email', {
+        to: options.to,
+        subject: options.subject,
+        html: options.html,
+        text: options.text,
+        from: env.mail.from
+      }, {
+        priority: priorityValue,
+        attempts: 5,
+        backoff: {
+          type: 'exponential',
+          delay: 5000, // Start retrying after 5s
+        },
+      });
+      logger.info(`[Queue:Email] Enqueued message to ${options.to}: ${options.subject}`);
     } else {
-      logger.warn(`[DEVSAVE] Email sending failed but suppressed for ${options.to}`);
+      // Emergency Fallback: If Redis/Queue is down, log it but don't crash the request
+      logger.error(`[Queue:Email] Queue system offline. Dropping email to ${options.to}`);
     }
+  } catch (error) {
+    logger.error(`Failed to enqueue email to ${options.to}:`, error);
+    // Do NOT throw error here to prevent API request failure during queue drops
   }
 };
 

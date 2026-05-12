@@ -86,7 +86,7 @@ const TailorLoginPage = () => {
             type="email" 
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full bg-white border border-gray-300 rounded px-4 py-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600 transition-colors"
+            className="w-full bg-white border border-gray-300 rounded px-4 py-3 text-sm text-black focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600 transition-colors"
             placeholder="Enter your email"
             required
           />
@@ -99,7 +99,7 @@ const TailorLoginPage = () => {
               type={showPassword ? "text" : "password"} 
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-white border border-gray-300 rounded px-4 py-3 pr-12 text-sm focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600 transition-colors"
+              className="w-full bg-white border border-gray-300 rounded px-4 py-3 pr-12 text-sm text-black focus:outline-none focus:ring-1 focus:ring-blue-600 focus:border-blue-600 transition-colors"
               placeholder="Enter your password"
               required
             />

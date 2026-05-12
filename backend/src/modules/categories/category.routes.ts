@@ -6,6 +6,8 @@ import { sendSuccess, sendCreated, sendNoContent } from '../../common/responses'
 import { generateUniqueSlug } from '../../common/utils/helpers';
 import { NotFoundError } from '../../common/errors';
 import { Request, Response, NextFunction } from 'express';
+import { validateZod } from '../../common/middlewares/zodValidate.middleware';
+import { categorySchema } from '../../common/validation/enterprise.schemas';
 
 const router = Router();
 
@@ -49,6 +51,7 @@ router.get('/:slug', async (req: Request, res: Response, next: NextFunction) => 
 // ADMIN
 router.post('/',
   authenticateAdmin, requirePermission(PERMISSIONS.MANAGE_CATEGORIES),
+  validateZod(categorySchema),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const slug = await generateUniqueSlug(req.body.name, async (s) => !!(await Category.findOne({ slug: s })));
@@ -60,6 +63,7 @@ router.post('/',
 
 router.put('/:id',
   authenticateAdmin, requirePermission(PERMISSIONS.MANAGE_CATEGORIES),
+  validateZod(categorySchema.deepPartial()),
   async (req: Request, res: Response, next: NextFunction) => {
     try {
       const category = await Category.findByIdAndUpdate(

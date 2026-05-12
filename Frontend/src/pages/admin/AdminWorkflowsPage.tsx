@@ -91,10 +91,10 @@ const AdminWorkflowsPage = () => {
           <Activity size={24} className="mr-2 text-primary-800" />
           Workflow Board
         </h1>
-        <p className="text-sm text-gray-500 mt-1">Global production view and bottleneck management.</p>
+        <p className="text-sm text-[var(--admin-text-secondary)] mt-1">Global production view and bottleneck management.</p>
       </div>
 
-      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row gap-4 items-center justify-between">
+      <div className="bg-[var(--admin-card)] p-4 rounded-xl shadow-sm border border-gray-200 mb-6 flex flex-col md:flex-row gap-4 items-center justify-between">
         <div className="flex-1 w-full relative">
           <Search size={18} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
           <input 
@@ -135,19 +135,19 @@ const AdminWorkflowsPage = () => {
         </div>
       </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden flex-1 flex flex-col">
+      <div className="bg-[var(--admin-card)] rounded-xl shadow-sm border border-gray-200 overflow-hidden flex-1 flex flex-col">
         <div className="overflow-x-auto flex-1">
           <table className="min-w-full divide-y divide-gray-200">
             <thead className="bg-gray-50 sticky top-0 z-10">
               <tr>
-                <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-widest bg-gray-50">Task ID</th>
-                <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-widest bg-gray-50">Assigned Tailor</th>
-                <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-widest bg-gray-50">Status & Priority</th>
-                <th className="px-6 py-4 text-left text-xs font-black text-gray-500 uppercase tracking-widest bg-gray-50">Deadline</th>
-                <th className="px-6 py-4 text-right text-xs font-black text-gray-500 uppercase tracking-widest bg-gray-50">Audit</th>
+                <th className="px-6 py-4 text-left text-xs font-black text-[var(--admin-text-secondary)] uppercase tracking-widest bg-gray-50">Task ID</th>
+                <th className="px-6 py-4 text-left text-xs font-black text-[var(--admin-text-secondary)] uppercase tracking-widest bg-gray-50">Assigned Tailor</th>
+                <th className="px-6 py-4 text-left text-xs font-black text-[var(--admin-text-secondary)] uppercase tracking-widest bg-gray-50">Status & Priority</th>
+                <th className="px-6 py-4 text-left text-xs font-black text-[var(--admin-text-secondary)] uppercase tracking-widest bg-gray-50">Deadline</th>
+                <th className="px-6 py-4 text-right text-xs font-black text-[var(--admin-text-secondary)] uppercase tracking-widest bg-gray-50">Audit</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-[var(--admin-card)] divide-y divide-gray-200">
                {isLoadingWorkflows ? (
                   <tr><td colSpan={5} className="px-6 py-12"><Loader message="Fetching production workflows..." /></td></tr>
                ) : filteredWorkflows.length === 0 ? (
@@ -167,7 +167,7 @@ const AdminWorkflowsPage = () => {
                     <tr key={wf._id} className="hover:bg-gray-50 transition-colors">
                       <td className="px-6 py-4">
                         <div className="text-sm font-bold text-gray-900">{wf.taskNumber}</div>
-                        <div className="text-xs text-gray-500 truncate max-w-[200px] mt-1" title={wf.taskDescription}>{wf.taskDescription}</div>
+                        <div className="text-xs text-[var(--admin-text-secondary)] truncate max-w-[200px] mt-1" title={wf.taskDescription}>{wf.taskDescription}</div>
                       </td>
                       <td className="px-6 py-4">
                         {isReadOnly ? (
@@ -229,7 +229,7 @@ const AdminWorkflowsPage = () => {
                         {isOverdue && <div className="text-[10px] font-black text-red-600 mt-1 uppercase tracking-wider">Overdue</div>}
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <div className="text-xs text-gray-500">
+                        <div className="text-xs text-[var(--admin-text-secondary)]">
                           <p className="font-semibold text-gray-700">Created by: {wf.assignedBy?.name || 'System'}</p>
                           <p className="mt-1 flex items-center justify-end"><Clock size={10} className="mr-1"/> Upd: {new Date(wf.updatedAt || wf.createdAt).toLocaleDateString()}</p>
                         </div>
@@ -247,3 +247,5 @@ const AdminWorkflowsPage = () => {
 };
 
 export default AdminWorkflowsPage;
+
+
