@@ -65,10 +65,3 @@ export const invalidateCachePattern = async (pattern: string) => {
     }
   } catch (_) {}
 };
-
-export const workerConnection = {
-  host: env.redis.url ? new URL(env.redis.url).hostname : 'localhost',
-  port: env.redis.url ? parseInt(new URL(env.redis.url).port || '6379', 10) : 6379,
-  password: env.redis.url ? new URL(env.redis.url).password : undefined,
-  tls: env.redis.url?.startsWith('rediss://') ? {} : undefined,
-};

@@ -2,13 +2,10 @@ import { Queue, QueueOptions } from 'bullmq';
 import { env } from '../config/env';
 import { QUEUE_NAMES } from './queue.constants';
 import { logger } from '../common/logger';
+import { bullmqConnection } from '../config/redis';
 
-const queueConfig = {
-  connection: {
-    host: env.redis.url ? new URL(env.redis.url).hostname : 'localhost',
-    port: env.redis.url ? parseInt(new URL(env.redis.url).port || '6379', 10) : 6379,
-    password: env.redis.url ? new URL(env.redis.url).password : undefined,
-  },
+const queueConfig: QueueOptions = {
+  connection: bullmqConnection,
   defaultJobOptions: {
     attempts: 5,
     backoff: {

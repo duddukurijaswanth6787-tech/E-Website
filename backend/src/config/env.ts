@@ -61,33 +61,28 @@ export const env = {
   isProduction: process.env.NODE_ENV === 'production',
 
   mongo: {
-    uri: process.env.MONGO_URI as string,
+    uri: process.env.MONGO_URI || '',
   },
 
   redis: {
-    // If REDIS_URL is unset/empty, Redis is treated as disabled (app falls back for OTP/caching).
-    url: (() => {
-      const raw = process.env.REDIS_URL;
-      const trimmed = typeof raw === 'string' ? raw.trim() : '';
-      return trimmed.length ? trimmed : null;
-    })(),
+    // Phase 2: Proper Env-Based Fallback (Railway → LAN → Localhost)
+    url: process.env.REDIS_URL || process.env.LOCAL_REDIS_URL || 'redis://127.0.0.1:6379',
   },
 
   jwt: {
-    accessSecret: process.env.JWT_ACCESS_SECRET as string,
-    refreshSecret: process.env.JWT_REFRESH_SECRET as string,
+    accessSecret: process.env.JWT_ACCESS_SECRET || '',
+    refreshSecret: process.env.JWT_REFRESH_SECRET || '',
     accessExpiresIn: process.env.JWT_ACCESS_EXPIRES_IN || '15m',
     refreshExpiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d',
   },
 
   mail: {
-    enabled: (process.env.MAIL_ENABLED ?? 'true').toLowerCase() === 'true',
-    // Support SMTP_* (preferred) or EMAIL_* aliases
-    host: process.env.SMTP_HOST || process.env.EMAIL_HOST || 'smtp.gmail.com',
-    port: parseInt(process.env.SMTP_PORT || process.env.EMAIL_PORT || '587', 10),
-    user: process.env.SMTP_USER || process.env.EMAIL_USER || '',
-    pass: process.env.SMTP_PASS || process.env.EMAIL_PASS || '',
-    from: process.env.MAIL_FROM || 'Vasanthi Creations <noreply@vasanthicreations.com>',
+    enabled: process.env.MAIL_ENABLED === 'true',
+    host: process.env.SMTP_HOST || '',
+    port: parseInt(process.env.SMTP_PORT || '587', 10),
+    user: process.env.SMTP_USER || '',
+    pass: process.env.SMTP_PASS || '',
+    from: process.env.MAIL_FROM || '',
   },
 
   razorpay: {
@@ -98,8 +93,8 @@ export const env = {
 
   rateLimit: {
     windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '900000', 10),
-    max: process.env.NODE_ENV === 'development' ? 10000 : parseInt(process.env.RATE_LIMIT_MAX || '100', 10),
-    authMax: process.env.NODE_ENV === 'development' ? 1000 : parseInt(process.env.AUTH_RATE_LIMIT_MAX || '10', 10),
+    max: parseInt(process.env.RATE_LIMIT_MAX || '100', 10),
+    authMax: parseInt(process.env.AUTH_RATE_LIMIT_MAX || '10', 10),
   },
 
   upload: {
@@ -110,19 +105,19 @@ export const env = {
   log: {
     level: process.env.LOG_LEVEL || 'info',
     dir: process.env.LOG_DIR || 'logs',
-    auditRetentionDays: parseInt(process.env.AUDIT_RETENTION_DAYS || '90', 10),
+    auditRetentionDays: 30,
   },
 
   seed: {
-    adminName: process.env.SEED_ADMIN_NAME || 'Super Admin',
-    adminEmail: process.env.SEED_ADMIN_EMAIL || 'admin@vasanthicreations.com',
-    adminPassword: process.env.SEED_ADMIN_PASSWORD || 'Admin@12345!',
+    adminName: process.env.SEED_ADMIN_NAME || 'Admin',
+    adminEmail: process.env.SEED_ADMIN_EMAIL || 'admin@gmail.com',
+    adminPassword: process.env.SEED_ADMIN_PASSWORD || 'Admin@123',
   },
 
   aws: {
     accessKeyId: process.env.AWS_ACCESS_KEY_ID || '',
     secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || '',
     region: process.env.AWS_REGION || 'ap-south-1',
-    s3BucketName: process.env.AWS_S3_BUCKET_NAME || 'vs-boutique-images',
+    s3BucketName: process.env.AWS_S3_BUCKET_NAME || '',
   },
 };

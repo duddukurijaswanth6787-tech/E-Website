@@ -1,7 +1,7 @@
 import { Worker, Job } from 'bullmq';
 import { env } from '../config/env';
 import { logger } from '../common/logger';
-import { workerConnection } from './cache';
+import { bullmqConnection } from '../config/redis';
 import { QUEUE_NAMES } from './queue.constants';
 
 /**
@@ -34,13 +34,13 @@ export const initWorkers = () => {
       // Throwing error triggers BullMQ exponential backoff retry logic
       throw err; 
     }
-  }, { connection: workerConnection, concurrency: 5 });
+  }, { connection: bullmqConnection, concurrency: 5 });
 
   // 2. WhatsApp Notification Engine Worker
   const whatsappWorker = new Worker(QUEUE_NAMES.WHATSAPP, async (job: Job) => {
     logger.info(`[Worker:WhatsApp] Dispatching dynamic notification payload to: ${job.data.to}`);
     // Simulated WhatsApp logic
-  }, { connection: workerConnection, concurrency: 3 });
+  }, { connection: bullmqConnection, concurrency: 3 });
 
   // 3. Razorpay Webhook & Payment Reconciliation Worker
   const webhookWorker = new Worker(QUEUE_NAMES.WEBHOOKS, async (job: Job) => {
@@ -59,13 +59,13 @@ export const initWorkers = () => {
       logger.error(`[Worker:Webhook] Critical failure in ${event} reconciliation: ${err.message}`);
       throw err;
     }
-  }, { connection: workerConnection, concurrency: 10 });
+  }, { connection: bullmqConnection, concurrency: 10 });
 
   // 4. Business Intelligence & Analytics Worker
   const analyticsWorker = new Worker(QUEUE_NAMES.ANALYTICS, async (job: Job) => {
     logger.debug(`[Worker:Analytics] Processing metric event: ${job.data.type}`);
     // Analytics processing logic
-  }, { connection: workerConnection, concurrency: 2 });
+  }, { connection: bullmqConnection, concurrency: 2 });
 
   // Error handling for all workers
   const workers = [emailWorker, whatsappWorker, webhookWorker, analyticsWorker];

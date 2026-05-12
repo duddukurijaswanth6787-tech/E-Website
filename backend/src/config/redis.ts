@@ -40,8 +40,6 @@ const REDIS_RETRY_STRATEGY = (times: number) => {
   return Math.min(times * 500, 30_000);
 };
 
-export const isRedisEnabled = (): boolean => !!env.redis.url;
-
 export const getRedisClient = (): Redis => {
   if (!redisClient) {
     if (!env.redis.url) {
@@ -193,6 +191,20 @@ export const connectRedis = async (): Promise<void> => {
     redisMetrics.status = 'error';
     redisMetrics.lastError = error.message;
   }
+};
+
+export const isRedisEnabled = (): boolean => true; // Always true now with fallback to localhost
+
+/**
+ * Standardized BullMQ Connection Object (Phase 5)
+ * Shared across all Queues, Workers, and Schedulers to optimize connection pooling.
+ */
+export const bullmqConnection = {
+  host: env.redis.url ? new URL(env.redis.url).hostname : '127.0.0.1',
+  port: env.redis.url ? parseInt(new URL(env.redis.url).port || '6379', 10) : 6379,
+  password: env.redis.url ? new URL(env.redis.url).password : undefined,
+  tls: env.redis.url?.startsWith('rediss://') ? {} : undefined,
+  maxRetriesPerRequest: null, // Required by BullMQ
 };
 
 export const disconnectRedis = async (): Promise<void> => {
