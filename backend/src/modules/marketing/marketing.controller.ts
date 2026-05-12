@@ -9,7 +9,7 @@ import { NotFoundError } from '../../common/errors';
 
 export const getMarketingStats = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const tenantId = req.tenantId;
+    const tenantId = (req as any).tenantId;
     const now = new Date();
     const todayStart = new Date(now.setHours(0, 0, 0, 0));
     
@@ -72,7 +72,7 @@ export const getMarketingStats = async (req: Request, res: Response, next: NextF
 export const getSalesTrends = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const { period = '7days' } = req.query;
-    const tenantId = req.tenantId;
+    const tenantId = (req as any).tenantId;
     let days = 7;
     if (period === '30days') days = 30;
     if (period === '90days') days = 90;
@@ -107,7 +107,7 @@ export const getSalesTrends = async (req: Request, res: Response, next: NextFunc
 // --- PROMO BLOCKS (M-3) ---
 export const getPromoBlocks = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const filters: any = { tenantId: req.tenantId };
+    const filters: any = { tenantId: (req as any).tenantId };
     if (req.query.placement) filters.placement = req.query.placement;
     if (req.query.isActive) filters.isActive = req.query.isActive === 'true';
 
@@ -118,7 +118,7 @@ export const getPromoBlocks = async (req: Request, res: Response, next: NextFunc
 
 export const createPromoBlock = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const block = await PromoBlock.create({ ...req.body, tenantId: req.tenantId, createdBy: req.admin?.adminId });
+    const block = await PromoBlock.create({ ...req.body, tenantId: (req as any).tenantId, createdBy: req.admin?.adminId });
     sendCreated(res, block);
   } catch (err) { next(err); }
 };
@@ -126,7 +126,7 @@ export const createPromoBlock = async (req: Request, res: Response, next: NextFu
 export const updatePromoBlock = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const block = await PromoBlock.findOneAndUpdate(
-      { _id: req.params.id, tenantId: req.tenantId }, 
+      { _id: req.params.id, tenantId: (req as any).tenantId }, 
       req.body, 
       { new: true }
     );
@@ -137,7 +137,7 @@ export const updatePromoBlock = async (req: Request, res: Response, next: NextFu
 
 export const deletePromoBlock = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const block = await PromoBlock.findOneAndDelete({ _id: req.params.id, tenantId: req.tenantId });
+    const block = await PromoBlock.findOneAndDelete({ _id: req.params.id, tenantId: (req as any).tenantId });
     if (!block) throw new NotFoundError('Promo Block');
     sendNoContent(res);
   } catch (err) { next(err); }
@@ -146,14 +146,14 @@ export const deletePromoBlock = async (req: Request, res: Response, next: NextFu
 // --- STICKY OFFERS (M-5) ---
 export const getStickyOffers = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const offers = await StickyOffer.find({ tenantId: req.tenantId }).sort({ createdAt: -1 }).lean();
+    const offers = await StickyOffer.find({ tenantId: (req as any).tenantId }).sort({ createdAt: -1 }).lean();
     sendSuccess(res, offers);
   } catch (err) { next(err); }
 };
 
 export const createStickyOffer = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const offer = await StickyOffer.create({ ...req.body, tenantId: req.tenantId });
+    const offer = await StickyOffer.create({ ...req.body, tenantId: (req as any).tenantId });
     sendCreated(res, offer);
   } catch (err) { next(err); }
 };
@@ -161,7 +161,7 @@ export const createStickyOffer = async (req: Request, res: Response, next: NextF
 export const updateStickyOffer = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const offer = await StickyOffer.findOneAndUpdate(
-      { _id: req.params.id, tenantId: req.tenantId }, 
+      { _id: req.params.id, tenantId: (req as any).tenantId }, 
       req.body, 
       { new: true }
     );
@@ -173,14 +173,14 @@ export const updateStickyOffer = async (req: Request, res: Response, next: NextF
 // --- FESTIVAL CAMPAIGNS (M-8) ---
 export const getFestivalCampaigns = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const campaigns = await FestivalCampaign.find({ tenantId: req.tenantId }).sort({ startDate: -1 }).lean();
+    const campaigns = await FestivalCampaign.find({ tenantId: (req as any).tenantId }).sort({ startDate: -1 }).lean();
     sendSuccess(res, campaigns);
   } catch (err) { next(err); }
 };
 
 export const createFestivalCampaign = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const campaign = await FestivalCampaign.create({ ...req.body, tenantId: req.tenantId });
+    const campaign = await FestivalCampaign.create({ ...req.body, tenantId: (req as any).tenantId });
     sendCreated(res, campaign);
   } catch (err) { next(err); }
 };
@@ -188,14 +188,14 @@ export const createFestivalCampaign = async (req: Request, res: Response, next: 
 // --- WELCOME BANNERS (M-17) ---
 export const getWelcomeBanners = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const banners = await WelcomeBanner.find({ tenantId: req.tenantId }).sort({ priority: -1, createdAt: -1 }).lean();
+    const banners = await WelcomeBanner.find({ tenantId: (req as any).tenantId }).sort({ priority: -1, createdAt: -1 }).lean();
     sendSuccess(res, banners);
   } catch (err) { next(err); }
 };
 
 export const createWelcomeBanner = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const banner = await WelcomeBanner.create({ ...req.body, tenantId: req.tenantId });
+    const banner = await WelcomeBanner.create({ ...req.body, tenantId: (req as any).tenantId });
     sendCreated(res, banner);
   } catch (err) { next(err); }
 };
@@ -203,7 +203,7 @@ export const createWelcomeBanner = async (req: Request, res: Response, next: Nex
 export const updateWelcomeBanner = async (req: Request, res: Response, next: NextFunction) => {
   try {
     const banner = await WelcomeBanner.findOneAndUpdate(
-      { _id: req.params.id, tenantId: req.tenantId },
+      { _id: req.params.id, tenantId: (req as any).tenantId },
       req.body,
       { new: true }
     );
@@ -214,7 +214,7 @@ export const updateWelcomeBanner = async (req: Request, res: Response, next: Nex
 
 export const deleteWelcomeBanner = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const banner = await WelcomeBanner.findOneAndDelete({ _id: req.params.id, tenantId: req.tenantId });
+    const banner = await WelcomeBanner.findOneAndDelete({ _id: req.params.id, tenantId: (req as any).tenantId });
     if (!banner) throw new NotFoundError('Welcome Banner');
     sendNoContent(res);
   } catch (err) { next(err); }
@@ -249,10 +249,10 @@ export const trackWelcomeBannerAction = async (req: Request, res: Response, next
 // --- ONBOARDING WIZARD (M-18) ---
 export const getOnboardingWizard = async (req: Request, res: Response, next: NextFunction) => {
   try {
-    let wizard = await OnboardingWizard.findOne({ tenantId: req.tenantId }).lean();
+    let wizard = await OnboardingWizard.findOne({ tenantId: (req as any).tenantId }).lean();
     if (!wizard) {
       wizard = {
-        tenantId: req.tenantId,
+        tenantId: (req as any).tenantId,
         isActive: false,
         steps: [
           {
@@ -294,7 +294,7 @@ export const saveOnboardingWizard = async (req: Request, res: Response, next: Ne
   try {
     const { isActive, steps } = req.body;
     const wizard = await OnboardingWizard.findOneAndUpdate(
-      { tenantId: req.tenantId },
+      { tenantId: (req as any).tenantId },
       { isActive, steps },
       { new: true, upsert: true }
     );

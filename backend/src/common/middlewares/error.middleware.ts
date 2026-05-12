@@ -24,7 +24,7 @@ export const globalErrorHandler = (
   _next: NextFunction,
 ): void => {
   const statusCode = err.statusCode || 500;
-  const requestId = req.id || (req as any).requestId || 'no-id';
+  const requestId = (req as any).id || (req as any).requestId || 'no-id';
 
   logger.error({
     requestId,

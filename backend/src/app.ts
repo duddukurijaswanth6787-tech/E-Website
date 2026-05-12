@@ -29,8 +29,8 @@ app.set('trust proxy', 1);
 
 // Phase 6: Request Correlation IDs Middleware
 app.use((req: Request, res: Response, next: NextFunction) => {
-  req.id = crypto.randomUUID();
-  res.setHeader('X-Request-ID', req.id);
+  (req as any).id = crypto.randomUUID();
+  res.setHeader('X-Request-ID', (req as any).id);
   next();
 });
 

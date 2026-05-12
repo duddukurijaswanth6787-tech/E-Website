@@ -22,7 +22,7 @@ router.get('/product/:productId', async (req: Request, res: Response, next: Next
     const { page, limit, skip } = parsePagination(req, 10);
     const [reviews, total] = await Promise.all([
       Review.find({ 
-        tenantId: req.tenantId,
+        tenantId: (req as any).tenantId,
         product: req.params.productId, 
         status: 'approved' 
       })
@@ -32,7 +32,7 @@ router.get('/product/:productId', async (req: Request, res: Response, next: Next
         .limit(limit)
         .lean(),
       Review.countDocuments({ 
-        tenantId: req.tenantId,
+        tenantId: (req as any).tenantId,
         product: req.params.productId, 
         status: 'approved' 
       }),
@@ -44,7 +44,7 @@ router.get('/product/:productId', async (req: Request, res: Response, next: Next
 // Social Proof: Get recent events for a product
 router.get('/social-proof/:productId?', async (req: Request, res: Response, next: NextFunction) => {
   try {
-    const filter: any = { tenantId: req.tenantId };
+    const filter: any = { tenantId: (req as any).tenantId };
     if (req.params.productId) filter['data.productId'] = req.params.productId;
     
     const events = await SocialProofEvent.find(filter)
@@ -61,7 +61,7 @@ router.post('/', authenticateUser, async (req: Request, res: Response, next: Nex
   try {
     const { productId, rating, title, body, images } = req.body;
     const existing = await Review.findOne({ 
-      tenantId: req.tenantId,
+      tenantId: (req as any).tenantId,
       product: productId, 
       user: req.user!.userId 
     });
@@ -74,7 +74,7 @@ router.post('/', authenticateUser, async (req: Request, res: Response, next: Nex
     }
 
     const review = await Review.create({
-      tenantId: req.tenantId,
+      tenantId: (req as any).tenantId,
       product: productId, 
       user: req.user!.userId,
       rating, 
@@ -92,7 +92,7 @@ router.post('/', authenticateUser, async (req: Request, res: Response, next: Nex
 router.get('/admin/stats', authenticateAdmin, requirePermission(PERMISSIONS.VIEW_ANALYTICS), async (req: Request, res: Response, next: NextFunction) => {
   try {
     const stats = await Review.aggregate([
-      { $match: { tenantId: req.tenantId } },
+      { $match: { tenantId: (req as any).tenantId } },
       {
         $group: {
           _id: '$status',

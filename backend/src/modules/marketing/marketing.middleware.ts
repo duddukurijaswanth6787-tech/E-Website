@@ -9,7 +9,7 @@ import { MarketingAuditLog } from './audit.model';
  */
 export const injectTenantId = (req: Request, _res: Response, next: NextFunction) => {
   const tenantId = req.headers['x-tenant-id'] || req.admin?.tenantId || 'vasanthi_main';
-  req.tenantId = tenantId as string;
+  (req as any).tenantId = tenantId as string;
   next();
 };
 
@@ -49,7 +49,7 @@ export const auditMarketingAction = (action: string) => {
   return async (req: Request, _res: Response, next: NextFunction) => {
     try {
       await MarketingAuditLog.create({
-        tenantId: req.tenantId,
+        tenantId: (req as any).tenantId,
         adminId: req.admin?.adminId,
         action,
         resource: req.originalUrl,
