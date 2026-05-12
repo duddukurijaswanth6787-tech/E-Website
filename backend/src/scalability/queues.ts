@@ -1,5 +1,6 @@
-import { Queue } from 'bullmq';
+import { Queue, QueueOptions } from 'bullmq';
 import { env } from '../config/env';
+import { QUEUE_NAMES } from './queue.constants';
 import { logger } from '../common/logger';
 
 const queueConfig = {
@@ -24,15 +25,15 @@ const queueConfig = {
   },
 };
 
-// Phase 2: Enterprise Distributed Queue Matrix Setup
+// Phase 4: Canonical Queue Exports
 export const queues = {
-  email: new Queue('vc:queue:email', queueConfig),
-  whatsapp: new Queue('vc:queue:whatsapp', queueConfig),
-  notifications: new Queue('vc:queue:notifications', queueConfig),
-  webhooks: new Queue('vc:queue:webhooks', queueConfig),
-  cleanup: new Queue('vc:queue:cleanup', queueConfig),
-  analytics: new Queue('vc:queue:analytics', queueConfig),
-  images: new Queue('vc:queue:images', queueConfig),
+  email: new Queue(QUEUE_NAMES.EMAIL, queueConfig),
+  whatsapp: new Queue(QUEUE_NAMES.WHATSAPP, queueConfig),
+  notifications: new Queue(QUEUE_NAMES.NOTIFICATIONS, queueConfig),
+  webhooks: new Queue(QUEUE_NAMES.WEBHOOKS, queueConfig),
+  cleanup: new Queue(QUEUE_NAMES.CLEANUP, queueConfig),
+  analytics: new Queue(QUEUE_NAMES.ANALYTICS, queueConfig),
+  images: new Queue(QUEUE_NAMES.IMAGES, queueConfig),
 };
 
 export const getQueueMetrics = async () => {

@@ -68,11 +68,11 @@ async function bootstrap() {
       console.log('');
       const { registerNotificationBridge } = await import('./modules/notifications/notification.bridge');
       const { CleanupScheduler } = await import('./modules/marketing/retention/cleanup.scheduler');
-      const { startBackgroundWorkers } = await import('./scalability/workers');
+      const { initWorkers } = await import('./scalability/workers');
       const { paymentReconciliationWorker } = await import('./workers/paymentReconciliation.worker');
       registerNotificationBridge();
       CleanupScheduler.init();
-      startBackgroundWorkers();
+      initWorkers();
       paymentReconciliationWorker.startWorkerLoop();
 
       prettyLog.httpItem('WHATSAPP', 'Cloud API → Connected', prettyLog.colors.green);
