@@ -5,15 +5,16 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    host: true,
+    host: '0.0.0.0',   // binds all interfaces — allows both localhost and LAN access
     port: 5173,
-    strictPort: false,
+    strictPort: true,   // ensures HMR port never silently shifts
     hmr: {
+      protocol: 'ws',
       host: 'localhost',
       port: 5173,
     },
     headers: {
-      'Cache-Control': 'public, max-age=31536000, immutable',
+      'Cache-Control': 'no-store', // use no-store in dev to prevent stale asset issues
     },
   },
   preview: {
