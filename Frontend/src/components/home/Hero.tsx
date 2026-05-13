@@ -56,9 +56,9 @@ const Hero = () => {
     if (queryData?.success && queryData.data && queryData.data.isPublished) {
       const fetched = queryData.data;
       setHeroData(fetched);
-      
+
       const validSlides = Array.isArray(fetched.slides) ? fetched.slides : [];
-      
+
       if (validSlides.length > 0) {
         const cleanedSlides = validSlides.map((s: any) => ({
           ...s,
@@ -104,8 +104,8 @@ const Hero = () => {
   const overlayOpacity = heroData?.overlayOpacity ?? 0.5;
 
   // Determine appropriate asset geometry based on viewport breakpoints
-  const currentBgSrc = (isMobile && currentSlide.mobileBackgroundImage) 
-    ? currentSlide.mobileBackgroundImage 
+  const currentBgSrc = (isMobile && currentSlide.mobileBackgroundImage)
+    ? currentSlide.mobileBackgroundImage
     : (currentSlide.backgroundImage || defaultSlide.backgroundImage);
 
   if (import.meta.env.DEV && slides.length > 0) {
@@ -113,7 +113,7 @@ const Hero = () => {
   }
 
   return (
-    <section 
+    <section
       className="relative w-full min-h-[100svh] min-h-[640px] overflow-hidden bg-neutral-black flex flex-col justify-center select-none"
     >
       {/* Background Image Layer - Cinematic Overlap Crossfade */}
@@ -129,16 +129,16 @@ const Hero = () => {
           {/* Preload all background images to eliminate transition lag */}
           <div className="hidden">
             {slides.map((s, i) => (
-              <img 
-                key={`preload-${i}`} 
-                src={(isMobile && s.mobileBackgroundImage) ? s.mobileBackgroundImage : (s.backgroundImage || defaultSlide.backgroundImage)} 
-                alt="preload" 
+              <img
+                key={`preload-${i}`}
+                src={(isMobile && s.mobileBackgroundImage) ? s.mobileBackgroundImage : (s.backgroundImage || defaultSlide.backgroundImage)}
+                alt="preload"
                 decoding="async"
                 fetchPriority={i === 0 ? "high" : "low"}
               />
             ))}
           </div>
-          
+
           <SafeImage
             key={`hero-asset-${currentIndex}`}
             src={currentBgSrc}
@@ -147,9 +147,9 @@ const Hero = () => {
             fallback={IMAGES.hero.desktop}
             fetchPriority={currentIndex === 0 ? "high" : "auto"}
           />
-          <div 
-            className="absolute inset-0 bg-black transition-opacity duration-1000" 
-            style={{ opacity: overlayOpacity }} 
+          <div
+            className="absolute inset-0 bg-black transition-opacity duration-1000"
+            style={{ opacity: overlayOpacity }}
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/40" />
         </motion.div>
@@ -158,7 +158,7 @@ const Hero = () => {
       {/* Primary Dynamic Content Column Overlay */}
       <div className="relative z-10 w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-28 sm:pt-32 sm:pb-36 flex flex-col justify-center min-h-[100svh]">
         <AnimatePresence mode="wait">
-          <motion.div 
+          <motion.div
             key={currentIndex}
             className="max-w-2xl mt-12 sm:mt-0"
             initial={{ opacity: 0, y: 20 }}
@@ -211,20 +211,20 @@ const Hero = () => {
 
       {/* Manual Floating Left/Right Carousel Side Controls */}
       {slides.length > 1 && (
-        <div className="absolute inset-y-0 inset-x-0 flex items-center justify-between px-3 sm:px-8 pointer-events-none z-20">
-          <button 
+        <div className="absolute inset-y-0 inset-x-0 hidden md:flex items-center justify-between px-3 sm:px-8 pointer-events-none z-20">
+          <button
             onClick={handlePrev}
             aria-label="Slide Previous"
-            className="pointer-events-auto p-3 sm:p-4 rounded-full bg-black/20 hover:bg-black/40 text-white/80 hover:text-white backdrop-blur-md border border-white/10 transition-all active:scale-95 shadow-xl hover:scale-105"
+            className="hidden md:block pointer-events-auto p-2 sm:p-2.5 rounded-full bg-black/20 hover:bg-black/40 text-white/80 hover:text-white backdrop-blur-md border border-white/10 transition-all active:scale-95 shadow-xl hover:scale-105"
           >
-            <ChevronLeft size={24} />
+            <ChevronLeft size={18} />
           </button>
-          <button 
+          <button
             onClick={handleNext}
             aria-label="Slide Next"
-            className="pointer-events-auto p-3 sm:p-4 rounded-full bg-black/20 hover:bg-black/40 text-white/80 hover:text-white backdrop-blur-md border border-white/10 transition-all active:scale-95 shadow-xl hover:scale-105"
+            className="hidden md:block pointer-events-auto p-2 sm:p-2.5 rounded-full bg-black/20 hover:bg-black/40 text-white/80 hover:text-white backdrop-blur-md border border-white/10 transition-all active:scale-95 shadow-xl hover:scale-105"
           >
-            <ChevronRight size={24} />
+            <ChevronRight size={18} />
           </button>
         </div>
       )}
@@ -237,9 +237,8 @@ const Hero = () => {
               key={idx}
               onClick={() => setCurrentIndex(idx)}
               aria-label={`Jump directly to creative view ${idx + 1}`}
-              className={`h-1.5 rounded-full transition-all duration-500 ${
-                idx === currentIndex ? 'w-8 bg-accent-light shadow-md' : 'w-2 bg-white/40 hover:bg-white/70'
-              }`}
+              className={`h-1.5 rounded-full transition-all duration-500 ${idx === currentIndex ? 'w-8 bg-accent-light shadow-md' : 'w-2 bg-white/40 hover:bg-white/70'
+                }`}
             />
           ))}
         </div>
