@@ -4,6 +4,7 @@ import { IMAGES } from '../../constants/assets';
 export interface SafeImageProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   fallback?: string;
   className?: string;
+  imgClassName?: string;
   aspectRatio?: 'portrait' | 'landscape' | 'square' | 'video' | 'auto';
 }
 
@@ -16,6 +17,7 @@ export const SafeImage: React.FC<SafeImageProps> = ({
   alt,
   fallback = IMAGES.placeholder,
   className = '',
+  imgClassName = '',
   aspectRatio = 'auto',
   srcSet,
   sizes,
@@ -72,7 +74,7 @@ export const SafeImage: React.FC<SafeImageProps> = ({
         }}
         className={`w-full h-full object-cover transition-opacity duration-700 ${
           loaded ? 'opacity-100' : 'opacity-0'
-        }`}
+        } ${imgClassName}`}
         {...props}
       />
     </div>
