@@ -43,17 +43,7 @@ export const SafeImage: React.FC<SafeImageProps> = React.memo(({
   // Derive stable fallback target ensuring absolute local bundling resilience
   const finalFallback = IMAGES.bundledFallback;
 
-  // Intercept hotlinked arrays and unseeded local paths instantly to silence console warnings
-  const getSanitizedUrl = (rawUrl: string | undefined) => {
-    if (!rawUrl) return finalFallback;
-    // Automatically map third-party hotlinking blocks directly to bundled physical master files
-    if (rawUrl.includes('unsplash.com')) return IMAGES.bundledFallback;
-    // If this URL is already in our failed cache, skip straight to fallback
-    if (_failedUrlCache.has(rawUrl)) return finalFallback;
-    return rawUrl;
-  };
-
-  const currentUrl = errorCount > 0 ? finalFallback : getSanitizedUrl(src);
+  const currentUrl = errorCount > 0 ? finalFallback : src;
 
   const getAspectClass = () => {
     switch (aspectRatio) {
@@ -66,8 +56,7 @@ export const SafeImage: React.FC<SafeImageProps> = React.memo(({
   };
 
   // Only attempt AVIF/WebP <picture> source hints when serving a real webp/avif
-  // (not for bundled PNG fallbacks which have a hash-based Vite path)
-  const isWebpTarget = currentUrl.includes('.webp') && errorCount === 0;
+  const isWebpTarget = !!currentUrl && currentUrl.includes('.webp') && errorCount === 0;
   const targetSrcSet = errorCount > 0 ? undefined : srcSet;
   const avifSrcSet = isWebpTarget && targetSrcSet ? targetSrcSet.replace(/\.webp/g, '.avif') : undefined;
   const webpSrcSet = isWebpTarget ? (targetSrcSet || undefined) : undefined;
@@ -75,7 +64,7 @@ export const SafeImage: React.FC<SafeImageProps> = React.memo(({
   return (
     <div className={`relative overflow-hidden bg-gray-100 ${getAspectClass()} ${className}`}>
       {/* Dynamic Native Skeleton Shimmer Wrapper */}
-      {!loaded && errorCount === 0 && (
+      {!loaded && (
         <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-gray-100 via-gray-200 to-gray-100" />
       )}
 
@@ -87,8 +76,8 @@ export const SafeImage: React.FC<SafeImageProps> = React.memo(({
           <source type="image/webp" srcSet={webpSrcSet} sizes={errorCount > 0 ? undefined : sizes} />
         )}
         <img
-          src={currentUrl}
-          alt={alt || 'Vasanthi Creations Asset'}
+          src={currentUrl || finalFallback}
+          alt={alt || 'Asset'}
           loading={fetchPriority === 'high' ? 'eager' : 'lazy'}
           fetchPriority={fetchPriority}
           decoding="async"
@@ -98,15 +87,15 @@ export const SafeImage: React.FC<SafeImageProps> = React.memo(({
             const failedUrl = src || '';
             // Add to module-level cache so future renders skip this URL immediately
             if (failedUrl) _failedUrlCache.add(failedUrl);
-            // Log only once, only in DEV, only for the first failure of this URL
+            
             if (!hasLoggedRef.current && import.meta.env.DEV) {
               hasLoggedRef.current = true;
-              console.warn(`[SafeImage] Asset load failed: ${failedUrl}`);
+              console.warn(`[SafeImage] Catching broken asset at runtime: ${failedUrl}`);
             }
             setErrorCount(1);
           }}
-          className={`w-full h-full object-cover relative z-10 transition-opacity duration-500 ${
-            loaded || errorCount > 0 ? 'opacity-100' : 'opacity-0'
+          className={`w-full h-full object-cover transition-opacity duration-500 ${
+            loaded ? 'opacity-100' : 'opacity-0'
           }`}
           {...props}
         />
