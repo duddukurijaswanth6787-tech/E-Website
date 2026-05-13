@@ -52,7 +52,12 @@ const FeaturedCategories = () => {
            const custom = settingsData.homepage_featured_categories;
            setHeader({ title: custom.title || 'Curated For You', subtitle: custom.subtitle || '' });
            if (custom.items && custom.items.length > 0) {
-              setCategories(custom.items);
+              const cleanedItems = custom.items.map((i: any) => ({
+                ...i,
+                // Automatically strip out dead Unsplash mockup URLs to prevent console 404 warnings
+                image: i.image?.includes('unsplash') ? '' : i.image
+              }));
+              setCategories(cleanedItems);
               setLoading(false);
               return;
            }

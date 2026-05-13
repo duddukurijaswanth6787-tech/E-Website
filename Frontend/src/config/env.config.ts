@@ -38,15 +38,16 @@ const normalizeApiUrl = (url: string): string => {
 };
 
 /**
- * Derives the Socket base URL from the API URL
+ * Derives the Socket base URL from the API URL, ensuring ws/wss protocol
  */
 const deriveSocketUrl = (apiUrl: string): string => {
   try {
     const url = new URL(apiUrl);
-    return `${url.protocol}//${url.host}`;
+    const wsProtocol = url.protocol === 'https:' ? 'wss:' : 'ws:';
+    return `${wsProtocol}//${url.host}`;
   } catch {
     // Fallback logic for non-standard URLs
-    return apiUrl.replace(/\/api(\/.*)?$/, '');
+    return apiUrl.replace(/\/api(\/.*)?$/, '').replace(/^http/, 'ws');
   }
 };
 

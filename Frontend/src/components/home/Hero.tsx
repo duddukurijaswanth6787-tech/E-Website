@@ -2,6 +2,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Link } from 'react-router-dom';
 import { ChevronDown, ChevronLeft, ChevronRight } from 'lucide-react';
 import { useState, useEffect } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { cmsService } from '../../api/services/cms.service';
 import { IMAGES } from '../../constants/assets';
 import { SafeImage } from '../common/SafeImage';
@@ -45,52 +46,43 @@ const Hero = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Replace useEffect fetch with instantaneous React Query
+  const { data: queryData } = useQuery({
+    queryKey: ['hero', 'storefront'],
+    queryFn: () => cmsService.getHeroSection(),
+  });
+
   useEffect(() => {
-    const abortController = new AbortController();
-
-    const fetchHeroData = async () => {
-      try {
-        const res = await cmsService.getHeroSection();
-        if (abortController.signal.aborted) return;
-
-        if (res?.success && res.data && res.data.isPublished) {
-          const fetched = res.data;
-          setHeroData(fetched);
-          
-          // Ensure slides array exists and has content
-          const validSlides = Array.isArray(fetched.slides) ? fetched.slides : [];
-          
-          if (validSlides.length > 0) {
-            setSlides(validSlides);
-          } else {
-            // Partial fetch success (published but empty slides): use defaults
-            setSlides([defaultSlide]);
-          }
-        } else {
-          // If drafted, offline, or unsuccessful: present the premium baseline layout fallback
-          setSlides([defaultSlide]);
-          setHeroData({ overlayOpacity: 0.5, autoplayInterval: 5 });
-        }
-      } catch (error: any) {
-        if (error.name === 'AbortError') return;
-        
-        // Critical fallback: always ensure UI renders even if network fails
+    if (queryData?.success && queryData.data && queryData.data.isPublished) {
+      const fetched = queryData.data;
+      setHeroData(fetched);
+      
+      const validSlides = Array.isArray(fetched.slides) ? fetched.slides : [];
+      
+      if (validSlides.length > 0) {
+        const cleanedSlides = validSlides.map((s: any) => ({
+          ...s,
+          backgroundImage: s.backgroundImage?.replace(/&amp;/g, '&'),
+          mobileBackgroundImage: s.mobileBackgroundImage?.replace(/&amp;/g, '&')
+        }));
+        setSlides(cleanedSlides);
+      } else {
         setSlides([defaultSlide]);
-        setHeroData({ overlayOpacity: 0.5, autoplayInterval: 5 });
-        
-        if (import.meta.env.DEV) {
-          console.warn('[Hero] Marketing engine utilizing fallback assets:', error.message);
-        }
       }
-    };
-    fetchHeroData();
-
-    return () => abortController.abort();
-  }, []);
+    } else if (queryData) {
+      // Data exists but failed validation
+      setSlides([defaultSlide]);
+      setHeroData({ overlayOpacity: 0.5, autoplayInterval: 5 });
+    }
+  }, [queryData]);
 
   // Automated Autoplay Cycle Engine
   useEffect(() => {
-    if (slides.length <= 1) return;
+    // Autoplay requires at least 2 slides and published state
+    if (slides.length <= 1) {
+      if (currentIndex !== 0) setCurrentIndex(0);
+      return;
+    }
 
     const intervalSeconds = heroData?.autoplayInterval || 5;
     const timer = setInterval(() => {
@@ -98,7 +90,7 @@ const Hero = () => {
     }, intervalSeconds * 1000);
 
     return () => clearInterval(timer);
-  }, [slides.length, heroData?.autoplayInterval]);
+  }, [slides.length, heroData?.autoplayInterval, currentIndex]);
 
   const handlePrev = () => {
     setCurrentIndex(prev => (prev - 1 + slides.length) % slides.length);
@@ -116,30 +108,50 @@ const Hero = () => {
     ? currentSlide.mobileBackgroundImage 
     : (currentSlide.backgroundImage || defaultSlide.backgroundImage);
 
+  if (import.meta.env.DEV && slides.length > 0) {
+    console.log(`[Hero] Slide ${currentIndex + 1}/${slides.length} | Asset:`, currentBgSrc);
+  }
+
   return (
     <section 
       className="relative w-full min-h-[100svh] min-h-[640px] overflow-hidden bg-neutral-black flex flex-col justify-center select-none"
     >
-      <AnimatePresence mode="wait">
+      {/* Background Image Layer - Cinematic Overlap Crossfade */}
+      <AnimatePresence initial={false}>
         <motion.div
-          key={currentIndex}
-          className="absolute inset-0"
-          initial={{ opacity: 0, x: 40 }}
-          animate={{ opacity: 1, x: 0 }}
-          exit={{ opacity: 0, x: -40 }}
-          transition={{ duration: 0.7, ease: 'easeOut' }}
+          key={`hero-slide-bg-${currentIndex}`}
+          className="absolute inset-0 z-0"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 1.8, ease: "easeInOut" }}
         >
-          <SafeImage 
+          {/* Preload all background images to eliminate transition lag */}
+          <div className="hidden">
+            {slides.map((s, i) => (
+              <img 
+                key={`preload-${i}`} 
+                src={(isMobile && s.mobileBackgroundImage) ? s.mobileBackgroundImage : (s.backgroundImage || defaultSlide.backgroundImage)} 
+                alt="preload" 
+                decoding="async"
+                fetchPriority={i === 0 ? "high" : "low"}
+              />
+            ))}
+          </div>
+          
+          <SafeImage
+            key={`hero-asset-${currentIndex}`}
             src={currentBgSrc}
-            srcSet={`${IMAGES.hero.mobile} 640w, ${IMAGES.hero.tablet} 1024w, ${IMAGES.hero.desktop} 1920w`}
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 100vw, 100vw"
             alt={`Vasanthi Creations Creative Display - Slide ${currentIndex + 1}`}
             className="absolute inset-0 w-full h-full"
             fallback={IMAGES.hero.desktop}
             fetchPriority={currentIndex === 0 ? "high" : "auto"}
           />
-          <div className="absolute inset-0 bg-black transition-opacity duration-700" style={{ opacity: overlayOpacity }} />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/10 to-black/40" />
+          <div 
+            className="absolute inset-0 bg-black transition-opacity duration-1000" 
+            style={{ opacity: overlayOpacity }} 
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-black/40" />
         </motion.div>
       </AnimatePresence>
 

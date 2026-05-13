@@ -8,12 +8,11 @@ export const PageTracker = () => {
   const lastPath = useRef<string>('');
 
   useEffect(() => {
-    // Only track if path actually changed (prevents StrictMode double-trigger)
     if (lastPath.current === location.pathname) return;
     lastPath.current = location.pathname;
     
-    trackEvent('page_view');
-  }, [location.pathname, trackEvent]);
+    trackEvent('page_view', { path: location.pathname });
+  }, [location.pathname]);
 
   return null;
 };

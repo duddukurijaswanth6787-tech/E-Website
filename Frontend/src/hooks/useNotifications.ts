@@ -2,7 +2,7 @@ import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-q
 import api from '../lib/api';
 import { useNotificationStore } from '../realtime/notificationStore';
 
-const API_BASE = '/api/v1/notifications';
+const API_BASE = '/notifications';
 
 export const useNotifications = () => {
   const queryClient = useQueryClient();
@@ -21,6 +21,11 @@ export const useNotifications = () => {
       return page * limit < total ? page + 1 : undefined;
     },
     initialPageParam: 1,
+    staleTime: 60000,
+    refetchInterval: false,
+    refetchOnWindowFocus: false,
+    refetchOnMount: false,
+    refetchOnReconnect: false,
   });
 
   // Mark single as read

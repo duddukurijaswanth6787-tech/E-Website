@@ -20,9 +20,29 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// Request Interceptor: Attach Token
+// Pending request map to prevent duplicate concurrent API requests
+const pendingRequests = new Map();
+
+const generateRequestKey = (config: any) => {
+  return `${config.method}:${config.url}?${JSON.stringify(config.params || {})}:${JSON.stringify(config.data || {})}`;
+};
+
+// Request Interceptor: Attach Token & Deduplicate
 api.interceptors.request.use(
   (config) => {
+    // 1. Deduplication Check
+    const requestKey = generateRequestKey(config);
+    if (pendingRequests.has(requestKey)) {
+      const controller = new AbortController();
+      config.signal = controller.signal;
+      controller.abort('Duplicate Request Cancelled');
+    } else {
+      pendingRequests.set(requestKey, true);
+    }
+    // Attach key for cleanup
+    (config as any)._requestKey = requestKey;
+
+    // 2. Auth Flow
     const token = useAuthStore.getState().token;
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -46,10 +66,20 @@ api.interceptors.request.use(
 // Response Interceptor: Graceful Error Normalization & Token Refresh
 api.interceptors.response.use(
   (response) => {
+    if ((response.config as any)._requestKey) {
+      pendingRequests.delete((response.config as any)._requestKey);
+    }
     logger.api(response.config.method || 'get', response.config.url || '', response.status);
     return response.data;
   },
   async (error) => {
+    if (error.config && (error.config as any)._requestKey) {
+      pendingRequests.delete((error.config as any)._requestKey);
+    }
+    if (axios.isCancel(error)) {
+      return Promise.reject(error);
+    }
+
     const originalRequest = error.config;
     const status = error.response?.status;
     const url = originalRequest?.url || '';

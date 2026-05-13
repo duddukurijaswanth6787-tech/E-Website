@@ -59,8 +59,14 @@ export const cmsService = {
       hero = new CmsHero(cleanData);
     } else {
       hero.set(cleanData);
+      
+      // Explicitly enforce critical flags to ensure persistence across Mongoose internal versioning
+      if (cleanData.isPublished !== undefined) {
+        hero.isPublished = !!cleanData.isPublished;
+      }
+
       // Sync root properties to the first slide or vice versa to preserve fallback query reliability
-      if (cleanData.slides && cleanData.slides.length > 0) {
+      if (cleanData.slides && Array.isArray(cleanData.slides) && cleanData.slides.length > 0) {
         const first = cleanData.slides[0];
         hero.titleLine1 = first.titleLine1;
         hero.titleLine2 = first.titleLine2;
@@ -72,10 +78,15 @@ export const cmsService = {
         hero.primaryButtonLink = first.primaryButtonLink || '/shop';
         hero.secondaryButtonText = first.secondaryButtonText;
         hero.secondaryButtonLink = first.secondaryButtonLink;
+
+        // Force Mongoose to recognize the deep array replacement
+        hero.markModified('slides');
       }
+
       if (cleanData.autoplayInterval) hero.autoplayInterval = Number(cleanData.autoplayInterval);
       if (cleanData.overlayOpacity !== undefined) hero.overlayOpacity = Number(cleanData.overlayOpacity);
     }
+
     hero.updatedBy = adminId as any;
     await hero.save();
     return hero;

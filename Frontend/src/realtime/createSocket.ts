@@ -24,12 +24,12 @@ export const createErpSocket = ({
   const url = `${baseUrl}${namespace}`;
   const socket = io(url, {
     path: '/socket.io',
-    transports: ['websocket', 'polling'],
+    transports: ['websocket'],
     autoConnect: false,
     reconnection: true,
-    reconnectionAttempts: Infinity,
-    reconnectionDelay: 1_000,
-    reconnectionDelayMax: 10_000,
+    reconnectionAttempts: 5,
+    reconnectionDelay: 2000,
+    timeout: 10000,
     withCredentials: true,
     auth: (cb) => {
       cb({ token: getToken() ?? '' });

@@ -1,4 +1,3 @@
-import React from 'react'
 import ReactDOM from 'react-dom/client'
 import { Toaster } from 'react-hot-toast'
 import { HelmetProvider } from 'react-helmet-async'
@@ -12,8 +11,12 @@ import './index.css'
 const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
-      refetchOnWindowFocus: false,
+      staleTime: 30000,
+      gcTime: 300000,
       retry: 1,
+      refetchOnWindowFocus: false,
+      refetchOnReconnect: false,
+      refetchOnMount: false,
     },
   },
 })
@@ -21,7 +24,6 @@ const queryClient = new QueryClient({
 import { SEOProvider } from './context/SEOContext'
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
     <ErrorBoundary>
       <HelmetProvider>
         <QueryClientProvider client={queryClient}>
@@ -47,5 +49,4 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
         }}
       />
     </ErrorBoundary>
-  </React.StrictMode>
 )

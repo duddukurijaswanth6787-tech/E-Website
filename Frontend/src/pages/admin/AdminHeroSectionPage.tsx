@@ -134,6 +134,8 @@ export default function AdminHeroSectionPage() {
   };
 
   const handleSave = async () => {
+    if (saving) return;
+    
     // Validate current slides
     for (let i = 0; i < formData.slides.length; i++) {
       const s = formData.slides[i];
