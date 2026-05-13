@@ -89,19 +89,19 @@ export interface OnboardingWizard {
 }
 
 export const marketingService = {
-  // M-3 Promo Blocks
-  getPromoBlocks: (params?: any) => publicClient.get<PromoBlock[]>('/marketing/promo-blocks', { params }),
+  // M-3 Promo Blocks (Admin-only CRUD)
+  getPromoBlocks: (params?: any) => api.get<PromoBlock[]>('/marketing/promo-blocks', { params }),
   createPromoBlock: (data: Partial<PromoBlock>) => api.post<PromoBlock>('/marketing/promo-blocks', data),
   updatePromoBlock: (id: string, data: Partial<PromoBlock>) => api.put<PromoBlock>(`/marketing/promo-blocks/${id}`, data),
   deletePromoBlock: (id: string) => api.delete(`/marketing/promo-blocks/${id}`),
 
-  // M-5 Sticky Offers
-  getStickyOffers: () => publicClient.get<StickyOffer[]>('/marketing/sticky-offers'),
+  // M-5 Sticky Offers (Admin-only CRUD)
+  getStickyOffers: () => api.get<StickyOffer[]>('/marketing/sticky-offers'),
   createStickyOffer: (data: Partial<StickyOffer>) => api.post<StickyOffer>('/marketing/sticky-offers', data),
   updateStickyOffer: (id: string, data: Partial<StickyOffer>) => api.put<StickyOffer>(`/marketing/sticky-offers/${id}`, data),
 
-  // M-8 Festival Campaigns
-  getFestivalCampaigns: () => publicClient.get<FestivalCampaign[]>('/marketing/festivals'),
+  // M-8 Festival Campaigns (Admin-only CRUD)
+  getFestivalCampaigns: () => api.get<FestivalCampaign[]>('/marketing/festivals'),
   createFestivalCampaign: (data: Partial<FestivalCampaign>) => api.post<FestivalCampaign>('/marketing/festivals', data),
 
   // Dashboard Stats
@@ -138,14 +138,19 @@ export const marketingService = {
   createAutomationRule: (data: any) => api.post('/marketing/automation-rules', data),
 
   // M-17 Welcome Banners
-  getWelcomeBanners: () => publicClient.get<WelcomeBanner[]>('/marketing/welcome-banners'),
+  // Admin CRUD — uses authenticated api client
+  getWelcomeBanners: () => api.get<WelcomeBanner[]>('/marketing/welcome-banners'),
   createWelcomeBanner: (data: Partial<WelcomeBanner>) => api.post<WelcomeBanner>('/marketing/welcome-banners', data),
   updateWelcomeBanner: (id: string, data: Partial<WelcomeBanner>) => api.put<WelcomeBanner>(`/marketing/welcome-banners/${id}`, data),
   deleteWelcomeBanner: (id: string) => api.delete(`/marketing/welcome-banners/${id}`),
+  // Storefront READ — uses publicClient (no auth required)
+  getActiveWelcomeBanners: () => publicClient.get<WelcomeBanner[]>('/marketing/welcome-banners/active'),
 
   // M-18 Onboarding Wizard
+  // Admin CRUD — uses authenticated api client
   getOnboardingWizard: () => api.get<OnboardingWizard>('/marketing/onboarding-wizard'),
   saveOnboardingWizard: (data: { isActive: boolean; steps: OnboardingWizardStep[] }) => api.put<OnboardingWizard>('/marketing/onboarding-wizard', data),
+  // Storefront READ — uses publicClient (no auth required)
   getActiveOnboardingWizard: () => publicClient.get<OnboardingWizard>('/marketing/onboarding-wizard/active'),
 };
 
