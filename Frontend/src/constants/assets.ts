@@ -12,20 +12,21 @@ export const IMAGES = {
   favicon: "/favicon.ico",
 
   // Homepage Hero & Banners
+  // Using the bundled PNG directly — webp/avif variants are not yet generated
   hero: {
-    desktop: "/images/hero/hero-desktop.webp",
-    tablet: "/images/hero/hero-tablet.webp",
-    mobile: "/images/hero/hero-mobile.webp",
+    desktop: heroLocal,
+    tablet: heroLocal,
+    mobile: heroLocal,
   },
   heroAvif: {
-    desktop: "/images/hero/hero-desktop.avif",
-    tablet: "/images/hero/hero-tablet.avif",
-    mobile: "/images/hero/hero-mobile.avif",
+    desktop: heroLocal,
+    tablet: heroLocal,
+    mobile: heroLocal,
   },
   heroBlur: {
-    desktop: "/images/hero/hero-desktop-blur.webp",
-    tablet: "/images/hero/hero-tablet-blur.webp",
-    mobile: "/images/hero/hero-mobile-blur.webp",
+    desktop: heroLocal,
+    tablet: heroLocal,
+    mobile: heroLocal,
   },
   banners: {
     welcome: "/images/banners/welcome.webp",

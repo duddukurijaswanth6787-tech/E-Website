@@ -8,6 +8,10 @@ export default defineConfig({
     host: true,
     port: 5173,
     strictPort: false,
+    hmr: {
+      host: 'localhost',
+      port: 5173,
+    },
     headers: {
       'Cache-Control': 'public, max-age=31536000, immutable',
     },
