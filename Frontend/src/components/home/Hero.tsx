@@ -255,7 +255,7 @@ const Hero = () => {
       >
         <span className="text-[0.6rem] sm:text-[0.65rem] tracking-[0.3em] uppercase font-medium">Scroll</span>
         <div className="w-[18px] sm:w-[22px] h-7 sm:h-9 rounded-full border border-white/40 flex justify-center pt-1 sm:pt-2 animate-float-y">
-          <ChevronDown size={12} sm:size={14} className="text-white/70" strokeWidth={2} />
+          <ChevronDown size={isMobile ? 12 : 14} className="text-white/70" strokeWidth={2} />
         </div>
       </motion.div>
     </section>
